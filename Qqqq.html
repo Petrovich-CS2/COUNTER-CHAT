@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>CALLOUT — CS2 разговорник</title>
+<style>
+:root{
+  --bg-page:#05070a;
+  --bg-surface:#181c22;
+  --bg-elevated:#20252c;
+  --bg-elevated-2:#262c34;
+  --line:rgba(255,255,255,.07);
+  --line-strong:rgba(255,255,255,.14);
+  --t-orange:#d6903a;
+  --ct-blue:#5b93c9;
+  --site-a:#e0a84a;
+  --site-b:#48b6c2;
+  --text-primary:#eae7e0;
+  --text-muted:#8b9199;
+  --text-faint:#565c64;
+  --danger:#c1503f;
+  --font-mono:ui-monospace,'SF Mono',Menlo,Consolas,'Courier New',monospace;
+  --font-body:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    radial-gradient(ellipse at 50% -10%, #131720 0%, var(--bg-page) 60%);
+  font-family:var(--font-body);
+  color:var(--text-primary);
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:28px 12px;
+}
+
+/* ===== phone frame ===== */
+.phone{
+  position:relative;
+  width:390px;
+  max-width:100%;
+  height:812px;
+  max-height:92vh;
+  background:#000;
+  border-radius:52px;
+  padding:14px;
+  box-shadow:
+    0 0 0 2px #2a2e35,
+    0 30px 60px -20px rgba(0,0,0,.7),
+    0 0 80px -30px rgba(214,144,58,.15);
+}
+.phone-inner{
+  position:relative;
+  width:100%;
+  height:100%;
+  background:var(--bg-page);
+  border-radius:38px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+.dynamic-island{
+  position:absolute;
+  top:14px; left:50%; transform:translateX(-50%);
+  width:100px; height:28px;
+  background:#000;
+  border-radius:20px;
+  z-index:50;
+}
+.statusbar{
+  position:relative;
+  z-index:40;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:16px 26px 4px;
+  font-family:var(--font-mono);
+  font-size:13px;
+  font-weight:600;
+  color:var(--text-primary);
+  flex-shrink:0;
+}
+.statusbar .icons{display:flex; gap:5px; align-items:center;}
+
+/* ===== app shell ===== */
+.app{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+}
+.app-header{
+  padding:6px 20px 14px;
+  flex-shrink:0;
+  border-bottom:1px solid var(--line);
+}
+.brand-row{display:flex; align-items:center; gap:11px;}
+.brand-mark{
+  width:38px; height:38px;
+  border-radius:11px;
+  background:linear-gradient(140deg, var(--t-orange), #a9631d);
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-mono); font-weight:700; font-size:13px;
+  color:#1a1006;
+  flex-shrink:0;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 4px 12px -4px rgba(214,144,58,.6);
+}
+.brand-title{
+  font-family:var(--font-mono);
+  font-weight:700;
+  font-size:17px;
+  letter-spacing:.06em;
+  line-height:1.15;
+}
+.brand-sub{
+  font-size:11.5px;
+  color:var(--text-muted);
+  margin-top:2px;
+}
+
+/* ===== screens ===== */
+.screen{
+  flex:1;
+  overflow-y:auto;
+  padding:14px 16px 18px;
+  -webkit-overflow-scrolling:touch;
+}
+.screen::-webkit-scrollbar{display:none;}
+
+/* search */
+.search-row{
+  display:flex; align-items:center; gap:9px;
+  background:var(--bg-surface);
+  border:1px solid var(--line);
+  border-radius:13px;
+  padding:10px 13px;
+  margin-bottom:14px;
+}
+.search-row svg{flex-shrink:0; opacity:.5;}
+.search-row input{
+  background:none; border:none; outline:none;
+  color:var(--text-primary);
+  font-family:var(--font-body);
+  font-size:14.5px;
+  width:100%;
+}
+.search-row input::placeholder{color:var(--text-faint);}
+
+/* category / accordion */
+.category{
+  border:1px solid var(--line);
+  border-radius:15px;
+  background:var(--bg-surface);
+  margin-bottom:10px;
+  overflow:hidden;
+}
+.category-head{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:13px 15px;
+  cursor:pointer;
+  user-select:none;
+}
+.category-head-left{display:flex; align-items:center; gap:10px;}
+.category-dot{width:7px; height:7px; border-radius:50%; background:var(--t-orange); flex-shrink:0;}
+.category-title{font-size:14.5px; font-weight:700;}
+.category-count{
+  font-family:var(--font-mono);
+  font-size:11px; color:var(--text-faint);
+}
+.category-chevron{
+  transition:transform .25s ease;
+  opacity:.6;
+}
+.category.open .category-chevron{transform:rotate(180deg);}
+.category-body{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height .3s ease;
+}
+.category.open .category-body{max-height:2000px;}
+.category-body-inner{padding:0 12px 12px;}
+
+.phrase{
+  background:var(--bg-elevated);
+  border:1px solid var(--line);
+  border-radius:11px;
+  padding:11px 12px;
+  margin-top:8px;
+  cursor:pointer;
+  transition:background .15s ease, border-color .15s ease;
+  position:relative;
+}
+.phrase:active{background:var(--bg-elevated-2); border-color:var(--line-strong);}
+.phrase-en{
+  font-family:var(--font-mono);
+  font-weight:600;
+  font-size:14px;
+  color:#f2c98a;
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+}
+.phrase-en > span{flex:1; min-width:0;}
+.phrase-icons{display:flex; align-items:center; gap:4px; flex-shrink:0;}
+.icon-btn{
+  background:rgba(214,144,58,.12);
+  border:1px solid rgba(214,144,58,.28);
+  border-radius:8px;
+  width:26px; height:26px;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+  flex-shrink:0;
+  transition:background .15s ease, transform .1s ease;
+}
+.icon-btn:active{transform:scale(.9); background:rgba(214,144,58,.25);}
+.icon-btn.playing{background:rgba(214,144,58,.4); animation:pulse 1s ease-in-out infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(214,144,58,.4);} 50%{box-shadow:0 0 0 5px rgba(214,144,58,0);}}
+.phrase-translit{
+  font-size:10.5px;
+  color:var(--text-faint);
+  margin-top:3px;
+  font-style:italic;
+}
+.phrase-ru{
+  font-size:13px;
+  color:var(--text-muted);
+  margin-top:5px;
+  line-height:1.4;
+}
+.copy-ico{opacity:.35; flex-shrink:0;}
+
+/* maps screen */
+.map-chip-row{
+  display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; margin-bottom:14px;
+  scrollbar-width:none;
+}
+.map-chip-row::-webkit-scrollbar{display:none;}
+.map-chip{
+  font-family:var(--font-mono);
+  font-size:12px; font-weight:600;
+  padding:8px 14px;
+  border-radius:20px;
+  background:var(--bg-surface);
+  border:1px solid var(--line);
+  color:var(--text-muted);
+  white-space:nowrap;
+  cursor:pointer;
+  flex-shrink:0;
+  transition:all .15s ease;
+}
+.map-chip.active{
+  background:linear-gradient(140deg, var(--t-orange), #a9631d);
+  color:#1a1006;
+  border-color:transparent;
+}
+
+.schematic-card{
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:var(--bg-surface);
+  padding:14px 14px 6px;
+}
+.schematic-head{
+  display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px;
+}
+.map-name{font-family:var(--font-mono); font-weight:700; font-size:15px; letter-spacing:.03em;}
+.schematic-hint{font-size:10px; color:var(--text-faint);}
+
+.legend{display:flex; gap:14px; margin-bottom:10px;}
+.legend-item{display:flex; align-items:center; gap:5px; font-size:10.5px; color:var(--text-muted); font-family:var(--font-mono);}
+.legend-dot{width:8px; height:8px; border-radius:50%;}
+
+.schematic{
+  position:relative;
+  width:100%;
+  aspect-ratio:1/1.15;
+  border-radius:12px;
+  background:
+    repeating-linear-gradient(0deg, rgba(255,255,255,.035) 0 1px, transparent 1px 25px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.035) 0 1px, transparent 1px 25px),
+    linear-gradient(160deg, #14181e, #0b0d11);
+  border:1px solid var(--line-strong);
+  overflow:hidden;
+  margin-bottom:10px;
+}
+.zone-glow{
+  position:absolute;
+  border-radius:50%;
+  filter:blur(22px);
+  opacity:.22;
+  pointer-events:none;
+  z-index:1;
+  transform:translate(-50%,-50%);
+}
+.zone-outline{
+  position:absolute;
+  border-radius:16px;
+  pointer-events:none;
+  z-index:1;
+  transform:translate(-50%,-50%);
+  border:1px dashed;
+  opacity:.35;
+}
+.route-svg{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:2;
+  pointer-events:none;
+}
+.route-line{
+  fill:none;
+  stroke-width:.9;
+  stroke-linecap:round;
+  opacity:.55;
+  vector-effect:non-scaling-stroke;
+}
+.pin{
+  position:absolute;
+  transform:translate(-50%,-50%);
+  display:flex; flex-direction:column; align-items:center;
+  cursor:pointer;
+  z-index:5;
+}
+.pin-dot{
+  width:11px; height:11px;
+  border-radius:50%;
+  border:2px solid var(--bg-page);
+  box-shadow:0 0 0 1px var(--line-strong), 0 2px 6px rgba(0,0,0,.5);
+  transition:transform .15s ease;
+}
+.pin:active .pin-dot{transform:scale(1.3);}
+.pin-label{
+  font-family:var(--font-mono);
+  font-size:8.6px;
+  font-weight:600;
+  color:var(--text-primary);
+  background:rgba(5,7,10,.72);
+  padding:2px 5px;
+  border-radius:5px;
+  margin-top:3px;
+  white-space:nowrap;
+  border:1px solid var(--line);
+  pointer-events:none;
+}
+.pin.selected .pin-dot{transform:scale(1.4); box-shadow:0 0 0 3px rgba(234,231,224,.25);}
+
+.info-panel{
+  border:1px solid var(--line-strong);
+  border-radius:14px;
+  background:var(--bg-elevated);
+  padding:13px 14px 14px;
+  margin-bottom:8px;
+  animation:slideUp .2s ease;
+}
+@keyframes slideUp{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+.info-panel-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;}
+.info-panel-name{font-family:var(--font-mono); font-weight:700; font-size:15px;}
+.info-panel-tag{
+  font-family:var(--font-mono); font-size:9.5px; font-weight:700;
+  padding:2px 7px; border-radius:6px; letter-spacing:.04em;
+}
+.info-panel-desc{font-size:13px; color:var(--text-muted); line-height:1.5;}
+.info-close{opacity:.5; cursor:pointer;}
+
+/* tab bar */
+.tabbar{
+  flex-shrink:0;
+  display:flex;
+  border-top:1px solid var(--line);
+  background:rgba(10,12,15,.9);
+  backdrop-filter:blur(10px);
+  padding:9px 10px calc(9px + env(safe-area-inset-bottom, 12px));
+}
+.tab-btn{
+  flex:1;
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+  background:none; border:none;
+  color:var(--text-faint);
+  font-family:var(--font-body);
+  font-size:10.5px;
+  font-weight:600;
+  padding:4px 0;
+  cursor:pointer;
+}
+.tab-btn svg{stroke:var(--text-faint); transition:stroke .15s ease;}
+.tab-btn.active{color:var(--t-orange);}
+.tab-btn.active svg{stroke:var(--t-orange);}
+
+/* toast */
+.toast{
+  position:fixed;
+  bottom:40px; left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:#eae7e0;
+  color:#12151a;
+  font-family:var(--font-mono);
+  font-size:12.5px;
+  font-weight:600;
+  padding:10px 16px;
+  border-radius:11px;
+  opacity:0;
+  pointer-events:none;
+  transition:all .25s ease;
+  z-index:999;
+  max-width:280px;
+  text-align:center;
+  box-shadow:0 10px 30px -8px rgba(0,0,0,.5);
+}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="phone-inner">
+    <div class="dynamic-island"></div>
+    <div class="statusbar">
+      <span>9:41</span>
+      <div class="icons">
+        <svg width="16" height="11" viewBox="0 0 16 11" fill="none"><rect x="0" y="6" width="3" height="5" rx="1" fill="#eae7e0"/><rect x="4.5" y="4" width="3" height="7" rx="1" fill="#eae7e0"/><rect x="9" y="2" width="3" height="9" rx="1" fill="#eae7e0"/><rect x="13.5" y="0" width="3" height="11" rx="1" fill="#eae7e0"/></svg>
+        <svg width="22" height="11" viewBox="0 0 22 11" fill="none"><rect x="1" y="1" width="18" height="9" rx="2.5" stroke="#eae7e0" stroke-width="1"/><rect x="2.5" y="2.5" width="14" height="6" rx="1.3" fill="#eae7e0"/><rect x="20" y="3.5" width="1.5" height="4" rx="0.7" fill="#eae7e0"/></svg>
+      </div>
+    </div>
+
+    <div class="app">
+      <header class="app-header">
+        <div class="brand-row">
+          <div class="brand-mark">CO</div>
+          <div>
+            <div class="brand-title">CALLOUT</div>
+            <div class="brand-sub">EN-коммуникация и позиции карт · CS2</div>
+          </div>
+        </div>
+      </header>
+
+      <!-- PHRASES SCREEN -->
+      <div class="screen" id="screen-phrases">
+        <div class="search-row">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#eae7e0" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="searchInput" placeholder="Найти фразу...">
+        </div>
+        <div id="categoriesWrap"></div>
+      </div>
+
+      <!-- MAPS SCREEN -->
+      <div class="screen" id="screen-maps" hidden>
+        <div class="map-chip-row" id="mapChips"></div>
+
+        <div class="schematic-card">
+          <div class="schematic-head">
+            <div class="map-name" id="mapName">—</div>
+            <div class="schematic-hint">упрощённая схема</div>
+          </div>
+          <div class="legend">
+            <div class="legend-item"><span class="legend-dot" style="background:var(--site-a)"></span>Сайт A</div>
+            <div class="legend-item"><span class="legend-dot" style="background:var(--site-b)"></span>Сайт B</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#7b828c"></span>Нейтрально</div>
+          </div>
+          <div class="schematic" id="schematic"></div>
+        </div>
+
+        <div class="info-panel" id="infoPanel" hidden></div>
+      </div>
+
+      <nav class="tabbar">
+        <button class="tab-btn active" data-tab="phrases">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          <span>Фразы</span>
+        </button>
+        <button class="tab-btn" data-tab="maps">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+          <span>Карты</span>
+        </button>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= DATA: PHRASES ================= */
+const categories = [
+  { id:'greetings', title:'Приветствия и прощания', phrases:[
+    {en:"Hi", translit:"хай", ru:"Привет"},
+    {en:"Hey, what's up?", translit:"хэй, вотс ап", ru:"Привет, как дела?"},
+    {en:"gl hf", translit:"джи-эл эйч-эф", ru:"«Удачи, повеселимся» — говорят перед началом матча (good luck, have fun)"},
+    {en:"Welcome back", translit:"уэл-кам бэк", ru:"С возвращением — когда игрок переподключился"},
+    {en:"Glad to have you", translit:"глэд ту хэв ю", ru:"Рад, что ты с нами (например, замене в команде)"},
+    {en:"brb", translit:"би-ар-би", ru:"«Сейчас вернусь» — отойти ненадолго (be right back)"},
+    {en:"gtg", translit:"джи-ти-джи", ru:"«Мне пора» — нужно уходить (got to go)"},
+    {en:"bb", translit:"би-би", ru:"«Пока» — когда игрок покидает лобби (bye bye)"},
+    {en:"See you next round", translit:"си ю нэкст раунд", ru:"Увидимся в следующем раунде"},
+    {en:"Take care, gg", translit:"тейк кэа джи-джи", ru:"Берегите себя, хорошая игра — прощание после матча"},
+    {en:"Hello", translit:"хэ-лоу", ru:"Здравствуйте"},
+    {en:"Good morning", translit:"гуд мо-нин", ru:"Доброе утро"},
+    {en:"Good afternoon", translit:"гуд аф-та-нун", ru:"Добрый день"},
+    {en:"Good evening", translit:"гуд ив-нин", ru:"Добрый вечер"},
+    {en:"Goodbye / Bye", translit:"гуд-бай / бай", ru:"До свидания / Пока"},
+    {en:"See you later", translit:"си ю лэй-та", ru:"До скорого"},
+    {en:"Have a nice day", translit:"хэв э найс дэй", ru:"Хорошего дня"},
+    {en:"I'll be back soon", translit:"айл би бэк сун", ru:"Я скоро вернусь — предупредить, что ненадолго отходишь"},
+    {en:"I need to go away", translit:"ай нид ту гоу э-вэй", ru:"Мне нужно отойти"},
+  ]},
+  { id:'intro', title:'Знакомство и о себе', phrases:[
+    {en:"Where are you from?", translit:"вэа а ю фром", ru:"Откуда ты?"},
+    {en:"I am from...", translit:"ай эм фром", ru:"Я из..."},
+    {en:"I speak English a little", translit:"ай спик ин-глиш э ли-тл", ru:"Я немного говорю по-английски"},
+    {en:"My English is poor", translit:"май ин-глиш ис пур", ru:"Я плохо говорю по-английски"},
+    {en:"I can give information in English", translit:"ай кэн гив ин-фор-мэй-шн ин ин-глиш", ru:"Я смогу давать информацию на английском"},
+    {en:"Nice to meet you", translit:"найс ту мит ю", ru:"Приятно познакомиться"},
+  ]},
+  { id:'basic', title:'Базовые команды', phrases:[
+    {en:"Rush B!", translit:"раш би", ru:"Быстрая совместная атака на сайт B"},
+    {en:"Rush", translit:"раш", ru:"Атакуем быстро, все вместе"},
+    {en:"Let's go", translit:"летс гоу", ru:"Погнали / начинаем"},
+    {en:"Hold your position", translit:"холд ёр по-зИ-шн", ru:"Держи текущую позицию, не двигайся"},
+    {en:"Hold this position", translit:"холд зис по-зИ-шн", ru:"Займи именно эту позицию"},
+    {en:"Fall back", translit:"фол бэк", ru:"Отступаем"},
+    {en:"Watch your back", translit:"вотч ёр бэк", ru:"Проверяй тыл / за спиной"},
+    {en:"Push now", translit:"пуш нау", ru:"Атакуем прямо сейчас"},
+    {en:"Stack B", translit:"стэк би", ru:"Собираем всю команду на сайте B"},
+    {en:"Split the site", translit:"сплит зэ сайт", ru:"Заходим на сайт с двух разных точек"},
+    {en:"Go away", translit:"гоу э-вэй", ru:"Отойди"},
+    {en:"Do not go alone", translit:"ду нот гоу э-лоун", ru:"Не ходите по одному"},
+    {en:"Do not peek out", translit:"ду нот пик аут", ru:"Не высовывайся"},
+    {en:"Listen to me", translit:"лисн ту ми", ru:"Послушайте меня"},
+    {en:"To win, we need to stick together", translit:"ту вин ви нид ту стик ту-ге-зэ", ru:"Чтобы выиграть, нам нужно собраться (действовать вместе)"},
+  ]},
+  { id:'directions', title:'Позиции и направления', phrases:[
+    {en:"Where?", translit:"вэа", ru:"Где?"},
+    {en:"Left side", translit:"лэфт сайд", ru:"Слева"},
+    {en:"Right side", translit:"райт сайд", ru:"Справа"},
+    {en:"Behind the box", translit:"би-хайнд зэ бокс", ru:"За ящиком"},
+  ]},
+  { id:'info', title:'Информация о врагах', phrases:[
+    {en:"One down", translit:"ван даун", ru:"Один враг убит"},
+    {en:"Two left", translit:"ту лефт", ru:"Осталось двое живых врагов"},
+    {en:"He's flashing", translit:"хиз флэ-шин", ru:"Он кидает флешку (light-гранату)"},
+    {en:"Smoke is popping", translit:"смоук из по-пин", ru:"Дымовая граната сейчас раскроется"},
+    {en:"They're rotating", translit:"зэй а ро-тей-тин", ru:"Враги перемещаются на другой сайт"},
+    {en:"No info", translit:"ноу инфо", ru:"Информации о враге нет"},
+    {en:"Behind you!", translit:"би-хайнд ю", ru:"Враг у тебя за спиной"},
+    {en:"Last one", translit:"ласт ван", ru:"Остался последний враг"},
+    {en:"Full team spotted", translit:"фул тим спо-тид", ru:"Замечена вся команда врага"},
+    {en:"He's low", translit:"хиз лоу", ru:"У врага мало здоровья"},
+    {en:"He's red", translit:"хиз рэд", ru:"У врага мало здоровья (индикатор красный)"},
+    {en:"One HP", translit:"ван эйч-пи", ru:"У противника осталось 1 очко здоровья"},
+    {en:"They're all mid", translit:"зэй а ол мид", ru:"Все враги идут через мид"},
+    {en:"They're pushing", translit:"зэй а пу-шин", ru:"Враги атакуют, идут вперёд"},
+    {en:"He's got the AWP", translit:"хиз гат зи эй-дабл-ю-пи", ru:"У врага снайперская винтовка AWP"},
+    {en:"No one left", translit:"ноу ван лефт", ru:"Врагов больше не осталось"},
+    {en:"How many left?", translit:"хау мэ-ни лефт", ru:"Сколько врагов осталось?"},
+  ]},
+  { id:'situation', title:'Игровая ситуация', phrases:[
+    {en:"Bomb planted", translit:"бомб план-тед", ru:"Бомба заложена"},
+    {en:"Plant it!", translit:"плант ит", ru:"Закладывай бомбу!"},
+    {en:"Defuse now!", translit:"ди-фьюз нау", ru:"Обезвреживай бомбу сейчас!"},
+    {en:"Post plant", translit:"поуст плант", ru:"Играем после закладки бомбы (удерживаем позиции)"},
+    {en:"Retake", translit:"ри-тейк", ru:"Идём отбивать сайт после закладки бомбы"},
+    {en:"Rotate now", translit:"ро-тейт нау", ru:"Перемещайся на другой сайт прямо сейчас"},
+    {en:"Hold this angle", translit:"холд зис эйн-гл", ru:"Держи этот угол обзора"},
+    {en:"Check corners", translit:"чек кор-нерс", ru:"Проверь углы (нет ли врага в укрытии)"},
+    {en:"Clear", translit:"клиэ", ru:"Чисто, врагов не видно"},
+    {en:"Wide", translit:"уайд", ru:"Широкий выход/пик на угол"},
+    {en:"Close angle", translit:"клоуз эйн-гл", ru:"Узкий, ближний угол обзора"},
+    {en:"Man down", translit:"мэн даун", ru:"Потеряли игрока (кто-то из нас погиб)"},
+    {en:"Numbers?", translit:"нам-берс", ru:"Сколько нас осталось в живых?"},
+    {en:"On my way", translit:"он май уэй", ru:"Уже иду туда"},
+    {en:"Check the flank", translit:"чек зэ флэнк", ru:"Проверь фланг (сбоку/сзади)"},
+    {en:"Boost me", translit:"буст ми", ru:"Подсади меня, чтобы залезть повыше"},
+    {en:"Default setup", translit:"ди-фолт се-тап", ru:"Стандартная расстановка по позициям без атаки"},
+    {en:"A/B clear", translit:"эй/би клиэ", ru:"Сайт A/B чист, врагов не видно"},
+    {en:"I need info", translit:"ай нид инфо", ru:"Мне нужна информация о враге"},
+  ]},
+  { id:'requests', title:'Просьбы к команде', phrases:[
+    {en:"Need a flash", translit:"нид э флэш", ru:"Нужна флеш-граната"},
+    {en:"Cover me", translit:"кавэр ми", ru:"Прикрой меня"},
+    {en:"Trade me", translit:"трейд ми", ru:"Если меня убьют — отомсти сразу же"},
+    {en:"Can I get the AWP?", translit:"кэн ай гет зи эй-дабл-ю-пи", ru:"Можно мне снайперскую винтовку AWP?"},
+    {en:"Anyone got spare money?", translit:"эни-ван гат спэа мани", ru:"У кого-то есть лишние деньги для меня?"},
+    {en:"Give me a smoke", translit:"гив ми э смоук", ru:"Дай дымовую гранату"},
+    {en:"Wait for me", translit:"вейт фор ми", ru:"Подожди меня, не начинай без меня"},
+    {en:"Give me drop", translit:"гив ми дроп", ru:"Дай мне оружие (сбрось для меня)"},
+    {en:"Take the bomb", translit:"тэйк зэ бомб", ru:"Возьми бомбу"},
+    {en:"Help me", translit:"хелп ми", ru:"Помоги мне"},
+    {en:"Please put a pause", translit:"плиз пут э пауз", ru:"Пожалуйста, поставьте паузу"},
+  ]},
+  { id:'opinion', title:'Мнение и согласие', phrases:[
+    {en:"I think...", translit:"ай финк", ru:"Я думаю..."},
+    {en:"I know", translit:"ай ноу", ru:"Я знаю"},
+    {en:"I don't know", translit:"ай донт ноу", ru:"Я не знаю"},
+    {en:"Maybe", translit:"мэй-би", ru:"Возможно"},
+    {en:"I understand", translit:"ай ан-дер-стэнд", ru:"Я понимаю"},
+    {en:"I do not understand", translit:"ай ду нот ан-дер-стэнд", ru:"Я не понимаю"},
+    {en:"It is a good idea", translit:"ит из э гуд ай-диа", ru:"Это хорошая идея"},
+    {en:"It is a bad idea", translit:"ит из э бэд ай-диа", ru:"Это плохая идея"},
+    {en:"I can handle myself", translit:"ай кэн хэн-дл май-селф", ru:"Я справлюсь сам"},
+    {en:"Exactly!", translit:"иг-зэкт-ли", ru:"Именно!"},
+    {en:"I don't think so either", translit:"ай донт финк соу и-зэ", ru:"Я тоже так не думаю"},
+    {en:"That's true", translit:"зэтс тру", ru:"Это правда"},
+    {en:"I couldn't agree more", translit:"ай куднт эг-ри мор", ru:"Не могу не согласиться"},
+    {en:"You're absolutely right", translit:"юа эб-со-лут-ли райт", ru:"Ты совершенно прав"},
+    {en:"Of course!", translit:"оф корс", ru:"Конечно!"},
+    {en:"Yes, I agree", translit:"йес ай эг-ри", ru:"Да, я согласен"},
+    {en:"I think so too", translit:"ай финк соу ту", ru:"Я тоже так думаю"},
+    {en:"That's a good point", translit:"зэтс э гуд пойнт", ru:"Это хороший довод"},
+  ]},
+  { id:'economy', title:'Экономика раунда', phrases:[
+    {en:"Eco round", translit:"и-ко раунд", ru:"Раунд без покупки оружия, копим деньги"},
+    {en:"Force buy", translit:"форс бай", ru:"Покупка оружия несмотря на нехватку денег"},
+    {en:"Full buy", translit:"фул бай", ru:"Полная закупка снаряжения"},
+    {en:"Save your gun", translit:"сейв ёр ган", ru:"Сохрани оружие, не рискуй в конце раунда"},
+    {en:"Half buy", translit:"хаф бай", ru:"Частичная закупка"},
+    {en:"Buy", translit:"бай", ru:"Закупаемся (покупаем оружие и снаряжение)"},
+    {en:"They're anti-eco, watch out", translit:"зэй а энти-и-ко, вотч аут", ru:"У врага деньги — они могут закупиться против нашего эко"},
+  ]},
+  { id:'social', title:'Реакции и общение', phrases:[
+    {en:"gg wp", translit:"джи-джи дабл-ю-пи", ru:"«Хорошая игра» — говорят после матча"},
+    {en:"My bad", translit:"май бэд", ru:"Моя вина / извини, ошибся"},
+    {en:"Nice one!", translit:"найс ван", ru:"Отличный ход! / молодец"},
+    {en:"Unlucky", translit:"ан-ла-ки", ru:"Не повезло"},
+    {en:"Ez", translit:"и-зи", ru:"«Легко» — часто используется как подколка сопернику"},
+    {en:"Clutch it!", translit:"клатч ит", ru:"Вытащи раунд один против нескольких врагов"},
+    {en:"Close game, gg", translit:"клоуз гейм джи-джи", ru:"Была близкая игра, хорошая игра"},
+    {en:"Nice try", translit:"найс трай", ru:"Хорошая попытка"},
+  ]},
+  { id:'courtesy', title:'Вежливость', phrases:[
+    {en:"Please", translit:"плиз", ru:"Пожалуйста"},
+    {en:"Not at all", translit:"нот эт ол", ru:"Не за что"},
+    {en:"No problems", translit:"ноу проб-лемс", ru:"Нет проблем"},
+    {en:"Nothing wrong", translit:"на-финк вронг", ru:"Ничего страшного"},
+    {en:"That's all right", translit:"зэтс ол райт", ru:"Это нормально"},
+    {en:"It's okay", translit:"итс о-кей", ru:"Все нормально"},
+    {en:"Forget it", translit:"фор-гет ит", ru:"Не за что / забудь об этом"},
+  ]},
+  { id:'colloquial', title:'Разговорные выражения', phrases:[
+    {en:"Get it?", translit:"гет ит", ru:"Понимаешь?"},
+    {en:"So what?", translit:"соу вот", ru:"И что? / Ну и что из того?"},
+    {en:"Are you nuts?", translit:"а ю натс", ru:"Ты что, ненормальный?"},
+    {en:"How's that?", translit:"хауз зэт", ru:"Это можно объяснить?"},
+    {en:"Make yourself clear", translit:"мейк ёр-селф клиэ", ru:"Выражайся яснее"},
+    {en:"What's the use of?", translit:"вотс зэ юс оф", ru:"Зачем? / Какой смысл?"},
+    {en:"Why worry him?", translit:"вай во-ри хим", ru:"Зачем его беспокоить?"},
+    {en:"What if I refuse?", translit:"вот иф ай ри-фьюз", ru:"А что, если я откажусь?"},
+    {en:"Are you kidding?", translit:"а ю ки-дин", ru:"Ты шутишь?"},
+    {en:"No fooling?", translit:"ноу фу-лин", ru:"Серьёзно? / Не шутишь?"},
+    {en:"So what's the hitch?", translit:"соу вотс зэ хич", ru:"Так в чём же загвоздка?"},
+    {en:"Can you manage it?", translit:"кэн ю мэ-нидж ит", ru:"Справишься с этим?"},
+    {en:"Are you out of your mind?", translit:"а ю аут оф ёр майнд", ru:"Ты в своём уме?"},
+  ]},
+  { id:'report', title:'Жалобы и модерация', phrases:[
+    {en:"He's cheating", translit:"хиз чи-тин", ru:"Он читерит"},
+    {en:"Report for wallhack", translit:"ри-порт фор волл-хак", ru:"Пожалуйста, репортните за игру сквозь стены"},
+    {en:"Vote to kick him", translit:"воут ту кик хим", ru:"Голосуем за исключение игрока"},
+    {en:"Please mute", translit:"плиз мьют", ru:"Пожалуйста, замьютьте (отключите звук игроку)"},
+    {en:"Stop teamkilling", translit:"стоп тим-ки-лин", ru:"Прекрати убивать союзников"},
+  ]},
+];
+
+/* ================= DATA: MAPS ================= */
+/* координаты в % — упрощённая, стилизованная схема (не точная копия радара).
+   edges — пары названий точек, между которыми рисуется маршрут (линия перемещения). */
+const maps = {
+  "Dust II": { points:[
+    {n:"T Spawn", x:50,y:92,z:"n", d:"Стартовая точка террористов"},
+    {n:"Long Doors", x:34,y:74,z:"a", d:"Выход из T-спавна на Long A"},
+    {n:"Long A", x:24,y:56,z:"a", d:"Длинный узкий коридор, ведущий к сайту A"},
+    {n:"Blue", x:20,y:40,z:"a", d:"Угол в конце Long A, важная точка контроля"},
+    {n:"A Site", x:26,y:14,z:"a", d:"Точка установки бомбы A"},
+    {n:"Catwalk", x:46,y:48,z:"n", d:"Короткий путь (Short) к сайту A через мид"},
+    {n:"Mid", x:52,y:60,z:"n", d:"Центральная зона, определяет контроль карты"},
+    {n:"Xbox", x:62,y:38,z:"n", d:"Ящик в мид-верхней зоне, укрытие"},
+    {n:"Tunnels", x:70,y:55,z:"b", d:"Тоннели, ведущие к сайту B"},
+    {n:"B Site", x:76,y:15,z:"b", d:"Точка установки бомбы B"},
+    {n:"CT Spawn", x:50,y:9,z:"n", d:"Стартовая точка контр-террористов"},
+  ], edges:[
+    ["T Spawn","Long Doors"],["Long Doors","Long A"],["Long A","Blue"],["Blue","A Site"],
+    ["T Spawn","Mid"],["Mid","Catwalk"],["Catwalk","A Site"],["Mid","Xbox"],["Xbox","Tunnels"],["Tunnels","B Site"],
+    ["CT Spawn","A Site"],["CT Spawn","B Site"],
+  ]},
+  "Mirage": { points:[
+    {n:"T Spawn", x:50,y:92,z:"n", d:"Стартовая точка террористов"},
+    {n:"Palace", x:24,y:74,z:"a", d:"Возвышенность сбоку от сайта A"},
+    {n:"Ramp", x:35,y:54,z:"a", d:"Рампа — подъём на сайт A"},
+    {n:"Triangle", x:18,y:36,z:"a", d:"Укрытие на подходе к A рядом с Palace"},
+    {n:"A Site", x:25,y:18,z:"a", d:"Точка установки бомбы A"},
+    {n:"Mid", x:50,y:55,z:"n", d:"Центральный коридор, ключ к обеим точкам"},
+    {n:"Window", x:58,y:44,z:"n", d:"Окно из мид с видом на сайт A"},
+    {n:"Apartments", x:76,y:64,z:"b", d:"Квартиры — путь на сайт B"},
+    {n:"Market", x:70,y:44,z:"b", d:"Рынок, соединяет мид и сайт B"},
+    {n:"B Site", x:79,y:19,z:"b", d:"Точка установки бомбы B"},
+    {n:"CT Spawn", x:50,y:9,z:"n", d:"Стартовая точка контр-террористов"},
+  ], edges:[
+    ["T Spawn","Palace"],["Palace","Ramp"],["Ramp","A Site"],["Ramp","Triangle"],["Triangle","A Site"],
+    ["T Spawn","Mid"],["Mid","Window"],["Window","A Site"],["T Spawn","Apartments"],["Apartments","Market"],["Market","B Site"],
+    ["CT Spawn","A Site"],["CT Spawn","B Site"],
+  ]},
+  "Inferno": { points:[
+    {n:"T Spawn", x:58,y:92,z:"n", d:"Стартовая точка террористов"},
+    {n:"Apartments", x:75,y:74,z:"n", d:"Квартиры — путь к мид и Banana"},
+    {n:"Banana", x:84,y:52,z:"b", d:"Изогнутый узкий коридор к сайту B"},
+    {n:"B Site", x:79,y:15,z:"b", d:"Точка установки бомбы B"},
+    {n:"Mid", x:50,y:55,z:"n", d:"Центральная зона карты"},
+    {n:"Second Mid", x:44,y:40,z:"n", d:"Верхняя часть мид, ближе к A"},
+    {n:"A Short", x:30,y:36,z:"a", d:"Короткий путь к сайту A"},
+    {n:"A Long", x:20,y:50,z:"a", d:"Длинный путь к сайту A через Library"},
+    {n:"A Site", x:25,y:15,z:"a", d:"Точка установки бомбы A"},
+    {n:"CT Spawn", x:45,y:9,z:"n", d:"Стартовая точка контр-террористов"},
+  ], edges:[
+    ["T Spawn","Apartments"],["Apartments","Banana"],["Banana","B Site"],
+    ["T Spawn","Mid"],["Mid","Second Mid"],["Second Mid","A Short"],["A Short","A Site"],["Mid","A Long"],["A Long","A Site"],
+    ["CT Spawn","A Site"],["CT Spawn","B Site"],
+  ]},
+  "Nuke": { points:[
+    {n:"T Spawn", x:50,y:92,z:"n", d:"Стартовая точка террористов"},
+    {n:"Outside", x:35,y:74,z:"n", d:"Открытая внешняя зона у здания"},
+    {n:"Silo", x:24,y:58,z:"a", d:"Цилиндрическое укрытие рядом с A"},
+    {n:"Ramp", x:46,y:64,z:"n", d:"Подъём внутрь здания"},
+    {n:"A Site", x:30,y:24,z:"a", d:"Точка установки бомбы A (верхний этаж)"},
+    {n:"Heaven", x:20,y:12,z:"a", d:"Верхняя точка контроля над сайтом A"},
+    {n:"Secret", x:56,y:30,z:"n", d:"Узкий проход-соединитель между зонами"},
+    {n:"Squeaky", x:62,y:46,z:"n", d:"Дверь с характерным скрипом рядом с B"},
+    {n:"B Site", x:66,y:70,z:"b", d:"Точка установки бомбы B (нижний этаж)"},
+    {n:"CT Spawn", x:45,y:9,z:"n", d:"Стартовая точка контр-террористов"},
+  ], edges:[
+    ["T Spawn","Outside"],["Outside","Silo"],["Silo","A Site"],["A Site","Heaven"],
+    ["T Spawn","Ramp"],["Ramp","Secret"],["Secret","Squeaky"],["Squeaky","B Site"],
+    ["CT Spawn","A Site"],["CT Spawn","B Site"],
+  ]},
+  "Overpass": { points:[
+    {n:"T Spawn", x:50,y:92,z:"n", d:"Стартовая точка террористов"},
+    {n:"Bathrooms", x:35,y:74,z:"n", d:"Туалеты — путь на сайт A"},
+    {n:"Monster", x:24,y:58,z:"a", d:"Укрытие на подходе к длинному A"},
+    {n:"Long A", x:19,y:40,z:"a", d:"Длинный путь на сайт A"},
+    {n:"A Site", x:25,y:14,z:"a", d:"Точка установки бомбы A"},
+    {n:"Fountain", x:46,y:54,z:"n", d:"Фонтан в центральной зоне карты"},
+    {n:"Party", x:56,y:44,z:"n", d:"Зона-соединитель между мид и B"},
+    {n:"Bank", x:66,y:34,z:"b", d:"Банк — путь к сайту B"},
+    {n:"B Site", x:76,y:15,z:"b", d:"Точка установки бомбы B"},
+    {n:"CT Spawn", x:50,y:9,z:"n", d:"Стартовая точка контр-террористов"},
+  ], edges:[
+    ["T Spawn","Bathrooms"],["Bathrooms","Monster"],["Monster","Long A"],["Long A","A Site"],
+    ["T Spawn","Fountain"],["Fountain","Party"],["Party","Bank"],["Bank","B Site"],
+    ["CT Spawn","A Site"],["CT Spawn","B Site"],
+  ]},
+  "Ancient": { points:[
+    {n:"T Spawn", x:50,y:92,z:"n", d:"Стартовая точка террористов"},
+    {n:"Cave", x:30,y:70,z:"b", d:"Пещера — боковой путь к сайту B"},
+    {n:"Lane", x:25,y:50,z:"b", d:"Узкий проход к сайту B"},
+    {n:"B Site", x:25,y:15,z:"b", d:"Точка установки бомбы B"},
+    {n:"Mid", x:50,y:55,z:"n", d:"Кольцевая центральная зона карты (Donut)"},
+    {n:"Ramp", x:66,y:60,z:"a", d:"Подъём к сайту A"},
+    {n:"Elbow", x:71,y:42,z:"a", d:"Изгиб пути перед сайтом A"},
+    {n:"Temple", x:73,y:26,z:"a", d:"Храмовая зона перед сайтом A"},
+    {n:"A Site", x:76,y:12,z:"a", d:"Точка установки бомбы A"},
+    {n:"CT Spawn", x:50,y:9,z:"n", d:"Стартовая точка контр-террористов"},
+  ], edges:[
+    ["T Spawn","Cave"],["Cave","Lane"],["Lane","B Site"],
+    ["T Spawn","Ramp"],["Ramp","Elbow"],["Elbow","Temple"],["Temple","A Site"],["T Spawn","Mid"],["Mid","Elbow"],
+    ["CT Spawn","A Site"],["CT Spawn","B Site"],
+  ]},
+  "Anubis": { points:[
+    {n:"T Spawn", x:50,y:92,z:"n", d:"Стартовая точка террористов"},
+    {n:"Canal", x:33,y:70,z:"b", d:"Канал — путь вдоль воды к сайту B"},
+    {n:"Water", x:29,y:50,z:"b", d:"Зона реки, соединяющая пути к B"},
+    {n:"B Site", x:25,y:15,z:"b", d:"Точка установки бомбы B"},
+    {n:"Mid", x:50,y:58,z:"n", d:"Центральная зона карты"},
+    {n:"Connector", x:56,y:44,z:"n", d:"Проход между мид и сайтом A"},
+    {n:"Palace", x:70,y:54,z:"a", d:"Возвышенность рядом с сайтом A"},
+    {n:"Heaven", x:76,y:26,z:"a", d:"Верхняя точка контроля над сайтом A"},
+    {n:"A Site", x:79,y:12,z:"a", d:"Точка установки бомбы A"},
+    {n:"CT Spawn", x:50,y:9,z:"n", d:"Стартовая точка контр-террористов"},
+  ], edges:[
+    ["T Spawn","Canal"],["Canal","Water"],["Water","B Site"],
+    ["T Spawn","Mid"],["Mid","Connector"],["Connector","Palace"],["Palace","Heaven"],["Heaven","A Site"],
+    ["CT Spawn","A Site"],["CT Spawn","B Site"],
+  ]},
+};
+const zoneColor = {a:"var(--site-a)", b:"var(--site-b)", n:"#7b828c"};
+function getPoint(mapName, name){ return maps[mapName].points.find(p => p.n === name); }
+
+/* ================= RENDER: PHRASES ================= */
+const catWrap = document.getElementById('categoriesWrap');
+
+function renderCategories(filter=""){
+  catWrap.innerHTML = "";
+  const f = filter.trim().toLowerCase();
+  categories.forEach((cat, idx) => {
+    const matches = cat.phrases.filter(p =>
+      !f || p.en.toLowerCase().includes(f) || p.ru.toLowerCase().includes(f)
+    );
+    if (f && matches.length === 0) return;
+
+    const el = document.createElement('div');
+    el.className = 'category' + ((idx===0 && !f) || f ? ' open' : '');
+    el.innerHTML = `
+      <div class="category-head">
+        <div class="category-head-left">
+          <span class="category-dot"></span>
+          <span class="category-title">${cat.title}</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="category-count">${matches.length}</span>
+          <svg class="category-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8b9199" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="category-body">
+        <div class="category-body-inner">
+          ${matches.map(p => `
+            <div class="phrase" data-copy="${p.en.replace(/"/g,'&quot;')}">
+              <div class="phrase-en">
+                <span>${p.en}</span>
+                <div class="phrase-icons">
+                  <button class="icon-btn play-btn" data-speak="${p.en.replace(/"/g,'&quot;')}" aria-label="Озвучить">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="#f2c98a"><polygon points="5,3 20,12 5,21"/></svg>
+                  </button>
+                  <svg class="copy-ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#eae7e0" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                </div>
+              </div>
+              <div class="phrase-translit">${p.translit}</div>
+              <div class="phrase-ru">${p.ru}</div>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    `;
+    el.querySelector('.category-head').addEventListener('click', () => {
+      el.classList.toggle('open');
+    });
+    el.querySelectorAll('.phrase').forEach(row => {
+      row.addEventListener('click', () => {
+        const text = row.getAttribute('data-copy');
+        copyToClipboard(text);
+      });
+    });
+    el.querySelectorAll('.play-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        speak(btn.getAttribute('data-speak'), btn);
+      });
+    });
+    catWrap.appendChild(el);
+  });
+}
+renderCategories();
+
+document.getElementById('searchInput').addEventListener('input', e => {
+  renderCategories(e.target.value);
+});
+
+/* ================= toast + clipboard ================= */
+const toastEl = document.getElementById('toast');
+let toastTimer;
+function copyToClipboard(text){
+  const done = () => showToast('Скопировано: ' + text);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done).catch(done);
+  } else { done(); }
+}
+function showToast(msg){
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 1700);
+}
+
+/* ================= TEXT-TO-SPEECH ================= */
+let cachedVoices = [];
+function loadVoices(){ cachedVoices = window.speechSynthesis ? window.speechSynthesis.getVoices() : []; }
+if ('speechSynthesis' in window){
+  loadVoices();
+  window.speechSynthesis.onvoiceschanged = loadVoices;
+}
+function pickEnglishVoice(){
+  if (!cachedVoices.length) loadVoices();
+  return cachedVoices.find(v => /en-US/i.test(v.lang))
+      || cachedVoices.find(v => /en-GB/i.test(v.lang))
+      || cachedVoices.find(v => /^en/i.test(v.lang))
+      || null;
+}
+function speak(text, btnEl){
+  if (!('speechSynthesis' in window)){
+    showToast('Озвучка не поддерживается в этом браузере');
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'en-US';
+  utter.rate = 0.92;
+  utter.pitch = 1;
+  const voice = pickEnglishVoice();
+  if (voice) utter.voice = voice;
+  document.querySelectorAll('.icon-btn.playing').forEach(b => b.classList.remove('playing'));
+  if (btnEl) btnEl.classList.add('playing');
+  utter.onend = () => { if (btnEl) btnEl.classList.remove('playing'); };
+  utter.onerror = () => { if (btnEl) btnEl.classList.remove('playing'); };
+  window.speechSynthesis.speak(utter);
+}
+
+/* ================= RENDER: MAPS ================= */
+const mapChips = document.getElementById('mapChips');
+const schematic = document.getElementById('schematic');
+const mapNameEl = document.getElementById('mapName');
+const infoPanel = document.getElementById('infoPanel');
+let currentMap = "Dust II";
+
+function renderChips(){
+  mapChips.innerHTML = "";
+  Object.keys(maps).forEach(name => {
+    const chip = document.createElement('div');
+    chip.className = 'map-chip' + (name === currentMap ? ' active' : '');
+    chip.textContent = name;
+    chip.addEventListener('click', () => { currentMap = name; renderChips(); renderSchematic(); });
+    mapChips.appendChild(chip);
+  });
+}
+
+function zoneBounds(mapName, zone){
+  const pts = maps[mapName].points.filter(p => p.z === zone);
+  if (!pts.length) return null;
+  const xs = pts.map(p=>p.x), ys = pts.map(p=>p.y);
+  const cx = (Math.min(...xs)+Math.max(...xs))/2;
+  const cy = (Math.min(...ys)+Math.max(...ys))/2;
+  const w = Math.max(Math.max(...xs)-Math.min(...xs), 14) + 16;
+  const h = Math.max(Math.max(...ys)-Math.min(...ys), 12) + 16;
+  return {cx, cy, w, h};
+}
+
+function renderSchematic(){
+  mapNameEl.textContent = currentMap;
+  infoPanel.hidden = true;
+  const data = maps[currentMap];
+  schematic.innerHTML = "";
+
+  /* зоны сайтов — подсветка + пунктирный контур, привязанные к реальным координатам точек */
+  ["a","b"].forEach(zone => {
+    const b = zoneBounds(currentMap, zone);
+    if (!b) return;
+    const color = zoneColor[zone];
+    const glow = document.createElement('div');
+    glow.className = 'zone-glow';
+    glow.style.cssText = `left:${b.cx}%; top:${b.cy}%; width:${b.w}%; height:${b.h}%; background:${color};`;
+    schematic.appendChild(glow);
+    const outline = document.createElement('div');
+    outline.className = 'zone-outline';
+    outline.style.cssText = `left:${b.cx}%; top:${b.cy}%; width:${b.w*0.82}%; height:${b.h*0.82}%; border-color:${color};`;
+    schematic.appendChild(outline);
+  });
+
+  /* линии маршрутов между точками */
+  const svgNS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(svgNS, "svg");
+  svg.setAttribute("viewBox","0 0 100 100");
+  svg.setAttribute("preserveAspectRatio","none");
+  svg.classList.add("route-svg");
+  data.edges.forEach(([fromName, toName]) => {
+    const a = getPoint(currentMap, fromName);
+    const b = getPoint(currentMap, toName);
+    if (!a || !b) return;
+    const line = document.createElementNS(svgNS, "line");
+    line.setAttribute("x1", a.x); line.setAttribute("y1", a.y);
+    line.setAttribute("x2", b.x); line.setAttribute("y2", b.y);
+    const zone = (a.z !== 'n') ? a.z : b.z;
+    line.setAttribute("stroke", zone==='a' ? "#e0a84a" : zone==='b' ? "#48b6c2" : "#7b828c");
+    line.classList.add("route-line");
+    svg.appendChild(line);
+  });
+  schematic.appendChild(svg);
+
+  /* пины */
+  data.points.forEach(pt => {
+    const pin = document.createElement('div');
+    pin.className = 'pin';
+    pin.style.left = pt.x + '%';
+    pin.style.top = pt.y + '%';
+    pin.innerHTML = `<div class="pin-dot" style="background:${zoneColor[pt.z]}"></div><div class="pin-label">${pt.n}</div>`;
+    pin.addEventListener('click', () => selectPin(pin, pt));
+    schematic.appendChild(pin);
+  });
+}
+
+function selectPin(pinEl, pt){
+  document.querySelectorAll('.pin.selected').forEach(p => p.classList.remove('selected'));
+  pinEl.classList.add('selected');
+  const tagLabel = pt.z === 'a' ? 'САЙТ A' : pt.z === 'b' ? 'САЙТ B' : 'ЗОНА';
+  const tagColor = zoneColor[pt.z];
+  infoPanel.hidden = false;
+  infoPanel.innerHTML = `
+    <div class="info-panel-head">
+      <div style="display:flex; align-items:center; gap:7px;">
+        <button class="icon-btn play-btn" data-speak="${pt.n.replace(/"/g,'&quot;')}" aria-label="Озвучить">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="#f2c98a"><polygon points="5,3 20,12 5,21"/></svg>
+        </button>
+        <span class="info-panel-name">${pt.n}</span>
+      </div>
+      <span class="info-panel-tag" style="background:${tagColor}22; color:${tagColor}; border:1px solid ${tagColor}55;">${tagLabel}</span>
+    </div>
+    <div class="info-panel-desc">${pt.d}</div>
+  `;
+  infoPanel.querySelector('.play-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    speak(pt.n, e.currentTarget);
+  });
+}
+
+renderChips();
+renderSchematic();
+
+/* ================= TABS ================= */
+const screens = { phrases: document.getElementById('screen-phrases'), maps: document.getElementById('screen-maps') };
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const tab = btn.getAttribute('data-tab');
+    Object.entries(screens).forEach(([key, el]) => { el.hidden = key !== tab; });
+  });
+});
+</script>
+</body>
+</html>
