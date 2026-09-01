@@ -1390,19 +1390,14 @@ function toggleFullscreen(){
 }
 fullscreenBtn.addEventListener('click', toggleFullscreen);
 
-/* Если приложение открыто с домашнего экрана (standalone) — включаем полноэкранный
-   режим автоматически по первому тапу пользователя (сама iOS не разрешает включать
-   его без явного жеста, поэтому ловим самый первый тап в приложении). */
+/* Fullscreen API работает только во вкладке Safari — внутри standalone-режима
+   (приложение открыто с домашнего экрана) он недоступен на уровне iOS, и статус-бар
+   в этом режиме скрыть невозможно никаким способом. Поэтому в standalone просто
+   прячем кнопку, чтобы не показывать бесполезное сообщение об ошибке. */
 const isStandalone = window.navigator.standalone === true ||
   window.matchMedia('(display-mode: standalone)').matches;
 if (isStandalone){
-  const autoEnterFullscreen = () => {
-    if (!isFullscreen()) toggleFullscreen();
-    document.removeEventListener('touchend', autoEnterFullscreen);
-    document.removeEventListener('click', autoEnterFullscreen);
-  };
-  document.addEventListener('touchend', autoEnterFullscreen, { once: true });
-  document.addEventListener('click', autoEnterFullscreen, { once: true });
+  fullscreenBtn.style.display = 'none';
 }
 document.addEventListener('fullscreenchange', updateFullscreenIcon);
 document.addEventListener('webkitfullscreenchange', updateFullscreenIcon);
