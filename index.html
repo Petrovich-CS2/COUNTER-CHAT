@@ -1389,6 +1389,21 @@ function toggleFullscreen(){
   }
 }
 fullscreenBtn.addEventListener('click', toggleFullscreen);
+
+/* Если приложение открыто с домашнего экрана (standalone) — включаем полноэкранный
+   режим автоматически по первому тапу пользователя (сама iOS не разрешает включать
+   его без явного жеста, поэтому ловим самый первый тап в приложении). */
+const isStandalone = window.navigator.standalone === true ||
+  window.matchMedia('(display-mode: standalone)').matches;
+if (isStandalone){
+  const autoEnterFullscreen = () => {
+    if (!isFullscreen()) toggleFullscreen();
+    document.removeEventListener('touchend', autoEnterFullscreen);
+    document.removeEventListener('click', autoEnterFullscreen);
+  };
+  document.addEventListener('touchend', autoEnterFullscreen, { once: true });
+  document.addEventListener('click', autoEnterFullscreen, { once: true });
+}
 document.addEventListener('fullscreenchange', updateFullscreenIcon);
 document.addEventListener('webkitfullscreenchange', updateFullscreenIcon);
 document.getElementById('voiceModalBackBtn').addEventListener('click', closeVoiceModal);
