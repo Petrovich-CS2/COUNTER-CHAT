@@ -106,7 +106,7 @@ body{
 /* ===== screens ===== */
 .screen{
   flex:1;
-  padding:14px 16px 90px;
+  padding:14px 16px calc(110px + env(safe-area-inset-bottom, 0px));
 }
 
 /* search */
@@ -630,7 +630,7 @@ body{
     <div id="categoriesGrid" class="categories-grid"></div>
     <div id="categoryDetail"></div>
 
-    <a class="app-credits" href="https://steamcommunity.com/id/funfactoryteam/" target="_blank" rel="noopener noreferrer">
+    <a class="app-credits" href="https://steamcommunity.com/id/ya-petrovich/" target="_blank" rel="noopener noreferrer">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M11.979 0C5.678 0 0.511 4.86 0.022 11.037l6.432 2.658a3.386 3.386 0 0 1 1.912-.59c.063 0 .125.002.188.005l2.861-4.142v-.058a4.79 4.79 0 0 1 4.784-4.783 4.79 4.79 0 0 1 4.784 4.784 4.79 4.79 0 0 1-4.784 4.783h-.11l-4.076 2.912c0 .052.003.104.003.157 0 1.882-1.53 3.412-3.412 3.412a3.42 3.42 0 0 1-3.373-2.867l-4.601-1.902C1.598 19.912 6.324 24 11.979 24c6.627 0 12-5.373 12-12s-5.373-12-12-12zM7.54 18.21l-1.473-.609c.261.539.717.987 1.32 1.238a2.5 2.5 0 0 0 3.268-1.353 2.5 2.5 0 0 0-1.354-3.268 2.5 2.5 0 0 0-1.898-.02l1.523.63a1.85 1.85 0 1 1-1.386 3.382zm10.577-9.905a3.19 3.19 0 0 0-3.187-3.187 3.19 3.19 0 0 0-3.19 3.187 3.19 3.19 0 0 0 3.19 3.188 3.19 3.19 0 0 0 3.187-3.188zm-5.583-.006a2.4 2.4 0 0 1 2.4-2.398 2.4 2.4 0 0 1 2.398 2.398 2.4 2.4 0 0 1-2.398 2.4 2.4 2.4 0 0 1-2.4-2.4z"/></svg>
       <span>Сделано Петровичем</span>
     </a>
@@ -1244,14 +1244,15 @@ function englishVoices(){
 function voiceQualityScore(v){
   const n = v.name.toLowerCase();
   let s = 0;
-  if (n.includes('daniel')) s += 10; // явное предпочтение — звучит наиболее естественно на iOS
+  if (n.includes('samantha')) s += 10; // явное предпочтение на iOS — стабильнее всего на коротких/нестандартных фразах и сленге
+  if (n.includes('google') && n.includes('us')) s += 10; // явное предпочтение на Android — движок Google TTS (WaveNet), звучит естественнее стандартных голосов производителей
   if (n.includes('premium')) s += 6;
   if (n.includes('enhanced')) s += 5;
   if (n.includes('neural')) s += 5;
   if (n.includes('natural')) s += 4;
   if (n.includes('google')) s += 3;
   if (n.includes('siri')) s += 3;
-  if (['samantha','ava','nicky','allison','susan','zoe','tom','alex','moira','tessa','karen','stephanie'].some(x=>n.includes(x))) s += 2;
+  if (['ava','nicky','allison','susan','zoe','tom','alex','daniel','moira','tessa','karen','stephanie'].some(x=>n.includes(x))) s += 2;
   if (n.includes('compact')) s -= 3;
   if (/^en-us$/i.test(v.lang)) s += 1;
   return s;
