@@ -1,6 +1,6 @@
 {
   "name": "Counter Chat — CS2 разговорник",
-  "short_name": "CC CS2",
+  "short_name": "Counter Chat",
   "description": "EN-коммуникация и позиции карт для CS2",
   "start_url": "./index.html",
   "scope": "./",
