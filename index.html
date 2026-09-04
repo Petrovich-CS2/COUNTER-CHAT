@@ -122,15 +122,47 @@ body{
 }
 
 /* search */
+.search-and-fav-row{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  margin-bottom:14px;
+}
 .search-row{
   display:flex; align-items:center; gap:9px;
   background:var(--bg-surface);
   border:1px solid var(--line);
   border-radius:13px;
   padding:10px 13px;
-  margin-bottom:14px;
+  flex:1;
+  min-width:0;
 }
 .search-row svg{flex-shrink:0; opacity:.5;}
+.favorites-btn{
+  position:relative;
+  flex-shrink:0;
+  width:44px; height:44px;
+  border-radius:13px;
+  background:var(--bg-surface);
+  border:1px solid var(--line);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+}
+.favorites-btn:active{background:var(--bg-elevated);}
+.favorites-btn-badge{
+  position:absolute;
+  top:-5px; right:-5px;
+  min-width:17px; height:17px;
+  padding:0 4px;
+  border-radius:9px;
+  background:var(--t-orange);
+  color:#1a1006;
+  font-family:var(--font-mono);
+  font-size:10px;
+  font-weight:700;
+  display:flex; align-items:center; justify-content:center;
+}
+.favorites-btn-badge[hidden]{display:none;}
 .search-row input{
   background:none; border:none; outline:none;
   color:var(--text-primary);
@@ -367,6 +399,7 @@ body{
   margin-top:5px;
   line-height:1.4;
 }
+.phrase-actions{display:flex; align-items:center; gap:8px; flex-shrink:0;}
 .play-btn-side{
   flex-shrink:0;
   width:42px; height:42px;
@@ -380,6 +413,23 @@ body{
 .play-btn-side:active{transform:scale(.92); background:rgba(214,144,58,.25);}
 .play-btn-side.playing{background:rgba(214,144,58,.4); animation:pulse 1s ease-in-out infinite;}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(214,144,58,.4);} 50%{box-shadow:0 0 0 5px rgba(214,144,58,0);}}
+.fav-btn-side{
+  flex-shrink:0;
+  width:42px; height:42px;
+  border-radius:12px;
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--line);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+  transition:background .15s ease, border-color .15s ease, transform .1s ease;
+}
+.fav-btn-side:active{transform:scale(.92);}
+.fav-btn-side.active{background:rgba(214,144,58,.18); border-color:rgba(214,144,58,.4);}
+.phrase{transition:opacity .2s ease;}
+.category-card.favorites-card{
+  border-color:rgba(214,144,58,.45);
+  box-shadow:0 0 0 1px rgba(214,144,58,.25) inset;
+}
 
 /* maps screen */
 .map-chip-row{
@@ -635,9 +685,15 @@ body{
 
   <!-- PHRASES SCREEN -->
   <div class="screen" id="screen-phrases">
-    <div class="search-row">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#eae7e0" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input id="searchInput" placeholder="Найти фразу...">
+    <div class="search-and-fav-row">
+      <div class="search-row">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#eae7e0" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="searchInput" placeholder="Найти фразу...">
+      </div>
+      <button class="favorites-btn" id="favoritesBtn" aria-label="Избранное">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f2c98a" stroke-width="1.8" stroke-linejoin="round"><polygon points="12,2.5 15.1,8.9 22.2,9.9 17.1,14.9 18.3,22 12,18.6 5.7,22 6.9,14.9 1.8,9.9 8.9,8.9"/></svg>
+        <span class="favorites-btn-badge" id="favoritesBadge" hidden>0</span>
+      </button>
     </div>
     <div id="categoriesGrid" class="categories-grid"></div>
     <div id="categoryDetail"></div>
@@ -1065,12 +1121,67 @@ const modalIcon = document.getElementById('modalIcon');
 const modalTitle = document.getElementById('modalTitle');
 const modalCount = document.getElementById('modalCount');
 
+/* ================= ИЗБРАННОЕ ================= */
+const FAVORITES_KEY = 'cc_favorites';
+function favKey(catId, en){ return catId + '::' + en; }
+function getFavoriteKeys(){
+  try {
+    const raw = localStorage.getItem(FAVORITES_KEY);
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  } catch(e){ return new Set(); }
+}
+function saveFavoriteKeys(set){
+  try { localStorage.setItem(FAVORITES_KEY, JSON.stringify([...set])); } catch(e){}
+}
+function isFavorite(catId, en){ return getFavoriteKeys().has(favKey(catId, en)); }
+function toggleFavorite(catId, en){
+  const set = getFavoriteKeys();
+  const key = favKey(catId, en);
+  if (set.has(key)) set.delete(key); else set.add(key);
+  saveFavoriteKeys(set);
+}
+function getFavoritePhrases(){
+  const set = getFavoriteKeys();
+  const result = [];
+  categories.forEach(cat => {
+    cat.phrases.forEach(p => {
+      if (set.has(favKey(cat.id, p.en))){
+        result.push(Object.assign({}, p, { _catId: cat.id }));
+      }
+    });
+  });
+  return result;
+}
+const STAR_ICON_SVG = '<polygon points="12,2.5 15.1,8.9 22.2,9.9 17.1,14.9 18.3,22 12,18.6 5.7,22 6.9,14.9 1.8,9.9 8.9,8.9"/>';
+
+const favoritesBadge = document.getElementById('favoritesBadge');
+function updateFavoritesBadge(){
+  const count = getFavoriteKeys().size;
+  if (count > 0){
+    favoritesBadge.textContent = count;
+    favoritesBadge.hidden = false;
+  } else {
+    favoritesBadge.hidden = true;
+  }
+}
+document.getElementById('favoritesBtn').addEventListener('click', () => {
+  openCategoryModal({ id:'favorites', title:'Избранное' }, getFavoritePhrases());
+});
+
 function openCategoryModal(cat, phrases){
-  modalIcon.innerHTML = CATEGORY_ICONS[cat.id] ? `<img src="${CATEGORY_ICONS[cat.id]}" alt="">` : '💬';
+  modalIcon.innerHTML = cat.id === 'favorites'
+    ? `<svg width="100%" height="100%" viewBox="0 0 24 24" fill="#f2c98a">${STAR_ICON_SVG}</svg>`
+    : (CATEGORY_ICONS[cat.id] ? `<img src="${CATEGORY_ICONS[cat.id]}" alt="">` : '💬');
   modalTitle.textContent = cat.title;
   modalCount.textContent = phrases.length;
   categoryModalBody.innerHTML = '';
-  phrases.forEach(p => categoryModalBody.appendChild(buildPhraseEl(p)));
+  if (cat.id === 'favorites' && !phrases.length){
+    categoryModalBody.innerHTML = `<div class="empty-state">Пока нет избранных фраз.<br>Нажми ★ на любой фразе, чтобы добавить сюда.</div>`;
+  }
+  phrases.forEach(p => {
+    const catId = cat.id === 'favorites' ? p._catId : cat.id;
+    categoryModalBody.appendChild(buildPhraseEl(p, catId, { isFavoritesView: cat.id === 'favorites' }));
+  });
   categoryModal.style.transition = 'none';
   categoryModal.style.transform = 'translateX(100%)';
   categoryModal.hidden = false;
@@ -1138,23 +1249,48 @@ function attachSwipeBack(modalEl, closeFn){
 }
 attachSwipeBack(categoryModal, closeCategoryModal);
 
-function buildPhraseEl(p){
+function buildPhraseEl(p, catId, opts={}){
   const row = document.createElement('div');
   row.className = 'phrase';
+  const favActive = isFavorite(catId, p.en);
   row.innerHTML = `
     <div class="phrase-text">
       <div class="phrase-en">${p.en}</div>
       <div class="phrase-translit">[${p.translit}]</div>
       <div class="phrase-ru">${p.ru}</div>
     </div>
-    <button class="play-btn-side" aria-label="Озвучить">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="#f2c98a"><polygon points="5,3 20,12 5,21"/></svg>
-    </button>
+    <div class="phrase-actions">
+      <button class="fav-btn-side${favActive ? ' active' : ''}" aria-label="В избранное">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="${favActive ? '#f2c98a' : 'none'}" stroke="#f2c98a" stroke-width="1.8" stroke-linejoin="round">${STAR_ICON_SVG}</svg>
+      </button>
+      <button class="play-btn-side" aria-label="Озвучить">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="#f2c98a"><polygon points="5,3 20,12 5,21"/></svg>
+      </button>
+    </div>
   `;
   row.querySelector('.phrase-text').addEventListener('click', () => copyToClipboard(p.en));
   row.querySelector('.play-btn-side').addEventListener('click', (e) => {
     e.stopPropagation();
     speak(p.speak || p.en, e.currentTarget);
+  });
+  const favBtn = row.querySelector('.fav-btn-side');
+  favBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleFavorite(catId, p.en);
+    const nowActive = favBtn.classList.toggle('active');
+    favBtn.querySelector('svg').setAttribute('fill', nowActive ? '#f2c98a' : 'none');
+    updateFavoritesBadge();
+    if (!nowActive && opts.isFavoritesView){
+      row.style.opacity = '0';
+      setTimeout(() => {
+        row.remove();
+        const remaining = getFavoritePhrases().length;
+        modalCount.textContent = remaining;
+        if (!remaining){
+          categoryModalBody.innerHTML = `<div class="empty-state">Пока нет избранных фраз.<br>Нажми ★ на любой фразе, чтобы добавить сюда.</div>`;
+        }
+      }, 200);
+    }
   });
   return row;
 }
@@ -1172,7 +1308,7 @@ function buildCategoryPanel(cat, phrases){
   el.appendChild(head);
   const inner = document.createElement('div');
   inner.className = 'category-body-inner';
-  phrases.forEach(p => inner.appendChild(buildPhraseEl(p)));
+  phrases.forEach(p => inner.appendChild(buildPhraseEl(p, cat.id)));
   el.appendChild(inner);
   return el;
 }
@@ -1203,6 +1339,7 @@ function renderCategories(filter=""){
   categoriesGrid.style.display = '';
   categoriesGrid.innerHTML = "";
   categoryDetail.innerHTML = "";
+
   categories.forEach(cat => {
     const card = document.createElement('div');
     card.className = 'category-card';
@@ -1215,6 +1352,7 @@ function renderCategories(filter=""){
   });
 }
 renderCategories();
+updateFavoritesBadge();
 
 document.getElementById('searchInput').addEventListener('input', e => {
   renderCategories(e.target.value);
