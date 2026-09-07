@@ -53,7 +53,7 @@
 
 | Главное меню | Избранное | Список фраз | Компактный режим | Озвучка | Карты |
 | :---: | :---: | :---: | :---: | :---: | :---: |
-| <img src="Screenshots/Screen1.jpg" height="300"> | <img src="Screenshots/Screen2.jpg" height="300"> | <img src="Screenshots/Screen3.jpg" height="300"> | <img src="Screenshots/Screen4.jpg" height="300"> | <img src="Screenshots/Screen5.jpg" height="300"> | <img src="Screenshots/Screen6.jpg" height="300"> |
+| <img src="Screenshots/Screen1.JPG" height="300"> | <img src="Screenshots/Screen2.JPG" height="300"> | <img src="Screenshots/Screen3.JPG" height="300"> | <img src="Screenshots/Screen4.JPG" height="300"> | <img src="Screenshots/Screen5.JPG" height="300"> | <img src="Screenshots/Screen6.JPG" height="300"> |
 
 ## 🚀 Быстрый старт
 
