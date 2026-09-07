@@ -87,7 +87,8 @@
 
 ## 🙌 Автор (иконка кликабельна)
 
-Сделано [![Steam](https://img.shields.io/badge/Steam-Петрович-1B2838?style=for-the-badge&logo=steam&logoColor=white)](https://steamcommunity.com/id/ya-petrovich/)
+Сделано с любовью ♥️
+[![Steam](https://img.shields.io/badge/Steam-Петрович-1B2838?style=for-the-badge&logo=steam&logoColor=white)](https://steamcommunity.com/id/ya-petrovich/)
 
 Иконки и дизайн вдохновлены минималистичным стилем CS2.  
 Все фразы собраны на основе реального игрового опыта и сообщества.
