@@ -51,20 +51,28 @@
   свой сплэш-экран и иконка
 - 🎨 **Тактический дизайн** — авторский UI в фирменной оранжево-чёрной палитре
 
-<table align="center">
-  <tr>
-    <td><div width="220" height="450"><img src="Screenshots/Screen1.jpg" width="100%" height="100%"/></div></td>
-    <td><div width="220" height="450"><img src="Screenshots/Screen2.jpg" width="100%" height="100%"/></div></td>
-    <td><div width="220" height="450"><img src="Screenshots/Screen3.jpg" width="100%" height="100%"/></div></td>
-    <td><div width="220" height="450"><img src="Screenshots/Screen4.jpg" width="100%" height="100%"/></div></td>
-  </tr>
-  <tr>
-    <td align="center"><b>Главное меню</b></td>
-    <td align="center"><b>Избранное</b></td>
-    <td align="center"><b>Список фраз</b></td>
-    <td align="center"><b>Компактный режим</b></td>
-  </tr>
-</table>
+<p align="center">
+  <a href="#главное-меню">
+    <img src="Screenshots/Screen1.jpg" height="400" alt="Главное меню"/><br>
+    <sub><b>Главное меню</b></sub>
+  </a>
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="#избранное">
+    <img src="Screenshots/Screen1.jpg" height="400" alt="Избранное"/><br>
+    <sub><b>Избранное</b></sub>
+  </a>
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="#список-фраз">
+    <img src="Screenshots/Screen1.jpg" height="400" alt="Список фраз"/><br>
+    <sub><b>Список фраз</b></sub>
+  </a>
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="#компактный-режим">
+    <img src="Screenshots/Screen1.jpg" height="400" alt="Компактный режим"/><br>
+    <sub><b>Компактный режим</b></sub>
+  </a>
+</p>
+
 
 ## 🚀 Быстрый старт
 
