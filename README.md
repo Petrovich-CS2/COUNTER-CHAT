@@ -53,12 +53,12 @@
 
 <table align="center">
   <tr>
-    <td><img src="Screenshots/Screen1.jpg" width="250" alt="Главный экран"/></td>
-    <td><img src="Screenshots/Screen2.jpg" width="250" alt="Избранное"/></td>
-    <td><img src="Screenshots/Screen3.jpg" width="250" alt="Список фраз"/></td>
-    <td><img src="Screenshots/Screen4.jpg" width="250" alt="Компактный режим"/></td>
-    <td><img src="Screenshots/Screen5.jpg" width="250" alt="Голос озвучки"/></td>
-    <td><img src="Screenshots/Screen6.jpg" width="250" alt="Карты"/></td>
+    <td><img src="Screenshots/Screen1.jpg" width="250" height="180" alt="Главный экран"/></td>
+    <td><img src="Screenshots/Screen2.jpg" width="250" height="180" alt="Избранное"/></td>
+    <td><img src="Screenshots/Screen3.jpg" width="250" height="180" alt="Список фраз"/></td>
+    <td><img src="Screenshots/Screen4.jpg" width="250" height="180" alt="Компактный режим"/></td>
+    <td><img src="Screenshots/Screen5.jpg" width="250" height="180" alt="Голос озвучки"/></td>
+    <td><img src="Screenshots/Screen6.jpg" width="250" height="180" alt="Карты"/></td>
   </tr>
   <tr>
     <td align="center"><b>Главное меню</b></td>
