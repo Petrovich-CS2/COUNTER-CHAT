@@ -2003,11 +2003,21 @@ function buildPhraseEl(p, catId, opts={}){
   });
   row.querySelector('.share-btn-side').addEventListener('click', (e) => {
     e.stopPropagation();
-    const shareText = `${p.en} [${p.translit}] — ${p.ru}`;
+    const shareText = `[${p.translit}] — ${p.ru}`;
     if (navigator.share){
-      navigator.share({ text: shareText }).catch(() => {});
+      // временно подменяем заголовок страницы на саму фразу — системное меню
+      // «Поделиться» в iOS/Android подтягивает title + иконку сайта в превью
+      const originalTitle = document.title;
+      document.title = p.en;
+      const shareData = { title: p.en, text: shareText };
+      if (location.protocol === 'https:' || location.protocol === 'http:'){
+        shareData.url = location.href;
+      }
+      navigator.share(shareData)
+        .catch(() => {})
+        .finally(() => { document.title = originalTitle; });
     } else {
-      copyToClipboard(shareText, 'Фраза скопирована — вставь в чат');
+      copyToClipboard(`${p.en} [${p.translit}] — ${p.ru}`, 'Фраза скопирована — вставь в чат');
     }
   });
   const favBtn = row.querySelector('.fav-btn-side');
