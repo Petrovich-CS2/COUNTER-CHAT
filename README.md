@@ -46,7 +46,8 @@ counter-chat/
 
 ## 📄 Лицензия
 
-Copyright 2026 © [![Steam](https://img.shields.io/badge/Steam-000000?style=for-the-badge&logo=steam&logoColor=white)Петрович](https://steamcommunity.com/id/ya-petrovich/)
+Copyright 2026 © [[![Steam](https://img.shields.io/badge/Steam-Петрович-000000?style=for-the-badge&logo=steam&logoColor=white)](https://steamcommunity.com/id/ya-petrovich/)
+Петрович](https://steamcommunity.com/id/ya-petrovich/)
 
 ## P.S.
 · Иконки и дизайн вдохновлены минималистичным стилем CS2.  
