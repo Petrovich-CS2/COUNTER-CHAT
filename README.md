@@ -52,3 +52,6 @@ counter-chat/
 ## P.S.
 · Иконки и дизайн вдохновлены минималистичным стилем CS2.  
 · Все фразы собраны на основе реального игрового опыта и сообщества.
+
+![PWA](https://img.shields.io/badge/PWA-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white)
+![Progressive Web App](https://img.shields.io/badge/Progressive_Web_App-yes-green?style=for-the-badge)
