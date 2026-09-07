@@ -1,6 +1,6 @@
 # Counter Chat — CS2 разговорник
 
-![CS2](https://img.shields.io/badge/CS2-000000?style=for-the-badge&logo=counterstrike&logoColor=white)**Counter Chat** — это веб-приложение для изучения и быстрого использования английских фраз, необходимых для коммуникации в Counter-Strike 2. Приложение также включает упрощённые схемы карт с обозначением ключевых позиций. Разработано как PWA для удобного использования на мобильных устройствах.
+**Counter Chat** — это веб-приложение для изучения и быстрого использования английских фраз, необходимых для коммуникации в Counter-Strike 2. Приложение также включает упрощённые схемы карт с обозначением ключевых позиций. Разработано как PWA для удобного использования на мобильных устройствах.
 
 ## ✨ Особенности
 
@@ -46,7 +46,7 @@ counter-chat/
 
 ## 📄 Лицензия
 
-Copyright 2026 © [Петрович](https://steamcommunity.com/id/ya-petrovich/)
+Copyright 2026 © [![Steam](https://img.shields.io/badge/Steam-000000?style=for-the-badge&logo=steam&logoColor=white)Петрович](https://steamcommunity.com/id/ya-petrovich/)
 
 ## P.S.
 · Иконки и дизайн вдохновлены минималистичным стилем CS2.  
