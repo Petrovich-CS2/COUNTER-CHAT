@@ -50,7 +50,7 @@ counter-chat/
 
 ## 📄 Лицензия
 
-MIT © [Петрович](https://steamcommunity.com/id/ya-petrovich/)
+Copyright 2026 © [Петрович](https://steamcommunity.com/id/ya-petrovich/)
 
 ## P.S.
 · Иконки и дизайн вдохновлены минималистичным стилем CS2.  
