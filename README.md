@@ -51,10 +51,6 @@
   свой сплэш-экран и иконка
 - 🎨 **Тактический дизайн** — авторский UI в фирменной оранжево-чёрной палитре
 
-| Главное меню | Избранное | Список фраз | Компактный режим | Озвучка | Карты |
-| :---: | :---: | :---: | :---: | :---: | :---: |
-| <img src="Screenshots/Screen1.JPG" height="300"> | <img src="Screenshots/Screen2.JPG" height="300"> | <img src="Screenshots/Screen3.JPG" height="300"> | <img src="Screenshots/Screen4.JPG" height="300"> | <img src="Screenshots/Screen5.JPG" height="300"> | <img src="Screenshots/Screen6.JPG" height="300"> |
-
 <div align="center">
 
 # 🖼️ Галерея
@@ -63,36 +59,30 @@
   <tr>
     <td width="33%" valign="top">
       <img src="./Screenshots/Screen1.JPG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-      <p><b>Заголовок 1</b></p>
-      <p style="font-size: 14px; color: #666;">Описание или подпись для первого изображения</p>
+      <p style="font-size: 14px; color: #666;">Главное меню</p>
     </td>
     <td width="33%" valign="top">
       <img src=".Screenshots/Screen2.JPG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-      <p><b>Заголовок 2</b></p>
-      <p style="font-size: 14px; color: #666;">Описание или подпись для второго изображения</p>
+      <p style="font-size: 14px; color: #666;">Избранное</p>
     </td>
     <td width="33%" valign="top">
       <img src=".Screenshots/Screen3.JPG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-      <p><b>Заголовок 3</b></p>
-      <p style="font-size: 14px; color: #666;">Описание или подпись для третьего изображения</p>
+      <p style="font-size: 14px; color: #666;">Списки фраз</p>
     </td>
   </tr>
   <tr height="20"></tr>
   <tr>
     <td width="33%" valign="top">
       <img src=".Screenshots/Screen4.JPG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-      <p><b>Заголовок 4</b></p>
-      <p style="font-size: 14px; color: #666;">Описание или подпись для четвёртого изображения</p>
+      <p style="font-size: 14px; color: #666;">Компактный режим</p>
     </td>
     <td width="33%" valign="top">
       <img src=".Screenshots/Screen5.JPG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-      <p><b>Заголовок 5</b></p>
-      <p style="font-size: 14px; color: #666;">Описание или подпись для пятого изображения</p>
+      <p style="font-size: 14px; color: #666;">Озвучка</p>
     </td>
     <td width="33%" valign="top">
       <img src=".Screenshots/Screen6.JPG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-      <p><b>Заголовок 6</b></p>
-      <p style="font-size: 14px; color: #666;">Описание или подпись для шестого изображения</p>
+      <p style="font-size: 14px; color: #666;">Карты</p>
     </td>
   </tr>
 </table>
