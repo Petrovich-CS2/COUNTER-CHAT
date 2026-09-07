@@ -51,14 +51,25 @@
   свой сплэш-экран и иконка
 - 🎨 **Тактический дизайн** — авторский UI в фирменной оранжево-чёрной палитре
 
-<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px;">
-  <img src="screenshots/screen1.png" style="width: 100%; max-width: 280px; object-fit: contain;" alt="Главное меню">
-  <img src="screenshots/screen2.png" style="width: 100%; max-width: 280px; object-fit: contain;" alt="Экран 2">
-  <img src="screenshots/screen3.png" style="width: 100%; max-width: 280px; object-fit: contain;" alt="Экран 3">
-  <img src="screenshots/screen3.png" style="width: 100%; max-width: 280px; object-fit: contain;" alt="Экран 3">
-  <img src="screenshots/screen3.png" style="width: 100%; max-width: 280px; object-fit: contain;" alt="Экран 3">
-  <img src="screenshots/screen3.png" style="width: 100%; max-width: 280px; object-fit: contain;" alt="Экран 3">
-</div>
+<table align="center">
+  <tr>
+    <td><img src="/Screenshots/screen1.png" width="250" alt="Главный экран"/></td>
+    <td><img src="Screenshots/screen2.png" width="250" alt="Избранное"/></td>
+    <td><img src="Screenshots/screen3.png" width="250" alt="Список фраз"/></td>
+    <td><img src="Screenshots/screen4.png" width="250" alt="Компактный режим"/></td>
+    <td><img src="Screenshots/screen5.png" width="250" alt="Голос озвучки"/></td>
+    <td><img src="Screenshots/screen6.png" width="250" alt="Карты"/></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Главное меню</b></td>
+    <td align="center"><b>Избранное</b></td>
+    <td align="center"><b>Список фраз</b></td>
+    <td align="center"><b>Компактный режим</b></td>
+    <td align="center"><b>Голос озвучки</b></td>
+    <td align="center"><b>Карты</b></td>
+  </tr>
+</table>
+
 
 ## 🚀 Быстрый старт
 
