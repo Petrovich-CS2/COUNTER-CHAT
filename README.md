@@ -53,15 +53,16 @@
 
 <table align="center">
   <tr>
-    td><div width="220" height="450"><img src="Screenshots/Screen1.jpg" width="100%" height="100%"/></div></
+    <td><div width="220" height="450"><img src="Screenshots/Screen1.jpg" width="100%" height="100%"/></div></td>
+    <td><div width="220" height="450"><img src="Screenshots/Screen2.jpg" width="100%" height="100%"/></div></td>
+    <td><div width="220" height="450"><img src="Screenshots/Screen3.jpg" width="100%" height="100%"/></div></td>
+    <td><div width="220" height="450"><img src="Screenshots/Screen4.jpg" width="100%" height="100%"/></div></td>
   </tr>
   <tr>
     <td align="center"><b>Главное меню</b></td>
     <td align="center"><b>Избранное</b></td>
     <td align="center"><b>Список фраз</b></td>
     <td align="center"><b>Компактный режим</b></td>
-    <td align="center"><b>Голос озвучки</b></td>
-    <td align="center"><b>Карты</b></td>
   </tr>
 </table>
 
