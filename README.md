@@ -30,6 +30,7 @@ counter-chat/
 ├── icon-512.png        # Иконка 512×512
 ├── splash-*.png        # Splash-экраны для iOS
 └── README.md
+```
 
 ## 📦 Установка и запуск
 1. [Открыть приложение](https://ya-petrovich.github.io/counter-chat/)
