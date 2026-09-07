@@ -51,27 +51,11 @@
   свой сплэш-экран и иконка
 - 🎨 **Тактический дизайн** — авторский UI в фирменной оранжево-чёрной палитре
 
-<p align="center">
-  <a href="#главное-меню">
-    <img src="Screenshots/Screen1.jpg" height="400" alt="Главное меню"/><br>
-    <sub><b>Главное меню</b></sub>
-  </a>
-  &nbsp;&nbsp;&nbsp;&nbsp;
-  <a href="#избранное">
-    <img src="Screenshots/Screen1.jpg" height="400" alt="Избранное"/><br>
-    <sub><b>Избранное</b></sub>
-  </a>
-  &nbsp;&nbsp;&nbsp;&nbsp;
-  <a href="#список-фраз">
-    <img src="Screenshots/Screen1.jpg" height="400" alt="Список фраз"/><br>
-    <sub><b>Список фраз</b></sub>
-  </a>
-  &nbsp;&nbsp;&nbsp;&nbsp;
-  <a href="#компактный-режим">
-    <img src="Screenshots/Screen1.jpg" height="400" alt="Компактный режим"/><br>
-    <sub><b>Компактный режим</b></sub>
-  </a>
-</p>
+
+| Главное меню | Избранное | Список фраз | Компактный режим | Озвучка | Карты |
+| :---: | :---: | :---: | :---: | :---: | :---: |
+| <img src="Screenshots/Screen1.jpg" width="130"> | <img src="Screenshots/Screen2.jpg" width="130"> | <img src="Screenshots/Screen3.jpg" width="130"> | <img src="Screenshots/Screen4.jpg" width="130"> | <img src="Screenshots/Screen5.jpg" width="130"> | <img src="Screenshots/Screen6.jpg" width="130"> |
+
 
 
 ## 🚀 Быстрый старт
