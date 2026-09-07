@@ -33,8 +33,8 @@ counter-chat/
 ```
 
 ## 📦 Установка и запуск
-1. [Открыть приложение](https://ya-petrovich.github.io/counter-chat/)
-2. Откройте index.html в браузере
+1. [Открыть приложение на GitHub Pages](https://ya-petrovich.github.io/counter-chat/)
+2. Открыть index.html в браузере
 
 ## ⚙️ Настройки
 · Голос: кнопка с динамиком в шапке открывает выбор голоса (доступные голоса зависят от системы).
