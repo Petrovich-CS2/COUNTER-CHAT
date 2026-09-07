@@ -54,7 +54,7 @@
 
 | Главное меню | Избранное | Список фраз | Компактный режим | Озвучка | Карты |
 | :---: | :---: | :---: | :---: | :---: | :---: |
-| <img src="Screenshots/Screen1.jpg" width="130"> | <img src="Screenshots/Screen2.jpg" width="130"> | <img src="Screenshots/Screen3.jpg" width="130"> | <img src="Screenshots/Screen4.jpg" width="130"> | <img src="Screenshots/Screen5.jpg" width="130"> | <img src="Screenshots/Screen6.jpg" width="130"> |
+| <img src="Screenshots/Screen1.jpg" height="350"> | <img src="Screenshots/Screen2.jpg" height="350"> | <img src="Screenshots/Screen3.jpg" height="350"> | <img src="Screenshots/Screen4.jpg" height="350"> | <img src="Screenshots/Screen5.jpg" height="350"> | <img src="Screenshots/Screen6.jpg" height="350"> |
 
 
 
