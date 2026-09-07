@@ -9,6 +9,18 @@
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.json">
 
+<!-- отдельная ссылка на РЕАЛЬНЫЙ файл иконки (не base64) — механизм генерации превью
+     в системном меню «Поделиться» у iOS сам скачивает иконку по ссылке отдельным
+     запросом и не умеет работать с data:-URI, поэтому нужен именно файл -->
+<link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
+<meta property="og:title" content="Counter Chat — CS2 разговорник">
+<meta property="og:site_name" content="Counter Chat">
+<meta property="og:description" content="EN-фразы, транскрипция и озвучка для CS2">
+<meta property="og:image" content="icon-512.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="icon-512.png">
+
 <!-- загрузочные экраны (splash) для iOS — убирают белую вспышку при запуске с домашнего экрана -->
 <link rel="apple-touch-startup-image" href="splash-1290x2796.png" media="screen and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
 <link rel="apple-touch-startup-image" href="splash-1179x2556.png" media="screen and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
