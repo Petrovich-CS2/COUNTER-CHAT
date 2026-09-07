@@ -51,12 +51,9 @@
   свой сплэш-экран и иконка
 - 🎨 **Тактический дизайн** — авторский UI в фирменной оранжево-чёрной палитре
 
-
 | Главное меню | Избранное | Список фраз | Компактный режим | Озвучка | Карты |
 | :---: | :---: | :---: | :---: | :---: | :---: |
-| <img src="Screenshots/Screen1.jpg" height="350"> | <img src="Screenshots/Screen2.jpg" height="350"> | <img src="Screenshots/Screen3.jpg" height="350"> | <img src="Screenshots/Screen4.jpg" height="350"> | <img src="Screenshots/Screen5.jpg" height="350"> | <img src="Screenshots/Screen6.jpg" height="350"> |
-
-
+| <img src="Screenshots/Screen1.jpg" height="300"> | <img src="Screenshots/Screen2.jpg" height="300"> | <img src="Screenshots/Screen3.jpg" height="300"> | <img src="Screenshots/Screen4.jpg" height="300"> | <img src="Screenshots/Screen5.jpg" height="300"> | <img src="Screenshots/Screen6.jpg" height="300"> |
 
 ## 🚀 Быстрый старт
 
