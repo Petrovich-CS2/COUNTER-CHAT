@@ -51,6 +51,15 @@
   свой сплэш-экран и иконка
 - 🎨 **Тактический дизайн** — авторский UI в фирменной оранжево-чёрной палитре
 
+<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px;">
+  <img src="screenshots/screen1.png" style="width: 100%; max-width: 280px; object-fit: contain;" alt="Главное меню">
+  <img src="screenshots/screen2.png" style="width: 100%; max-width: 280px; object-fit: contain;" alt="Экран 2">
+  <img src="screenshots/screen3.png" style="width: 100%; max-width: 280px; object-fit: contain;" alt="Экран 3">
+  <img src="screenshots/screen3.png" style="width: 100%; max-width: 280px; object-fit: contain;" alt="Экран 3">
+  <img src="screenshots/screen3.png" style="width: 100%; max-width: 280px; object-fit: contain;" alt="Экран 3">
+  <img src="screenshots/screen3.png" style="width: 100%; max-width: 280px; object-fit: contain;" alt="Экран 3">
+</div>
+
 ## 🚀 Быстрый старт
 
 Проект — статический сайт без сборки и зависимостей. Всё, что нужно:
