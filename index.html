@@ -538,10 +538,102 @@ body.compact-mode .phrase{padding-top:8px; padding-bottom:8px;}
   padding:14px 14px 6px;
 }
 .schematic-head{
-  display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px;
+  display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:8px;
 }
 .map-name{font-family:var(--font-mono); font-weight:700; font-size:15px; letter-spacing:.03em;}
-.schematic-hint{font-size:10px; color:var(--text-faint);}
+.schematic-head-right{
+  display:flex; align-items:center; gap:8px;
+  flex-shrink:0;
+  margin-left:auto;
+}
+.schematic-hint{font-size:10px; color:var(--text-faint); white-space:nowrap;}
+.zoom-btn{
+  flex-shrink:0;
+  width:26px; height:26px;
+  border-radius:8px;
+  background:var(--bg-surface);
+  border:1px solid var(--line);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+}
+.zoom-btn:active{background:var(--bg-elevated); transform:scale(.93);}
+
+.map-zoom-modal{
+  position:fixed;
+  inset:0;
+  max-width:480px;
+  margin:0 auto;
+  background:#05070a;
+  z-index:300;
+  display:flex;
+  flex-direction:column;
+}
+.map-zoom-modal[hidden]{display:none;}
+.map-zoom-head{
+  display:flex; align-items:center; gap:10px;
+  padding:calc(16px + env(safe-area-inset-top, 0px)) 16px 12px;
+  border-bottom:1px solid var(--line);
+  flex-shrink:0;
+  background:rgba(9,11,14,.9);
+}
+.map-zoom-title{
+  flex:1;
+  font-family:var(--font-mono);
+  font-weight:700;
+  font-size:14px;
+  color:var(--text-primary);
+}
+.map-zoom-controls{
+  display:flex; align-items:center; gap:8px;
+  flex-shrink:0;
+}
+.zoom-ctrl-btn{
+  width:28px; height:28px;
+  border-radius:8px;
+  background:var(--bg-surface);
+  border:1px solid var(--line);
+  color:var(--text-primary);
+  font-size:17px;
+  font-weight:700;
+  line-height:1;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+}
+.zoom-ctrl-btn:active{background:var(--bg-elevated); transform:scale(.92);}
+.zoom-level{
+  font-family:var(--font-mono);
+  font-size:10.5px;
+  color:var(--text-faint);
+  min-width:34px;
+  text-align:center;
+}
+.map-zoom-viewport{
+  flex:1;
+  overflow:auto;
+  touch-action:pan-x pan-y;
+  -webkit-overflow-scrolling:touch;
+  display:flex;
+  align-items:flex-start;
+  justify-content:flex-start;
+}
+.map-zoom-content{
+  transform-origin:top left;
+  transition:transform .18s ease;
+  padding:16px;
+  width:100%;
+  box-sizing:border-box;
+}
+.map-zoom-content .schematic{margin-bottom:0;}
+.map-zoom-content .pin{cursor:pointer;}
+.map-zoom-tip{
+  flex-shrink:0;
+  text-align:center;
+  font-size:10.5px;
+  color:var(--text-faint);
+  padding:8px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+  border-top:1px solid var(--line);
+  background:rgba(9,11,14,.9);
+}
 
 .legend{display:flex; gap:14px; margin-bottom:10px;}
 .legend-item{display:flex; align-items:center; gap:5px; font-size:10.5px; color:var(--text-muted); font-family:var(--font-mono);}
@@ -699,6 +791,11 @@ body.compact-mode .phrase{padding-top:8px; padding-bottom:8px;}
   transition:transform .15s ease;
 }
 .pin:active .pin-dot{transform:scale(1.3);}
+.pin-dot.playing, .pin-spawn.playing{animation:pinPulse 1s ease-in-out infinite;}
+@keyframes pinPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(242,201,138,.7), 0 2px 6px rgba(0,0,0,.5);}
+  50%{box-shadow:0 0 0 7px rgba(242,201,138,0), 0 2px 6px rgba(0,0,0,.5);}
+}
 .pin-spawn{
   min-width:17px; height:17px;
   padding:0 3px;
@@ -741,6 +838,18 @@ body.compact-mode .phrase{padding-top:8px; padding-bottom:8px;}
 }
 @keyframes slideUp{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
 .info-panel-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;}
+.icon-btn{
+  flex-shrink:0;
+  width:26px; height:26px;
+  border-radius:9px;
+  background:rgba(214,144,58,.14);
+  border:1px solid rgba(214,144,58,.3);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+  transition:background .15s ease, transform .1s ease;
+}
+.icon-btn:active{transform:scale(.9);}
+.icon-btn.playing{background:rgba(214,144,58,.4); animation:pulse 1s ease-in-out infinite;}
 .info-panel-name{font-family:var(--font-mono); font-weight:700; font-size:15px;}
 .info-panel-en{font-weight:500; font-size:12px; color:var(--text-faint);}
 .info-panel-photo{
@@ -858,7 +967,12 @@ body.compact-mode .phrase{padding-top:8px; padding-bottom:8px;}
     <div class="schematic-card">
       <div class="schematic-head">
         <div class="map-name" id="mapName">—</div>
-        <div class="schematic-hint">упрощённая схема</div>
+        <div class="schematic-head-right">
+          <button class="zoom-btn" id="mapZoomBtn" aria-label="Увеличить карту">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#eae7e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+          </button>
+          <div class="schematic-hint">упрощённая схема</div>
+        </div>
       </div>
       <div class="legend">
         <div class="legend-item"><span class="legend-dot" style="background:var(--site-a)"></span>Сайт A</div>
@@ -873,6 +987,24 @@ body.compact-mode .phrase{padding-top:8px; padding-bottom:8px;}
     </div>
 
     <div class="info-panel" id="infoPanel" hidden></div>
+  </div>
+
+  <div class="map-zoom-modal" id="mapZoomModal" hidden>
+    <div class="map-zoom-head">
+      <button class="modal-back-btn" id="mapZoomCloseBtn" aria-label="Закрыть">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#eae7e0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <span class="map-zoom-title" id="mapZoomTitle">—</span>
+      <div class="map-zoom-controls">
+        <button class="zoom-ctrl-btn" id="mapZoomOutBtn" aria-label="Уменьшить">−</button>
+        <span class="zoom-level" id="mapZoomLevel">100%</span>
+        <button class="zoom-ctrl-btn" id="mapZoomInBtn" aria-label="Увеличить">+</button>
+      </div>
+    </div>
+    <div class="map-zoom-viewport" id="mapZoomViewport">
+      <div class="map-zoom-content" id="mapZoomContent"></div>
+    </div>
+    <div class="map-zoom-tip">Перетаскивай пальцем, чтобы посмотреть другие участки карты</div>
   </div>
 
   <nav class="tabbar">
@@ -1818,10 +1950,11 @@ function speak(text, btnEl){
   utter.pitch = 1;
   const voice = getSelectedVoice();
   if (voice) utter.voice = voice;
-  document.querySelectorAll('.play-btn-side.playing').forEach(b => b.classList.remove('playing'));
-  if (btnEl) btnEl.classList.add('playing');
-  utter.onend = () => { if (btnEl) btnEl.classList.remove('playing'); };
-  utter.onerror = () => { if (btnEl) btnEl.classList.remove('playing'); };
+  const targets = (Array.isArray(btnEl) ? btnEl : [btnEl]).filter(Boolean);
+  document.querySelectorAll('.playing').forEach(b => b.classList.remove('playing'));
+  targets.forEach(el => el.classList.add('playing'));
+  utter.onend = () => targets.forEach(el => el.classList.remove('playing'));
+  utter.onerror = () => targets.forEach(el => el.classList.remove('playing'));
   window.speechSynthesis.speak(utter);
 }
 
@@ -2166,25 +2299,75 @@ function selectPin(pinEl, pt){
   infoPanel.hidden = false;
   infoPanel.innerHTML = `
     <div class="info-panel-head">
-      <div style="display:flex; align-items:center; gap:7px;">
-        <button class="icon-btn play-btn" data-speak="${(pt.en || pt.n).replace(/"/g,'&quot;')}" aria-label="Озвучить">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="#f2c98a"><polygon points="5,3 20,12 5,21"/></svg>
-        </button>
-        <span class="info-panel-name">${pt.n}${pt.en ? ` <span class="info-panel-en">[${pt.en}]</span>` : ''}</span>
-      </div>
+      <span class="info-panel-name">${pt.n}${pt.en ? ` <span class="info-panel-en">[${pt.en}]</span>` : ''}</span>
       <span class="info-panel-tag" style="background:${tagColor}22; color:${tagColor}; border:1px solid ${tagColor}55;">${tagLabel}</span>
     </div>
     ${pt.img ? `<img class="info-panel-photo" src="${pt.img}" alt="${pt.n}" loading="lazy">` : ''}
     <div class="info-panel-desc">${pt.d}</div>
   `;
-  infoPanel.querySelector('.play-btn').addEventListener('click', (e) => {
-    e.stopPropagation();
-    speak(pt.en || pt.n, e.currentTarget);
-  });
+  // озвучиваем сразу при тапе на саму точку, с пульсацией
+  const marker = pinEl.querySelector('.pin-dot, .pin-spawn');
+  speak(pt.en || pt.n, marker);
 }
 
 renderChips();
 renderSchematic();
+
+/* ================= ЗУМ КАРТЫ ================= */
+const mapZoomModal = document.getElementById('mapZoomModal');
+const mapZoomContent = document.getElementById('mapZoomContent');
+const mapZoomLevel = document.getElementById('mapZoomLevel');
+let zoomScale = 1;
+const ZOOM_MIN = 1, ZOOM_MAX = 3, ZOOM_STEP = 0.5;
+
+function applyZoomScale(){
+  mapZoomContent.style.transform = `scale(${zoomScale})`;
+  mapZoomLevel.textContent = Math.round(zoomScale * 100) + '%';
+}
+
+document.getElementById('mapZoomBtn').addEventListener('click', () => {
+  mapZoomContent.innerHTML = schematic.outerHTML;
+  document.getElementById('mapZoomTitle').textContent = currentMap;
+  zoomScale = 1.6; // сразу открываем с небольшим приближением, чтобы сразу было видно пользу
+  applyZoomScale();
+  mapZoomModal.hidden = false;
+
+  // клонирование через innerHTML не переносит обработчики событий — навешиваем их заново,
+  // сопоставляя точки по подписи с данными текущей карты
+  const zoomTip = document.querySelector('.map-zoom-tip');
+  const defaultTip = 'Перетаскивай пальцем, чтобы посмотреть другие участки карты';
+  mapZoomContent.querySelectorAll('.pin').forEach(pinClone => {
+    const label = pinClone.querySelector('.pin-label')?.textContent;
+    const pt = maps[currentMap].points.find(p => p.n === label);
+    if (!pt) return;
+    pinClone.addEventListener('click', (e) => {
+      e.stopPropagation();
+      mapZoomContent.querySelectorAll('.pin.selected').forEach(p => p.classList.remove('selected'));
+      pinClone.classList.add('selected');
+      const marker = pinClone.querySelector('.pin-dot, .pin-spawn');
+      speak(pt.en || pt.n, marker);
+      zoomTip.textContent = `${pt.n}${pt.en ? ` [${pt.en}]` : ''} — ${pt.d}`;
+    });
+  });
+  zoomTip.textContent = defaultTip;
+
+  // центрируем скролл после отрисовки
+  requestAnimationFrame(() => {
+    const vp = document.getElementById('mapZoomViewport');
+    vp.scrollLeft = (vp.scrollWidth - vp.clientWidth) / 2;
+  });
+});
+document.getElementById('mapZoomCloseBtn').addEventListener('click', () => {
+  mapZoomModal.hidden = true;
+});
+document.getElementById('mapZoomInBtn').addEventListener('click', () => {
+  zoomScale = Math.min(ZOOM_MAX, zoomScale + ZOOM_STEP);
+  applyZoomScale();
+});
+document.getElementById('mapZoomOutBtn').addEventListener('click', () => {
+  zoomScale = Math.max(ZOOM_MIN, zoomScale - ZOOM_STEP);
+  applyZoomScale();
+});
 
 /* ================= TABS ================= */
 const screens = { phrases: document.getElementById('screen-phrases'), maps: document.getElementById('screen-maps') };
@@ -2197,7 +2380,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     Object.entries(screens).forEach(([key, el]) => { el.hidden = key !== tab; });
     if (tab === 'maps' && !localStorage.getItem(MAPS_HINT_KEY)){
       localStorage.setItem(MAPS_HINT_KEY, '1');
-      toastEl.textContent = 'Тапни на точку, чтобы услышать произношение';
+      toastEl.textContent = 'Тапни на точку, чтобы услышать произношение и увидеть подробности';
       toastEl.classList.add('show');
       clearTimeout(toastTimer);
       toastTimer = setTimeout(() => toastEl.classList.remove('show'), 3200);
