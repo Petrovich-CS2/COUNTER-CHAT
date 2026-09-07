@@ -2017,14 +2017,14 @@ function buildPhraseEl(p, catId, opts={}){
     e.stopPropagation();
     const shareText = `[${p.translit}] — ${p.ru}`;
     if (navigator.share){
-      // временно подменяем заголовок страницы на саму фразу — системное меню
-      // «Поделиться» в iOS/Android подтягивает title + иконку сайта в превью
+      // «Поделиться» в iOS/Android подтягивает title + иконку сайта в превью.
+      // ВАЖНО: url намеренно не передаём — при одновременной передаче title+text+url
+      // у iOS есть задокументированный баг (с версии 13.4), из-за которого пропадает
+      // иконка в системном меню «Поделиться» даже в нативных приложениях Apple
+      // (developer.apple.com/forums/thread/133575). Без url всё работает штатно.
       const originalTitle = document.title;
       document.title = p.en;
       const shareData = { title: p.en, text: shareText };
-      if (location.protocol === 'https:' || location.protocol === 'http:'){
-        shareData.url = location.href;
-      }
       navigator.share(shareData)
         .catch(() => {})
         .finally(() => { document.title = originalTitle; });
