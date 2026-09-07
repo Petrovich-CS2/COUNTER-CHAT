@@ -56,7 +56,7 @@
 Проект — статический сайт без сборки и зависимостей. Всё, что нужно:
 
 1. Либо открыть `index.html` в браузере — и всё уже работает.
-2. либо открыть `GitHubPages` https://petrovich-cs2.github.io/COUNTER-CHAT/
+2. Либо открыть `GitHubPages` https://petrovich-cs2.github.io/COUNTER-CHAT/
 
 
 ### Установка как приложение
