@@ -33,7 +33,7 @@ counter-chat/
 ```
 
 ## 📦 Установка и запуск
-1. [Открыть приложение на GitHub Pages](https://ya-petrovich.github.io/counter-chat/)
+1. [Открыть приложение на GitHub Pages](https://petrovich-cs2.github.io/COUNTER-CHAT/)
 2. Открыть index.html в браузере
 
 ## ⚙️ Настройки
