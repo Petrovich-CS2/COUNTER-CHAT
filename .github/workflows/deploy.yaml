@@ -1,0 +1,47 @@
+name: Deploy Counter Chat to GitHub Pages
+
+# запускается автоматически при каждой загрузке изменений в ветку main
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch: # позволяет запустить вручную кнопкой на вкладке Actions, если понадобится
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Забираем код репозитория
+        uses: actions/checkout@v4
+
+      - name: Подставляем версию сборки в sw.js и index.html
+        run: |
+          # версия = короткий номер коммита + время публикации — гарантированно
+          # уникальна при каждой публикации, вручную ничего трогать не нужно
+          BUILD_VERSION="${GITHUB_SHA::7}-$(date +%s)"
+          echo "Версия сборки: $BUILD_VERSION"
+          sed -i "s/__BUILD_VERSION__/${BUILD_VERSION}/g" sw.js
+          sed -i "s/__BUILD_VERSION__/${BUILD_VERSION}/g" index.html
+
+      - name: Настраиваем GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Загружаем готовые файлы
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Публикуем сайт
+        id: deployment
+        uses: actions/deploy-pages@v4
