@@ -1,6 +1,6 @@
 <div align="center">
 
-# ![Counter Chat](./screenshots/logo.PNG)
+# ![Counter Chat](./Screenshots/logo.PNG)
 
 Быстрый доступ к английским игровым фразам с переводом, транскрипцией и озвучкой —
 чтобы никогда больше не теряться в войсчате международного лобби.
@@ -62,31 +62,43 @@
 <table>
   <tr>
     <td width="33%" valign="top" align="center">
-      <img src="./Screenshots/Screen1.JPG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+      <img src="./Screenshots/Screen1.PNG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
       <p style="font-size: 14px; color: #666;">Главное меню</p>
     </td>
     <td width="33%" valign="top" align="center">
-      <img src="./Screenshots/Screen2.JPG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+      <img src="./Screenshots/Screen2.PNG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
       <p style="font-size: 14px; color: #666;">Избранное</p>
     </td>
     <td width="33%" valign="top" align="center">
-      <img src="./Screenshots/Screen3.JPG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-      <p style="font-size: 14px; color: #666;">Списки фраз</p>
+      <img src="./Screenshots/Screen3.PNG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+      <p style="font-size: 14px; color: #666;">Импорт и экспорт избранного</p>
     </td>
   </tr>
   <tr height="20"></tr>
   <tr>
     <td width="33%" valign="top" align="center">
-      <img src="./Screenshots/Screen4.JPG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-      <p style="font-size: 14px; color: #666;">Компактный режим</p>
+      <img src="./Screenshots/Screen4.PNG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+      <p style="font-size: 14px; color: #666;">Списки фраз</p>
     </td>
     <td width="33%" valign="top" align="center">
-      <img src="./Screenshots/Screen5.JPG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-      <p style="font-size: 14px; color: #666;">Озвучка</p>
+      <img src="./Screenshots/Screen5.PNG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+      <p style="font-size: 14px; color: #666;">Поиск</p>
     </td>
     <td width="33%" valign="top" align="center">
-      <img src="./Screenshots/Screen6.JPG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-      <p style="font-size: 14px; color: #666;">Карты</p>
+      <img src="./Screenshots/Screen6.PNG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+      <p style="font-size: 14px; color: #666;">Добавление своих фраз</p>
+    </td>
+    <td width="33%" valign="top" align="center">
+      <img src="./Screenshots/Screen7.PNG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+      <p style="font-size: 14px; color: #666;">Добавление своих фраз</p>
+    </td>
+    <td width="33%" valign="top" align="center">
+      <img src="./Screenshots/Screen8.PNG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+      <p style="font-size: 14px; color: #666;">Добавление своих фраз</p>
+    </td>
+    <td width="33%" valign="top" align="center">
+      <img src="./Screenshots/Screen9.PNG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+      <p style="font-size: 14px; color: #666;">Добавление своих фраз</p>
     </td>
   </tr>
 </table>
