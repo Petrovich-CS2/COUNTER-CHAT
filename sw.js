@@ -1,0 +1,95 @@
+/*
+  Service Worker для Counter Chat.
+
+  Стратегия:
+  - index.html (сама страница): "сеть в приоритете" — при каждом открытии
+    с доступом в интернет подтягивается САМАЯ СВЕЖАЯ версия с сервера
+    и тут же кладётся в кэш. Если сети нет — отдаётся последняя закэшированная
+    версия, чтобы приложение всё равно открылось (офлайн-доступ).
+  - Остальные файлы (иконки, манифест, сплэши): "кэш в приоритете" — они меняются
+    редко, поэтому отдаём мгновенно из кэша, а в фоне тихо обновляем на будущее.
+
+  ВАЖНО: при каждом значимом обновлении контента (новые фразы, карты, дизайн)
+  увеличивай CACHE_VERSION на единицу. Это заставит Service Worker пересоздать
+  кэш и корректно удалить старый — без этого шага браузер может решить,
+  что новый sw.js "такой же", и не обновит закэшированные файлы вовремя.
+*/
+const CACHE_VERSION = 'v1';
+const CACHE_NAME = `counter-chat-${CACHE_VERSION}`;
+
+const APP_SHELL = [
+  './',
+  './index.html',
+  './manifest.json',
+  './icon-192.png',
+  './icon-512.png',
+  './splash-1290x2796.png',
+  './splash-1179x2556.png',
+  './splash-1284x2778.png',
+  './splash-1170x2532.png',
+  './splash-1080x2340.png',
+  './splash-1242x2688.png',
+  './splash-828x1792.png',
+  './splash-1125x2436.png',
+  './splash-1320x2868.png',
+  './splash-1206x2622.png',
+];
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then((cache) => cache.addAll(APP_SHELL))
+      .catch(() => {}) // не роняем установку, если какой-то файл не нашёлся
+  );
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys()
+      .then((keys) => Promise.all(
+        keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))
+      ))
+      .then(() => self.clients.claim())
+  );
+});
+
+// позволяет странице попросить новый Service Worker активироваться немедленно
+// (используется кнопкой "Обновить" в баннере обновления)
+self.addEventListener('message', (event) => {
+  if (event.data === 'SKIP_WAITING') self.skipWaiting();
+});
+
+self.addEventListener('fetch', (event) => {
+  const req = event.request;
+  if (req.method !== 'GET') return;
+
+  const isHTML = req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html');
+
+  if (isHTML) {
+    // сеть в приоритете — свежий контент при каждом открытии с интернетом
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
+          return res;
+        })
+        .catch(() => caches.match(req).then((cached) => cached || caches.match('./index.html')))
+    );
+    return;
+  }
+
+  // статичные файлы — кэш в приоритете, фоновое обновление
+  event.respondWith(
+    caches.match(req).then((cached) => {
+      const network = fetch(req)
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
+          return res;
+        })
+        .catch(() => cached);
+      return cached || network;
+    })
+  );
+});
