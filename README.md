@@ -132,12 +132,14 @@
 
 ```
 ├── index.html          # всё приложение: HTML + CSS + JS в одном файле
+├── sw.js               # Service Worker — офлайн-доступ и автообновление
 ├── manifest.json       # Web App Manifest (иконка/фуллскрин для Android)
 ├── icon-192.png        # иконка для манифеста (Android)
 ├── icon-512.png        # иконка для манифеста (Android)
 ├── splash-*.png        # загрузочные экраны под все актуальные размеры iPhone
 ├── LICENSE.md          # все права защищены
 └── README.md
+
 ```
 
 ## 🛠️ Технологии
