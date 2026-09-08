@@ -9,10 +9,10 @@
 
 <br/>
 
-![HTML5](https://img.shields.io/badge/HTML5-d6903a?style=for-the-badge&logo=html5&logoColor=white)
-![CSS3](https://img.shields.io/badge/CSS3-d6903a?style=for-the-badge&logo=css3&logoColor=white)
-![JavaScript](https://img.shields.io/badge/JavaScript-d6903a?style=for-the-badge&logo=javascript&logoColor=white)
-![PWA](https://img.shields.io/badge/PWA-Installable-d6903a?style=for-the-badge&logo=pwa&logoColor=white)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![PWA](https://img.shields.io/badge/PWA-Installable-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white)
 
 ![No Backend](https://img.shields.io/badge/backend-none-1a1a1a?style=flat-square&labelColor=05070a)
 ![Zero Dependencies](https://img.shields.io/badge/dependencies-0-1a1a1a?style=flat-square&labelColor=05070a)
