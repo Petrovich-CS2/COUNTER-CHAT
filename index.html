@@ -2064,7 +2064,7 @@ function openCategoryModal(cat, phrases){
         return;
       }
       addCustomPhrase({ en, translit: translit || '—', ru });
-      haptic(15);
+      haptic(35);
       updateCustomPhrasesBadge();
       openCategoryModal(cat, getCustomPhrasesArray());
     });
@@ -2166,18 +2166,18 @@ function buildPhraseEl(p, catId, opts={}){
     </div>
   `;
   row.querySelector('.phrase-text').addEventListener('click', () => {
-    haptic(12);
+    haptic(30);
     copyToClipboard(p.en);
     addToHistory(catId, p);
   });
   row.querySelector('.play-btn-side').addEventListener('click', (e) => {
     e.stopPropagation();
-    haptic(10);
+    haptic(30);
     speak(p.speak || p.en, e.currentTarget);
   });
   row.querySelector('.share-btn-side').addEventListener('click', (e) => {
     e.stopPropagation();
-    haptic(10);
+    haptic(30);
     const shareText = `[${p.translit}] — ${p.ru}`;
     if (navigator.share){
       // «Поделиться» в iOS/Android подтягивает title + иконку сайта в превью.
@@ -2198,7 +2198,7 @@ function buildPhraseEl(p, catId, opts={}){
   const favBtn = row.querySelector('.fav-btn-side');
   favBtn.addEventListener('click', (e) => {
     e.stopPropagation();
-    haptic(15);
+    haptic(35);
     toggleFavorite(catId, p.en);
     const nowActive = favBtn.classList.toggle('active');
     favBtn.querySelector('img').style.opacity = nowActive ? '1' : '.35';
@@ -2218,7 +2218,7 @@ function buildPhraseEl(p, catId, opts={}){
   if (opts.allowDelete){
     row.querySelector('.delete-btn-side').addEventListener('click', (e) => {
       e.stopPropagation();
-      haptic(15);
+      haptic(35);
       deleteCustomPhrase(p.en);
       updateCustomPhrasesBadge();
       row.style.opacity = '0';
@@ -2343,7 +2343,7 @@ if (SpeechRecognitionAPI){
     const input = document.getElementById('searchInput');
     input.value = said;
     renderCategories(said);
-    haptic(15);
+    haptic(35);
     recognition.stop(); // явно завершаем сессию — иначе на iOS микрофон остаётся активным
   });
 
@@ -2352,14 +2352,14 @@ if (SpeechRecognitionAPI){
       recognition.stop();
       return;
     }
-    haptic(10);
+    haptic(30);
     try { recognition.start(); }
     catch(e){ /* уже запущено — игнорируем */ }
   });
 }
 
 /* ================= ТАКТИЛЬНЫЙ ОТКЛИК ================= */
-function haptic(ms=12){
+function haptic(ms=30){
   if (navigator.vibrate){
     try { navigator.vibrate(ms); } catch(e){}
   }
@@ -2608,7 +2608,7 @@ document.getElementById('fontSizeBtn').addEventListener('click', () => {
   const next = FONT_SIZES[(FONT_SIZES.indexOf(current) + 1) % FONT_SIZES.length];
   localStorage.setItem(FONT_SIZE_KEY, next);
   applyFontSize();
-  haptic(10);
+  haptic(30);
   const names = { sm:'Мелкий', md:'Обычный', lg:'Крупный' };
   showToast('Размер шрифта: ' + names[next]);
 });
@@ -2823,7 +2823,7 @@ function renderSchematic(){
 }
 
 function selectPin(pinEl, pt){
-  haptic(12);
+  haptic(30);
   document.querySelectorAll('.pin.selected').forEach(p => p.classList.remove('selected'));
   pinEl.classList.add('selected');
   const tagLabel = pt.z === 'a' ? 'САЙТ A' : pt.z === 'b' ? 'САЙТ B' : 'ЗОНА';
@@ -2918,7 +2918,7 @@ const screens = { phrases: document.getElementById('screen-phrases'), maps: docu
 const MAPS_HINT_KEY = 'cc_maps_hint_shown';
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    if (!btn.classList.contains('active')) haptic(10);
+    if (!btn.classList.contains('active')) haptic(30);
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     const tab = btn.getAttribute('data-tab');
