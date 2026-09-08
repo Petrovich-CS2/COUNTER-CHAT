@@ -2534,12 +2534,15 @@ function voiceQualityScore(v){
   if (n.includes('enhanced')) s += 5;
   if (n.includes('neural')) s += 5;
   if (n.includes('natural')) s += 4;
-  // ВАЖНО: голоса "Google ..." намеренно НЕ получают буст для автовыбора —
-  // они синтезируются на серверах Google (сетевой голос), из-за чего
-  // воспроизведение стартует с задержкой в несколько секунд на Android.
-  // Голос остаётся доступным для ручного выбора в списке (с честной пометкой),
-  // но по умолчанию мы предпочитаем локальный голос — он звучит чуть хуже,
-  // зато включается мгновенно.
+  // ВАЖНО: сетевые голоса (localService === false) намеренно НЕ получают буст
+  // для автовыбора — они синтезируются на удалённом сервере, из-за чего
+  // воспроизведение стартует с задержкой в несколько секунд, особенно на Android.
+  // Раньше это определялось по слову "google" в названии, но на некоторых
+  // устройствах (например, Infinix/XOS) голоса называются локализованно —
+  // "английский США" вместо "Google US English" — и такое имя не поймать
+  // текстовым поиском. localService — официальное поле Web Speech API,
+  // которое работает одинаково независимо от названия и локализации.
+  if (v.localService === false) s -= 4;
   if (n.includes('siri')) s += 3;
   if (['ava','nicky','allison','susan','zoe','tom','alex','daniel','moira','tessa','karen','stephanie'].some(x=>n.includes(x))) s += 2;
   if (n.includes('compact')) s -= 3;
@@ -2548,7 +2551,7 @@ function voiceQualityScore(v){
 }
 function voiceQualityTier(v){
   const n = v.name.toLowerCase();
-  if (n.includes('google')) return { label:'Сетевой · медленнее', cls:'q-network' };
+  if (v.localService === false || n.includes('google')) return { label:'Сетевой · медленнее', cls:'q-network' };
   if (n.includes('premium') || n.includes('neural') || n.includes('natural')) return { label:'Премиум', cls:'q-premium' };
   if (n.includes('enhanced') || n.includes('samantha')) return { label:'Улучшенный', cls:'q-enhanced' };
   if (n.includes('compact')) return { label:'Базовый', cls:'q-basic' };
@@ -3188,12 +3191,18 @@ function showUpdateBanner(worker){
   const banner = document.getElementById('updateBanner');
   const textEl = document.getElementById('updateBannerText');
   banner.hidden = false;
-  // подтягиваем актуальный текст изменений живьём с сервера (не из кэша) —
-  // на момент показа баннера новая версия уже точно на сервере
-  fetch('./changelog.json?t=' + Date.now(), { cache: 'no-store' })
-    .then(r => r.json())
-    .then(data => { if (data && data.text) textEl.textContent = data.text; })
-    .catch(() => {});
+  // запрашиваем текст изменений напрямую у НОВОГО service worker (через postMessage),
+  // а не отдельным HTTP-запросом — так его не может перехватить ещё активный
+  // старый service worker со своей (потенциально устаревшей) логикой кэширования
+  const onMessage = (event) => {
+    if (event.data && event.data.type === 'CHANGELOG' && event.data.text){
+      textEl.textContent = event.data.text;
+    }
+    navigator.serviceWorker.removeEventListener('message', onMessage);
+  };
+  navigator.serviceWorker.addEventListener('message', onMessage);
+  worker.postMessage('GET_CHANGELOG');
+
   document.getElementById('updateReloadBtn').onclick = () => {
     worker.postMessage('SKIP_WAITING');
     banner.hidden = true;

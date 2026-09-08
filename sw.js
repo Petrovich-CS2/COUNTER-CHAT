@@ -57,8 +57,18 @@ self.addEventListener('activate', (event) => {
 
 // позволяет странице попросить новый Service Worker активироваться немедленно
 // (используется кнопкой "Обновить" в баннере обновления)
+/* Текст мини-changelog для баннера обновления — подставляется автоматически
+   GitHub Action-ом из changelog.json при каждой публикации. НЕ редактируй
+   вручную — редактируй changelog.json, а сюда значение попадёт само. */
+const CHANGELOG_TEXT = '__CHANGELOG_TEXT__';
+
 self.addEventListener('message', (event) => {
   if (event.data === 'SKIP_WAITING') self.skipWaiting();
+  if (event.data === 'GET_CHANGELOG'){
+    // отвечаем странице напрямую, без HTTP-запроса — так его не может перехватить
+    // ещё активный СТАРЫЙ Service Worker со своей (потенциально устаревшей) логикой
+    event.source.postMessage({ type: 'CHANGELOG', text: CHANGELOG_TEXT });
+  }
 });
 
 self.addEventListener('fetch', (event) => {
