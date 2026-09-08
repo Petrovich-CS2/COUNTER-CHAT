@@ -50,6 +50,17 @@ jobs:
           sed -i "s/__BUILD_VERSION__/${BUILD_VERSION}/g" sw.js
           sed -i "s/__BUILD_VERSION__/${BUILD_VERSION}/g" index.html
 
+      - name: Встраиваем текст changelog напрямую в sw.js
+        run: |
+          # текст берём из changelog.json и вшиваем прямо в тело sw.js —
+          # так страница получает его через postMessage от service worker,
+          # а не отдельным HTTP-запросом (который мог перехватить ещё не
+          # обновившийся старый service worker и отдать устаревший кэш)
+          CHANGELOG_TEXT=$(python3 -c "import json; print(json.load(open('changelog.json'))['text'])")
+          ESCAPED=$(printf '%s' "$CHANGELOG_TEXT" | sed -e 's/[\/&]/\\&/g')
+          sed -i "s/__CHANGELOG_TEXT__/${ESCAPED}/g" sw.js
+          echo "Встроенный текст: $CHANGELOG_TEXT"
+
       - name: Настраиваем GitHub Pages
         uses: actions/configure-pages@v5
 
