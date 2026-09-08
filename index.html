@@ -327,6 +327,7 @@ body.compact-mode .phrase{padding-top:8px; padding-bottom:8px;}
   transition:transform .28s cubic-bezier(.32,.72,.35,1);
 }
 .category-modal.open{transform:translateX(0);}
+.category-modal[hidden]{display:none;}
 .category-modal-head{
   display:flex; align-items:center; gap:10px;
   padding:calc(16px + env(safe-area-inset-top, 0px)) 16px 14px;
@@ -1893,6 +1894,7 @@ function getFavoritePhrases(){
 /* ================= ЭКСПОРТ / ИМПОРТ ИЗБРАННОГО ================= */
 const favIOModal = document.getElementById('favIOModal');
 document.getElementById('favExportBtn').addEventListener('click', () => {
+  closeAllModals(['categoryModal', 'favIOModal']);
   const data = { app: 'counter-chat', type: 'favorites', v: 1, keys: [...getFavoriteKeys()] };
   document.getElementById('favExportText').value = JSON.stringify(data);
   document.getElementById('favImportText').value = '';
@@ -2025,7 +2027,23 @@ document.getElementById('compactModeBtn').addEventListener('click', () => {
 applyCompactMode();
 
 
+/* защита от одновременного показа нескольких полноэкранных модалок —
+   вызывается перед открытием любой из них, чтобы гарантированно не было
+   ситуации "два экрана сразу" (встречалось в альбомной ориентации) */
+function closeAllModals(exceptIds){
+  const keep = Array.isArray(exceptIds) ? exceptIds : [exceptIds];
+  ['categoryModal','voiceModal','favIOModal','mapZoomModal'].forEach(id => {
+    if (keep.includes(id)) return;
+    const el = document.getElementById(id);
+    if (el && !el.hidden){
+      el.classList.remove('open');
+      el.hidden = true;
+    }
+  });
+}
+
 function openCategoryModal(cat, phrases){
+  closeAllModals('categoryModal');
   modalIcon.innerHTML = cat.id === 'favorites'
     ? `<img src="${STAR_ICON_IMG}" alt="" style="width:100%;height:100%;object-fit:contain;">`
     : categoryIconMarkup(cat.id);
@@ -2536,6 +2554,7 @@ function renderVoiceList(){
 }
 
 function openVoiceModal(){
+  closeAllModals('voiceModal');
   renderVoiceTip();
   renderVoiceList();
   voiceModal.style.transition = 'none';
@@ -2874,6 +2893,7 @@ function applyZoomScale(){
 }
 
 document.getElementById('mapZoomBtn').addEventListener('click', () => {
+  closeAllModals('mapZoomModal');
   mapZoomContent.innerHTML = schematic.outerHTML;
   document.getElementById('mapZoomTitle').textContent = currentMap;
   zoomScale = 1.6; // сразу открываем с небольшим приближением, чтобы сразу было видно пользу
