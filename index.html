@@ -3122,9 +3122,19 @@ document.getElementById('clearCacheBtn').addEventListener('click', async () => {
 })();
 
 /* ================= SERVICE WORKER: офлайн + автообновление ================= */
+/* Версия для регистрации sw.js — обязательно увеличивай при каждом деплое,
+   синхронно с CACHE_VERSION внутри sw.js. Без этого параметра браузер может
+   получить сам файл sw.js из своего обычного HTTP-кэша и решить, что
+   обновления нет, даже если на сервере уже лежит новая версия. */
+/* НЕ РЕДАКТИРУЙ ВРУЧНУЮ: __BUILD_VERSION__ подставляется автоматически
+   GitHub Action-ом при каждой публикации (см. .github/workflows/deploy.yml) —
+   всегда синхронизирована с CACHE_VERSION внутри sw.js, потому что обе
+   берутся из одного и того же источника при сборке */
+const SW_REGISTER_VERSION = '__BUILD_VERSION__';
+
 if ('serviceWorker' in navigator){
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').then((reg) => {
+    navigator.serviceWorker.register('sw.js?v=' + SW_REGISTER_VERSION).then((reg) => {
       // проверяем, нет ли уже готового обновления, ожидающего активации
       if (reg.waiting){
         showUpdateBanner(reg.waiting);
@@ -3139,6 +3149,15 @@ if ('serviceWorker' in navigator){
             showUpdateBanner(newWorker);
           }
         });
+      });
+
+      // ВАЖНО для iOS Safari: она кэширует Service Worker заметно агрессивнее
+      // Chrome и не всегда сама инициирует проверку обновлений при обычной
+      // навигации — приходится запрашивать явно, иначе баннер обновления
+      // может вообще не появляться в PWA с домашнего экрана
+      reg.update().catch(() => {});
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') reg.update().catch(() => {});
       });
     }).catch(() => {});
   });
@@ -3159,7 +3178,7 @@ function showUpdateBanner(worker){
   banner.hidden = false;
   // подтягиваем актуальный текст изменений живьём с сервера (не из кэша) —
   // на момент показа баннера новая версия уже точно на сервере
-  fetch('./changelog.json', { cache: 'no-store' })
+  fetch('./changelog.json?t=' + Date.now(), { cache: 'no-store' })
     .then(r => r.json())
     .then(data => { if (data && data.text) textEl.textContent = data.text; })
     .catch(() => {});

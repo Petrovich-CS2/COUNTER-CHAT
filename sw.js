@@ -14,7 +14,9 @@
   кэш и корректно удалить старый — без этого шага браузер может решить,
   что новый sw.js "такой же", и не обновит закэшированные файлы вовремя.
 */
-const CACHE_VERSION = 'v2';
+/* НЕ РЕДАКТИРУЙ ВРУЧНУЮ: __BUILD_VERSION__ подставляется автоматически
+   GitHub Action-ом при каждой публикации (см. .github/workflows/deploy.yml) */
+const CACHE_VERSION = '__BUILD_VERSION__';
 const CACHE_NAME = `counter-chat-${CACHE_VERSION}`;
 
 const APP_SHELL = [
