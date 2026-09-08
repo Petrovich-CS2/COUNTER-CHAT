@@ -449,6 +449,7 @@ body.compact-mode .phrase{padding-top:8px; padding-bottom:8px;}
 .voice-quality-badge.q-enhanced{background:rgba(214,144,58,.18); color:#f2c98a; border:1px solid rgba(214,144,58,.35);}
 .voice-quality-badge.q-standard{background:rgba(255,255,255,.06); color:var(--text-faint); border:1px solid var(--line);}
 .voice-quality-badge.q-basic{background:rgba(200,80,80,.14); color:#e08a8a; border:1px solid rgba(200,80,80,.3);}
+.voice-quality-badge.q-network{background:rgba(200,160,80,.16); color:#d6b466; border:1px solid rgba(200,160,80,.35);}
 .voice-option-lang{font-family:var(--font-mono); font-size:10.5px; color:var(--text-faint); margin-top:2px;}
 .voice-option-play{
   flex-shrink:0;
@@ -2528,13 +2529,17 @@ function englishVoices(){
 function voiceQualityScore(v){
   const n = v.name.toLowerCase();
   let s = 0;
-  if (n.includes('samantha')) s += 10; // явное предпочтение на iOS — стабильнее всего на коротких/нестандартных фразах и сленге
-  if (n.includes('google') && n.includes('us')) s += 10; // явное предпочтение на Android — движок Google TTS (WaveNet), звучит естественнее стандартных голосов производителей
+  if (n.includes('samantha')) s += 10; // явное предпочтение на iOS — стабильнее всего на коротких/нестандартных фразах и сленге, работает локально
   if (n.includes('premium')) s += 6;
   if (n.includes('enhanced')) s += 5;
   if (n.includes('neural')) s += 5;
   if (n.includes('natural')) s += 4;
-  if (n.includes('google')) s += 3;
+  // ВАЖНО: голоса "Google ..." намеренно НЕ получают буст для автовыбора —
+  // они синтезируются на серверах Google (сетевой голос), из-за чего
+  // воспроизведение стартует с задержкой в несколько секунд на Android.
+  // Голос остаётся доступным для ручного выбора в списке (с честной пометкой),
+  // но по умолчанию мы предпочитаем локальный голос — он звучит чуть хуже,
+  // зато включается мгновенно.
   if (n.includes('siri')) s += 3;
   if (['ava','nicky','allison','susan','zoe','tom','alex','daniel','moira','tessa','karen','stephanie'].some(x=>n.includes(x))) s += 2;
   if (n.includes('compact')) s -= 3;
@@ -2543,8 +2548,9 @@ function voiceQualityScore(v){
 }
 function voiceQualityTier(v){
   const n = v.name.toLowerCase();
+  if (n.includes('google')) return { label:'Сетевой · медленнее', cls:'q-network' };
   if (n.includes('premium') || n.includes('neural') || n.includes('natural')) return { label:'Премиум', cls:'q-premium' };
-  if (n.includes('enhanced') || n.includes('samantha') || (n.includes('google') && n.includes('us'))) return { label:'Улучшенный', cls:'q-enhanced' };
+  if (n.includes('enhanced') || n.includes('samantha')) return { label:'Улучшенный', cls:'q-enhanced' };
   if (n.includes('compact')) return { label:'Базовый', cls:'q-basic' };
   return { label:'Стандартный', cls:'q-standard' };
 }
@@ -3071,10 +3077,16 @@ window.addEventListener('beforeinstallprompt', (e) => {
 });
 installBtn.addEventListener('click', async () => {
   if (!deferredInstallPrompt) return;
-  installBtn.hidden = true;
   deferredInstallPrompt.prompt();
-  await deferredInstallPrompt.userChoice;
+  const choice = await deferredInstallPrompt.userChoice;
   deferredInstallPrompt = null;
+  if (choice.outcome === 'accepted'){
+    installBtn.hidden = true;
+    // сам значок на рабочем столе добавляет операционная система — это происходит
+    // не мгновенно, поэтому явно объясняем это пользователю вместо тишины
+    showToast('Готово! Ярлык появится на рабочем столе через несколько секунд');
+  }
+  // если пользователь отменил диалог — кнопку не прячем, можно попробовать ещё раз
 });
 window.addEventListener('appinstalled', () => {
   installBtn.hidden = true;
