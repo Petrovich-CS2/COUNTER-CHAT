@@ -150,6 +150,20 @@ body{
   min-width:0;
 }
 .search-row svg{flex-shrink:0; opacity:.5;}
+.voice-search-btn{
+  flex-shrink:0;
+  width:26px; height:26px;
+  border-radius:8px;
+  background:transparent;
+  border:none;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+  margin:-4px -2px -4px 0;
+}
+.voice-search-btn[hidden]{display:none;}
+.voice-search-btn:active svg{opacity:.6;}
+.voice-search-btn.listening{background:rgba(214,144,58,.18); border-radius:8px;}
+.voice-search-btn.listening svg{stroke:#f2c98a; animation:pinPulse 1s ease-in-out infinite;}
 .favorites-btn{
   position:relative;
   flex-shrink:0;
@@ -1104,6 +1118,9 @@ body.compact-mode .phrase{padding-top:8px; padding-bottom:8px;}
       <div class="search-row">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#eae7e0" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input id="searchInput" placeholder="Найти фразу...">
+        <button class="voice-search-btn" id="voiceSearchBtn" aria-label="Голосовой поиск" hidden>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b9199" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        </button>
       </div>
       <button class="favorites-btn" id="favoritesBtn" aria-label="Избранное">
         <img class="header-icon-img" id="favoritesHeaderIcon" src="" alt="">
@@ -2006,15 +2023,18 @@ function buildPhraseEl(p, catId, opts={}){
     </div>
   `;
   row.querySelector('.phrase-text').addEventListener('click', () => {
+    haptic(12);
     copyToClipboard(p.en);
     addToHistory(catId, p);
   });
   row.querySelector('.play-btn-side').addEventListener('click', (e) => {
     e.stopPropagation();
+    haptic(10);
     speak(p.speak || p.en, e.currentTarget);
   });
   row.querySelector('.share-btn-side').addEventListener('click', (e) => {
     e.stopPropagation();
+    haptic(10);
     const shareText = `[${p.translit}] — ${p.ru}`;
     if (navigator.share){
       // «Поделиться» в iOS/Android подтягивает title + иконку сайта в превью.
@@ -2035,6 +2055,7 @@ function buildPhraseEl(p, catId, opts={}){
   const favBtn = row.querySelector('.fav-btn-side');
   favBtn.addEventListener('click', (e) => {
     e.stopPropagation();
+    haptic(15);
     toggleFavorite(catId, p.en);
     const nowActive = favBtn.classList.toggle('active');
     favBtn.querySelector('img').style.opacity = nowActive ? '1' : '.35';
@@ -2116,6 +2137,60 @@ updateFavoritesBadge();
 document.getElementById('searchInput').addEventListener('input', e => {
   renderCategories(e.target.value);
 });
+
+/* ================= ГОЛОСОВОЙ ВВОД ================= */
+const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+const voiceSearchBtn = document.getElementById('voiceSearchBtn');
+if (SpeechRecognitionAPI){
+  voiceSearchBtn.hidden = false;
+  const recognition = new SpeechRecognitionAPI();
+  recognition.lang = 'ru-RU';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+  let isListening = false;
+
+  recognition.addEventListener('start', () => {
+    isListening = true;
+    voiceSearchBtn.classList.add('listening');
+  });
+  const stopListeningUI = () => {
+    isListening = false;
+    voiceSearchBtn.classList.remove('listening');
+  };
+  recognition.addEventListener('end', stopListeningUI);
+  recognition.addEventListener('error', (e) => {
+    stopListeningUI();
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed'){
+      showToast('Нет доступа к микрофону — разреши в настройках браузера');
+    } else if (e.error !== 'no-speech' && e.error !== 'aborted'){
+      showToast('Не удалось распознать речь, попробуй ещё раз');
+    }
+  });
+  recognition.addEventListener('result', (e) => {
+    const said = e.results[0][0].transcript;
+    const input = document.getElementById('searchInput');
+    input.value = said;
+    renderCategories(said);
+    haptic(15);
+  });
+
+  voiceSearchBtn.addEventListener('click', () => {
+    if (isListening){
+      recognition.stop();
+      return;
+    }
+    haptic(10);
+    try { recognition.start(); }
+    catch(e){ /* уже запущено — игнорируем */ }
+  });
+}
+
+/* ================= ТАКТИЛЬНЫЙ ОТКЛИК ================= */
+function haptic(ms=12){
+  if (navigator.vibrate){
+    try { navigator.vibrate(ms); } catch(e){}
+  }
+}
 
 /* ================= toast + clipboard ================= */
 const toastEl = document.getElementById('toast');
@@ -2545,6 +2620,7 @@ function renderSchematic(){
 }
 
 function selectPin(pinEl, pt){
+  haptic(12);
   document.querySelectorAll('.pin.selected').forEach(p => p.classList.remove('selected'));
   pinEl.classList.add('selected');
   const tagLabel = pt.z === 'a' ? 'САЙТ A' : pt.z === 'b' ? 'САЙТ B' : 'ЗОНА';
@@ -2639,6 +2715,7 @@ const screens = { phrases: document.getElementById('screen-phrases'), maps: docu
 const MAPS_HINT_KEY = 'cc_maps_hint_shown';
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
+    if (!btn.classList.contains('active')) haptic(10);
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     const tab = btn.getAttribute('data-tab');
