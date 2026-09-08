@@ -129,6 +129,17 @@ body{
   cursor:pointer;
 }
 .voice-settings-btn:active{background:var(--bg-elevated);}
+.voice-settings-btn[hidden]{display:none;}
+.offline-bar{
+  display:flex; align-items:center; justify-content:center; gap:7px;
+  background:rgba(139,145,153,.12);
+  border-bottom:1px solid var(--line);
+  padding:7px 12px;
+  font-size:11.5px;
+  color:var(--text-muted);
+  text-align:center;
+}
+.offline-bar[hidden]{display:none;}
 .brand-mark{
   width:38px; height:38px;
   border-radius:11px;
@@ -467,6 +478,19 @@ body.compact-mode .phrase{padding-top:8px; padding-bottom:8px;}
 }
 .app-credits:active{opacity:1; color:var(--t-orange);}
 .app-credits svg{flex-shrink:0;}
+.clear-cache-btn{
+  display:block;
+  margin:2px auto 0;
+  background:none;
+  border:none;
+  color:var(--text-faint);
+  font-size:10.5px;
+  text-decoration:underline;
+  opacity:.5;
+  padding:6px;
+  cursor:pointer;
+}
+.clear-cache-btn:active{opacity:.9; color:var(--t-orange);}
 
 .category-title{font-size:14.5px; font-weight:700;}
 .category-count{
@@ -1231,11 +1255,19 @@ body.text-size-sm .phrase-ru{font-size:11.5px;}
       <button class="voice-settings-btn" id="fontSizeBtn" aria-label="Размер шрифта">
         <span id="fontSizeLabel" style="font-family:var(--font-mono); font-weight:800; font-size:13px; color:#eae7e0;">Aa</span>
       </button>
+      <button class="voice-settings-btn" id="installBtn" aria-label="Установить приложение" hidden>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#f2c98a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </button>
       <button class="voice-settings-btn" id="voiceSettingsBtn" aria-label="Настройки голоса">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#eae7e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>
       </button>
     </div>
   </header>
+
+  <div class="offline-bar" id="offlineBar" hidden>
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8b9199" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.58 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+    <span>Офлайн — показываем сохранённые данные</span>
+  </div>
 
   <!-- PHRASES SCREEN -->
   <div class="screen" id="screen-phrases">
@@ -1263,6 +1295,7 @@ body.text-size-sm .phrase-ru{font-size:11.5px;}
       <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M11.979 0C5.678 0 0.511 4.86 0.022 11.037l6.432 2.658a3.386 3.386 0 0 1 1.912-.59c.063 0 .125.002.188.005l2.861-4.142v-.058a4.79 4.79 0 0 1 4.784-4.783 4.79 4.79 0 0 1 4.784 4.784 4.79 4.79 0 0 1-4.784 4.783h-.11l-4.076 2.912c0 .052.003.104.003.157 0 1.882-1.53 3.412-3.412 3.412a3.42 3.42 0 0 1-3.373-2.867l-4.601-1.902C1.598 19.912 6.324 24 11.979 24c6.627 0 12-5.373 12-12s-5.373-12-12-12zM7.54 18.21l-1.473-.609c.261.539.717.987 1.32 1.238a2.5 2.5 0 0 0 3.268-1.353 2.5 2.5 0 0 0-1.354-3.268 2.5 2.5 0 0 0-1.898-.02l1.523.63a1.85 1.85 0 1 1-1.386 3.382zm10.577-9.905a3.19 3.19 0 0 0-3.187-3.187 3.19 3.19 0 0 0-3.19 3.187 3.19 3.19 0 0 0 3.19 3.188 3.19 3.19 0 0 0 3.187-3.188zm-5.583-.006a2.4 2.4 0 0 1 2.4-2.398 2.4 2.4 0 0 1 2.398 2.398 2.4 2.4 0 0 1-2.398 2.4 2.4 2.4 0 0 1-2.4-2.4z"/></svg>
       <span>Сделано Петровичем</span>
     </a>
+    <button class="clear-cache-btn" id="clearCacheBtn">Очистить кэш</button>
   </div>
 
   <!-- MAPS SCREEN -->
@@ -1384,7 +1417,7 @@ body.text-size-sm .phrase-ru{font-size:11.5px;}
 <div class="update-banner" id="updateBanner" hidden>
   <span class="update-banner-text">
     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#f2c98a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-    <span>Доступна новая версия</span>
+    <span id="updateBannerText">Доступна новая версия</span>
   </span>
   <button id="updateReloadBtn">Обновить</button>
 </div>
@@ -2011,6 +2044,11 @@ function updateFavoritesBadge(){
     favoritesBadge.hidden = false;
   } else {
     favoritesBadge.hidden = true;
+  }
+  // Badging API — цифра прямо на иконке приложения на домашнем экране
+  if ('setAppBadge' in navigator){
+    if (count > 0) navigator.setAppBadge(count).catch(() => {});
+    else if ('clearAppBadge' in navigator) navigator.clearAppBadge().catch(() => {});
   }
 }
 document.getElementById('favoritesBtn').addEventListener('click', () => {
@@ -3023,6 +3061,66 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   });
 });
 
+/* ================= КАСТОМНАЯ КНОПКА УСТАНОВКИ ================= */
+let deferredInstallPrompt = null;
+const installBtn = document.getElementById('installBtn');
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  installBtn.hidden = false;
+});
+installBtn.addEventListener('click', async () => {
+  if (!deferredInstallPrompt) return;
+  installBtn.hidden = true;
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+});
+window.addEventListener('appinstalled', () => {
+  installBtn.hidden = true;
+  deferredInstallPrompt = null;
+});
+
+/* ================= ИНДИКАТОР ОФЛАЙН-РЕЖИМА ================= */
+const offlineBar = document.getElementById('offlineBar');
+function updateOnlineStatus(){
+  offlineBar.hidden = navigator.onLine;
+}
+window.addEventListener('online', updateOnlineStatus);
+window.addEventListener('offline', updateOnlineStatus);
+updateOnlineStatus();
+
+/* ================= УПРАВЛЕНИЕ КЭШЕМ ================= */
+document.getElementById('clearCacheBtn').addEventListener('click', async () => {
+  if (!confirm('Очистить локально сохранённые данные приложения? Офлайн-доступ временно пропадёт, при следующем открытии с интернетом всё загрузится заново. Избранное и свои фразы не удалятся.')){
+    return;
+  }
+  try {
+    if ('caches' in window){
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+    }
+    if ('serviceWorker' in navigator){
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r => r.unregister()));
+    }
+    showToast('Кэш очищен');
+  } catch(e){
+    showToast('Не удалось очистить кэш');
+  }
+});
+
+/* ================= APP SHORTCUTS: обработка быстрых ярлыков ================= */
+(function handleShortcutLaunch(){
+  const params = new URLSearchParams(location.search);
+  const view = params.get('view');
+  if (view === 'favorites'){
+    openCategoryModal({ id:'favorites', title:'Избранное' }, getFavoritePhrases());
+  } else if (view === 'maps'){
+    document.querySelector('.tab-btn[data-tab="maps"]').click();
+  }
+})();
+
 /* ================= SERVICE WORKER: офлайн + автообновление ================= */
 if ('serviceWorker' in navigator){
   window.addEventListener('load', () => {
@@ -3057,7 +3155,14 @@ if ('serviceWorker' in navigator){
 
 function showUpdateBanner(worker){
   const banner = document.getElementById('updateBanner');
+  const textEl = document.getElementById('updateBannerText');
   banner.hidden = false;
+  // подтягиваем актуальный текст изменений живьём с сервера (не из кэша) —
+  // на момент показа баннера новая версия уже точно на сервере
+  fetch('./changelog.json', { cache: 'no-store' })
+    .then(r => r.json())
+    .then(data => { if (data && data.text) textEl.textContent = data.text; })
+    .catch(() => {});
   document.getElementById('updateReloadBtn').onclick = () => {
     worker.postMessage('SKIP_WAITING');
     banner.hidden = true;

@@ -1,6 +1,6 @@
 {
   "name": "Counter Chat — CS2 разговорник",
-  "short_name": "CC",
+  "short_name": "Counter Chat",
   "description": "EN-коммуникация и позиции карт для CS2",
   "start_url": "./index.html",
   "scope": "./",
@@ -26,6 +26,22 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Избранное",
+      "short_name": "Избранное",
+      "description": "Быстрый доступ к избранным фразам",
+      "url": "./index.html?view=favorites",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Карты",
+      "short_name": "Карты",
+      "description": "Позиции и колауты CS2",
+      "url": "./index.html?view=maps",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
     }
   ]
 }

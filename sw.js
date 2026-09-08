@@ -64,8 +64,9 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET') return;
 
   const isHTML = req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html');
+  const isChangelog = req.url.includes('changelog.json');
 
-  if (isHTML) {
+  if (isHTML || isChangelog) {
     // сеть в приоритете — свежий контент при каждом открытии с интернетом
     event.respondWith(
       fetch(req)
@@ -74,7 +75,7 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
           return res;
         })
-        .catch(() => caches.match(req).then((cached) => cached || caches.match('./index.html')))
+        .catch(() => caches.match(req).then((cached) => cached || (isHTML ? caches.match('./index.html') : undefined)))
     );
     return;
   }
