@@ -2361,7 +2361,11 @@ if (SpeechRecognitionAPI){
 /* ================= ТАКТИЛЬНЫЙ ОТКЛИК ================= */
 function haptic(ms=30){
   if (navigator.vibrate){
-    try { navigator.vibrate(ms); } catch(e){}
+    // короткий двойной импульс ощущается более "чётким" и весомым, чем один
+    // длинный — амплитуду мотора веб-страница менять не может (это системная
+    // настройка Android), но паттерн можно сделать более выразительным
+    const pattern = ms >= 30 ? [ms, 25, Math.round(ms*0.6)] : ms;
+    try { navigator.vibrate(pattern); } catch(e){}
   }
 }
 
