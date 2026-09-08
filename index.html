@@ -83,6 +83,28 @@ body{
   min-height:100vh;
   display:flex;
   flex-direction:column;
+  position:relative;
+  z-index:1;
+}
+
+/* боке по бокам от основного контента в альбомной ориентации — заполняет
+   пустые поля мягкими размытыми пятнами тёплого света вместо голого фона */
+@media (orientation: landscape) and (min-width: 700px){
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:0;
+    pointer-events:none;
+    background:
+      radial-gradient(circle at 6% 18%, rgba(255,140,45,.75) 0%, transparent 22%),
+      radial-gradient(circle at 3% 62%, rgba(255,176,102,.5) 0%, transparent 18%),
+      radial-gradient(circle at 10% 92%, rgba(90,176,214,.32) 0%, transparent 16%),
+      radial-gradient(circle at 94% 28%, rgba(255,140,45,.7) 0%, transparent 20%),
+      radial-gradient(circle at 97% 72%, rgba(255,176,102,.48) 0%, transparent 17%),
+      radial-gradient(circle at 90% 8%, rgba(90,176,214,.28) 0%, transparent 14%);
+    filter: blur(60px);
+  }
 }
 .app-header{
   padding:calc(16px + env(safe-area-inset-top, 0px)) 16px 14px;
