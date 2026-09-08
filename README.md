@@ -76,6 +76,37 @@
   </tr>
   <tr height="20"></tr>
   
+  <tr>
+    <td width="33%" valign="top" align="center">
+      <img src="./Screenshots/Screen4.PNG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+      <p style="font-size: 14px; color: #666;">Список фраз</p>
+    </td>
+    <td width="33%" valign="top" align="center">
+      <img src="./Screenshots/Screen5.PNG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+      <p style="font-size: 14px; color: #666;">Компактный режим</p>
+    </td>
+    <td width="33%" valign="top" align="center">
+      <img src="./Screenshots/Screen6.PNG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+      <p style="font-size: 14px; color: #666;">Поиск</p>
+    </td>
+  </tr>
+  <tr height="20"></tr>
+  
+  <tr>
+    <td width="33%" valign="top" align="center">
+      <img src="./Screenshots/Screen7.PNG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+      <p style="font-size: 14px; color: #666;">Добавление своих фраз</p>
+    </td>
+    <td width="33%" valign="top" align="center">
+      <img src="./Screenshots/Screen8.PNG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+      <p style="font-size: 14px; color: #666;">Карты/p>
+    </td>
+    <td width="33%" valign="top" align="center">
+      <img src="./Screenshots/Screen9.PNG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+      <p style="font-size: 14px; color: #666;">Озвучка</p>
+    </td>
+  </tr>
+  <tr height="20"></tr>
 </table>
 
 </div>
