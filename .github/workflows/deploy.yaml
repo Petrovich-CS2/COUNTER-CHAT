@@ -24,6 +24,22 @@ jobs:
     steps:
       - name: Забираем код репозитория
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2 # нужно для сравнения с предыдущим коммитом на следующем шаге
+
+      - name: Если changelog.json не менялся в этом коммите — считаем правку косметической
+        run: |
+          if git rev-parse HEAD~1 >/dev/null 2>&1 && git diff --name-only HEAD~1 HEAD -- changelog.json | grep -q changelog.json; then
+            echo "changelog.json был изменён автором в этом коммите — оставляем его текст как есть"
+          else
+            echo "changelog.json не менялся — ставим нейтральный текст с датой, чтобы разные обновления не выглядели одинаково"
+            TODAY=$(date +"%-d %B" --date="today" | sed \
+              -e "s/January/января/" -e "s/February/февраля/" -e "s/March/марта/" \
+              -e "s/April/апреля/" -e "s/May/мая/" -e "s/June/июня/" \
+              -e "s/July/июля/" -e "s/August/августа/" -e "s/September/сентября/" \
+              -e "s/October/октября/" -e "s/November/ноября/" -e "s/December/декабря/")
+            echo "{\"text\": \"Небольшие улучшения и исправления (обновлено $TODAY)\"}" > changelog.json
+          fi
 
       - name: Подставляем версию сборки в sw.js и index.html
         run: |
