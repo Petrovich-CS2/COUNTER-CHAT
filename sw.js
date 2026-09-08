@@ -14,7 +14,7 @@
   кэш и корректно удалить старый — без этого шага браузер может решить,
   что новый sw.js "такой же", и не обновит закэшированные файлы вовремя.
 */
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const CACHE_NAME = `counter-chat-${CACHE_VERSION}`;
 
 const APP_SHELL = [
