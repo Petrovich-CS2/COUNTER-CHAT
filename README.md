@@ -1,6 +1,6 @@
 <div align="center">
 
-# ![Counter Chat](./Screenshots/logo.PNG)
+![Counter Chat](./Screenshots/logo.PNG)
 
 Быстрый доступ к английским игровым фразам с переводом, транскрипцией и озвучкой —
 чтобы никогда больше не теряться в войсчате международного лобби.
@@ -99,7 +99,7 @@
     </td>
     <td width="33%" valign="top" align="center">
       <img src="./Screenshots/Screen8.PNG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-      <p style="font-size: 14px; color: #666;">Карты/p>
+      <p style="font-size: 14px; color: #666;">Карты</p>
     </td>
     <td width="33%" valign="top" align="center">
       <img src="./Screenshots/Screen9.PNG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
