@@ -603,6 +603,18 @@ body.compact-mode .phrase{padding-top:8px; padding-bottom:8px;}
   flex-shrink:0;
   opacity:.4;
 }
+.phrase-usage-count{
+  flex-shrink:0;
+  font-family:var(--font-mono);
+  font-size:10px;
+  font-weight:700;
+  color:#f2c98a;
+  background:rgba(214,144,58,.16);
+  border:1px solid rgba(214,144,58,.35);
+  border-radius:6px;
+  padding:1px 6px;
+  margin-left:2px;
+}
 .phrase-en{
   font-family:var(--font-mono);
   font-weight:600;
@@ -1287,6 +1299,9 @@ body.text-size-sm .phrase-ru{font-size:11.5px;}
       <button class="favorites-btn" id="customPhrasesBtn" aria-label="Мои фразы">
         <img class="header-icon-img" id="customPhrasesHeaderIcon" src="" alt="" style="width:30px;height:30px;object-fit:cover;">        <span class="favorites-btn-badge" id="customPhrasesBadge" hidden>0</span>
       </button>
+      <button class="favorites-btn" id="reverseDictBtn" aria-label="Обратный словарь">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f2c98a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+      </button>
     </div>
     <div id="historyStrip" class="history-strip" hidden></div>
     <div id="categoriesGrid" class="categories-grid"></div>
@@ -1296,6 +1311,7 @@ body.text-size-sm .phrase-ru{font-size:11.5px;}
       <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M11.979 0C5.678 0 0.511 4.86 0.022 11.037l6.432 2.658a3.386 3.386 0 0 1 1.912-.59c.063 0 .125.002.188.005l2.861-4.142v-.058a4.79 4.79 0 0 1 4.784-4.783 4.79 4.79 0 0 1 4.784 4.784 4.79 4.79 0 0 1-4.784 4.783h-.11l-4.076 2.912c0 .052.003.104.003.157 0 1.882-1.53 3.412-3.412 3.412a3.42 3.42 0 0 1-3.373-2.867l-4.601-1.902C1.598 19.912 6.324 24 11.979 24c6.627 0 12-5.373 12-12s-5.373-12-12-12zM7.54 18.21l-1.473-.609c.261.539.717.987 1.32 1.238a2.5 2.5 0 0 0 3.268-1.353 2.5 2.5 0 0 0-1.354-3.268 2.5 2.5 0 0 0-1.898-.02l1.523.63a1.85 1.85 0 1 1-1.386 3.382zm10.577-9.905a3.19 3.19 0 0 0-3.187-3.187 3.19 3.19 0 0 0-3.19 3.187 3.19 3.19 0 0 0 3.19 3.188 3.19 3.19 0 0 0 3.187-3.188zm-5.583-.006a2.4 2.4 0 0 1 2.4-2.398 2.4 2.4 0 0 1 2.398 2.398 2.4 2.4 0 0 1-2.398 2.4 2.4 2.4 0 0 1-2.4-2.4z"/></svg>
       <span>Сделано Петровичем</span>
     </a>
+    <button class="clear-cache-btn" id="statsBtn">Моя статистика</button>
     <button class="clear-cache-btn" id="clearCacheBtn">Очистить кэш</button>
   </div>
 
@@ -1369,6 +1385,9 @@ body.text-size-sm .phrase-ru{font-size:11.5px;}
     <button class="compact-toggle-btn" id="favExportBtn" aria-label="Экспорт/импорт избранного" hidden>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#eae7e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
     </button>
+    <button class="compact-toggle-btn" id="customExportBtn" aria-label="Экспорт/импорт своих фраз" hidden>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#eae7e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    </button>
     <button class="compact-toggle-btn" id="compactModeBtn" aria-label="Компактный вид">
       <img id="compactModeIcon" class="compact-toggle-img" src="" alt="">
     </button>
@@ -1396,6 +1415,49 @@ body.text-size-sm .phrase-ru{font-size:11.5px;}
       <textarea class="io-textarea" id="favImportText" placeholder="Вставь код экспорта сюда..."></textarea>
       <button class="io-btn io-btn-accent" id="favImportBtn">Импортировать</button>
     </div>
+  </div>
+</div>
+
+<div class="category-modal" id="customIOModal" hidden>
+  <div class="category-modal-head">
+    <button class="modal-back-btn" id="customIOBackBtn" aria-label="Назад">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#eae7e0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <span class="category-modal-title">Экспорт и импорт своих фраз</span>
+  </div>
+  <div class="category-modal-body">
+    <div class="io-section">
+      <div class="io-label">Экспорт</div>
+      <div class="io-hint">Скопируй этот код и сохрани его (заметка, файл, куда угодно) — он понадобится для восстановления на другом устройстве.</div>
+      <textarea class="io-textarea" id="customExportText" readonly></textarea>
+      <button class="io-btn" id="customExportCopyBtn">Скопировать код</button>
+    </div>
+    <div class="io-section">
+      <div class="io-label">Импорт</div>
+      <div class="io-hint">Вставь ранее скопированный код сюда, чтобы восстановить свои фразы.</div>
+      <textarea class="io-textarea" id="customImportText" placeholder="Вставь код экспорта сюда..."></textarea>
+      <button class="io-btn io-btn-accent" id="customImportBtn">Импортировать</button>
+    </div>
+  </div>
+</div>
+
+<div class="category-modal" id="reverseModal" hidden>
+  <div class="category-modal-head">
+    <button class="modal-back-btn" id="reverseBackBtn" aria-label="Назад">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#eae7e0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <span class="category-modal-title">Обратный словарь</span>
+  </div>
+  <div class="category-modal-body">
+    <div class="io-hint">Услышал фразу от союзника на английском, но не понял смысл? Скажи или напиши её сюда — найдём перевод.</div>
+    <div class="search-row" style="margin:14px 0;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#eae7e0" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="reverseSearchInput" placeholder="Что ты услышал?">
+      <button class="voice-search-btn" id="reverseVoiceBtn" aria-label="Голосовой ввод на английском" hidden>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b9199" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+      </button>
+    </div>
+    <div id="reverseResults"></div>
   </div>
 </div>
 
@@ -1944,6 +2006,7 @@ const CATEGORY_EMOJI_FALLBACK = {
   tilt: '🧊',
   radio: '📻',
   matchmaking: '🎮',
+  stats: '📊',
 };
 function categoryIconMarkup(catId){
   if (CATEGORY_ICONS[catId]) return `<img src="${CATEGORY_ICONS[catId]}" alt="">`;
@@ -1978,6 +2041,36 @@ function toggleFavorite(catId, en){
   if (set.has(key)) set.delete(key); else set.add(key);
   saveFavoriteKeys(set);
 }
+
+/* ================= СТАТИСТИКА ИСПОЛЬЗОВАНИЯ ФРАЗ ================= */
+const PHRASE_USAGE_KEY = 'cc_phrase_usage';
+function getPhraseUsage(){
+  try {
+    const raw = localStorage.getItem(PHRASE_USAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch(e){ return {}; }
+}
+function trackPhraseUsage(catId, en){
+  const usage = getPhraseUsage();
+  const key = favKey(catId, en);
+  usage[key] = (usage[key] || 0) + 1;
+  try { localStorage.setItem(PHRASE_USAGE_KEY, JSON.stringify(usage)); } catch(e){}
+}
+function getTopUsedPhrases(limit=5){
+  const usage = getPhraseUsage();
+  const entries = Object.entries(usage).sort((a,b) => b[1] - a[1]).slice(0, limit);
+  const result = [];
+  entries.forEach(([key, count]) => {
+    const sep = key.lastIndexOf('::');
+    const catId = key.slice(0, sep);
+    const en = key.slice(sep + 2);
+    const cat = categories.find(c => c.id === catId);
+    const phrase = cat && cat.phrases.find(p => p.en === en);
+    if (phrase) result.push(Object.assign({}, phrase, { _catId: catId, _count: count }));
+  });
+  return result;
+}
+
 function getFavoritePhrases(){
   const set = getFavoriteKeys();
   const result = [];
@@ -2034,6 +2127,119 @@ document.getElementById('favImportBtn').addEventListener('click', () => {
     showToast('Не удалось распознать код — проверь, что скопировал его полностью');
   }
 });
+
+/* ================= ЭКСПОРТ / ИМПОРТ СВОИХ ФРАЗ ================= */
+const customIOModal = document.getElementById('customIOModal');
+document.getElementById('customExportBtn').addEventListener('click', () => {
+  closeAllModals(['categoryModal', 'customIOModal']);
+  const data = { app: 'counter-chat', type: 'custom-phrases', v: 1, phrases: getCustomPhrasesArray() };
+  document.getElementById('customExportText').value = JSON.stringify(data);
+  document.getElementById('customImportText').value = '';
+  customIOModal.style.transition = 'none';
+  customIOModal.style.transform = 'translateX(100%)';
+  customIOModal.hidden = false;
+  customIOModal.offsetHeight;
+  requestAnimationFrame(() => {
+    customIOModal.style.transition = '';
+    customIOModal.style.transform = '';
+    customIOModal.classList.add('open');
+  });
+});
+document.getElementById('customIOBackBtn').addEventListener('click', () => {
+  customIOModal.classList.remove('open');
+});
+customIOModal.addEventListener('transitionend', (e) => {
+  if (e.propertyName === 'transform' && !customIOModal.classList.contains('open')) customIOModal.hidden = true;
+});
+document.getElementById('customExportCopyBtn').addEventListener('click', () => {
+  copyToClipboard(document.getElementById('customExportText').value, 'Код скопирован в буфер обмена');
+});
+document.getElementById('customImportBtn').addEventListener('click', () => {
+  const raw = document.getElementById('customImportText').value.trim();
+  if (!raw){ showToast('Вставь код экспорта в поле выше'); return; }
+  try {
+    const data = JSON.parse(raw);
+    if (!data || !Array.isArray(data.phrases)) throw new Error('bad format');
+    const existingEn = new Set(getCustomPhrasesArray().map(p => p.en));
+    let added = 0;
+    data.phrases.forEach(p => {
+      if (p && p.en && p.ru && !existingEn.has(p.en)){
+        addCustomPhrase({ en: p.en, translit: p.translit || '—', ru: p.ru });
+        existingEn.add(p.en);
+        added++;
+      }
+    });
+    updateCustomPhrasesBadge();
+    showToast(`Импортировано: ${added}`);
+    openCategoryModal({ id:'custom', title:'Мои фразы' }, getCustomPhrasesArray());
+    document.getElementById('customExportText').value = JSON.stringify({ app:'counter-chat', type:'custom-phrases', v:1, phrases: getCustomPhrasesArray() });
+  } catch(e){
+    showToast('Не удалось распознать код — проверь, что скопировал его полностью');
+  }
+});
+
+/* ================= ОБРАТНЫЙ СЛОВАРЬ ================= */
+const reverseModal = document.getElementById('reverseModal');
+document.getElementById('reverseDictBtn').addEventListener('click', () => {
+  closeAllModals(['reverseModal']);
+  document.getElementById('reverseSearchInput').value = '';
+  document.getElementById('reverseResults').innerHTML = `<div class="empty-state">Начни печатать или скажи фразу — покажем перевод</div>`;
+  reverseModal.style.transition = 'none';
+  reverseModal.style.transform = 'translateX(100%)';
+  reverseModal.hidden = false;
+  reverseModal.offsetHeight;
+  requestAnimationFrame(() => {
+    reverseModal.style.transition = '';
+    reverseModal.style.transform = '';
+    reverseModal.classList.add('open');
+  });
+  document.getElementById('reverseSearchInput').focus();
+});
+document.getElementById('reverseBackBtn').addEventListener('click', () => {
+  reverseModal.classList.remove('open');
+});
+reverseModal.addEventListener('transitionend', (e) => {
+  if (e.propertyName === 'transform' && !reverseModal.classList.contains('open')) reverseModal.hidden = true;
+});
+
+function renderReverseResults(query){
+  const resultsEl = document.getElementById('reverseResults');
+  const f = query.trim().toLowerCase();
+  if (!f){
+    resultsEl.innerHTML = `<div class="empty-state">Начни печатать или скажи фразу — покажем перевод</div>`;
+    return;
+  }
+  let found = [];
+  categories.forEach(cat => {
+    cat.phrases.forEach(p => {
+      // ищем в первую очередь по английскому тексту — это и есть суть "обратного" словаря
+      if (p.en.toLowerCase().includes(f)){
+        found.push(Object.assign({}, p, { _catId: cat.id }));
+      }
+    });
+  });
+  if (!found.length && f.length >= 3){
+    categories.forEach(cat => {
+      cat.phrases.forEach(p => {
+        if (fuzzyMatch(f, { en: p.en, ru: '', translit: '' })){
+          found.push(Object.assign({}, p, { _catId: cat.id }));
+        }
+      });
+    });
+  }
+  resultsEl.innerHTML = '';
+  if (!found.length){
+    resultsEl.innerHTML = `<div class="empty-state">Не нашли такую фразу — проверь написание или скажи ещё раз</div>`;
+    return;
+  }
+  found.slice(0, 20).forEach(p => {
+    resultsEl.appendChild(buildPhraseEl(p, p._catId, {}));
+  });
+}
+document.getElementById('reverseSearchInput').addEventListener('input', (e) => {
+  renderReverseResults(e.target.value);
+});
+
 const STAR_ICON_IMG = "data:image/webp;base64,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";
 document.getElementById('favoritesHeaderIcon').src = STAR_ICON_IMG;
 
@@ -2137,7 +2343,7 @@ applyCompactMode();
    ситуации "два экрана сразу" (встречалось в альбомной ориентации) */
 function closeAllModals(exceptIds){
   const keep = Array.isArray(exceptIds) ? exceptIds : [exceptIds];
-  ['categoryModal','voiceModal','favIOModal','mapZoomModal'].forEach(id => {
+  ['categoryModal','voiceModal','favIOModal','customIOModal','reverseModal','mapZoomModal'].forEach(id => {
     if (keep.includes(id)) return;
     const el = document.getElementById(id);
     if (el && !el.hidden){
@@ -2155,6 +2361,7 @@ function openCategoryModal(cat, phrases){
   modalTitle.textContent = cat.title;
   modalCount.textContent = phrases.length;
   document.getElementById('favExportBtn').hidden = cat.id !== 'favorites';
+  document.getElementById('customExportBtn').hidden = cat.id !== 'custom';
   categoryModalBody.innerHTML = '';
   if (cat.id === 'custom'){
     categoryModalBody.insertAdjacentHTML('beforeend', `
@@ -2174,8 +2381,8 @@ function openCategoryModal(cat, phrases){
     categoryModalBody.insertAdjacentHTML('beforeend', `<div class="empty-state">Пока нет своих фраз.<br>Добавь первую формой выше.</div>`);
   }
   phrases.forEach(p => {
-    const catId = cat.id === 'favorites' ? p._catId : cat.id;
-    categoryModalBody.appendChild(buildPhraseEl(p, catId, { isFavoritesView: cat.id === 'favorites', allowDelete: cat.id === 'custom' }));
+    const catId = (cat.id === 'favorites' || cat.id === 'stats') ? p._catId : cat.id;
+    categoryModalBody.appendChild(buildPhraseEl(p, catId, { isFavoritesView: cat.id === 'favorites', allowDelete: cat.id === 'custom', showCount: cat.id === 'stats' }));
   });
   if (cat.id === 'custom'){
     document.getElementById('customAddBtn').addEventListener('click', () => {
@@ -2271,6 +2478,7 @@ function buildPhraseEl(p, catId, opts={}){
       <div class="phrase-en-row">
         <span class="phrase-en">${p.en}</span>
         <svg class="phrase-copy-hint" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8b9199" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        ${opts.showCount ? `<span class="phrase-usage-count">×${p._count}</span>` : ''}
       </div>
       <div class="phrase-translit">[${p.translit}]</div>
       <div class="phrase-ru">${p.ru}</div>
@@ -2292,6 +2500,7 @@ function buildPhraseEl(p, catId, opts={}){
     haptic(30);
     copyToClipboard(p.en);
     addToHistory(catId, p);
+    trackPhraseUsage(catId, p.en);
   });
   row.querySelector('.play-btn-side').addEventListener('click', (e) => {
     e.stopPropagation();
@@ -2376,6 +2585,31 @@ function buildCategoryPanel(cat, phrases){
   return el;
 }
 
+/* расстояние Левенштейна — для поиска с опечатками, когда точных совпадений нет */
+function levenshtein(a, b){
+  if (a === b) return 0;
+  if (!a.length) return b.length;
+  if (!b.length) return a.length;
+  let prev = Array.from({length: b.length + 1}, (_, i) => i);
+  for (let i = 1; i <= a.length; i++){
+    const curr = [i];
+    for (let j = 1; j <= b.length; j++){
+      curr[j] = a[i-1] === b[j-1]
+        ? prev[j-1]
+        : 1 + Math.min(prev[j-1], prev[j], curr[j-1]);
+    }
+    prev = curr;
+  }
+  return prev[b.length];
+}
+/* проверяет, есть ли среди слов фразы (en/ru/translit) слово, похожее на запрос
+   с учётом опечаток — допуск растёт вместе с длиной слова */
+function fuzzyMatch(query, phrase){
+  const words = `${phrase.en} ${phrase.ru} ${phrase.translit}`.toLowerCase().split(/[^a-zа-яё0-9]+/).filter(Boolean);
+  const maxDist = query.length <= 4 ? 1 : query.length <= 8 ? 2 : 3;
+  return words.some(w => Math.abs(w.length - query.length) <= maxDist && levenshtein(query, w) <= maxDist);
+}
+
 function renderCategories(filter=""){
   const f = filter.trim().toLowerCase();
 
@@ -2385,9 +2619,13 @@ function renderCategories(filter=""){
     categoryDetail.innerHTML = '';
     let anyMatch = false;
     categories.forEach(cat => {
-      const matches = cat.phrases.filter(p =>
+      let matches = cat.phrases.filter(p =>
         p.en.toLowerCase().includes(f) || p.ru.toLowerCase().includes(f) || p.translit.toLowerCase().includes(f)
       );
+      // если точных совпадений нет — пробуем нечёткий поиск (опечатки)
+      if (!matches.length && f.length >= 3){
+        matches = cat.phrases.filter(p => fuzzyMatch(f, p));
+      }
       if (!matches.length) return;
       anyMatch = true;
       categoryDetail.appendChild(buildCategoryPanel(cat, matches));
@@ -2478,6 +2716,55 @@ if (SpeechRecognitionAPI){
     haptic(30);
     try { recognition.start(); }
     catch(e){ /* уже запущено — игнорируем */ }
+  });
+}
+
+/* отдельное распознавание речи именно на английском — специально для обратного
+   словаря, основной голосовой поиск в шапке выше работает на русском */
+if (SpeechRecognitionAPI){
+  const reverseVoiceBtn = document.getElementById('reverseVoiceBtn');
+  reverseVoiceBtn.hidden = false;
+  const reverseRecognition = new SpeechRecognitionAPI();
+  reverseRecognition.lang = 'en-US';
+  reverseRecognition.interimResults = false;
+  reverseRecognition.maxAlternatives = 1;
+  let reverseListening = false;
+  let reverseSafetyTimer = null;
+  const clearReverseSafetyTimer = () => { clearTimeout(reverseSafetyTimer); reverseSafetyTimer = null; };
+
+  reverseRecognition.addEventListener('start', () => {
+    reverseListening = true;
+    reverseVoiceBtn.classList.add('listening');
+    clearReverseSafetyTimer();
+    reverseSafetyTimer = setTimeout(() => { try { reverseRecognition.stop(); } catch(e){} }, 8000);
+  });
+  const stopReverseListeningUI = () => {
+    reverseListening = false;
+    reverseVoiceBtn.classList.remove('listening');
+    clearReverseSafetyTimer();
+  };
+  reverseRecognition.addEventListener('end', stopReverseListeningUI);
+  reverseRecognition.addEventListener('error', (e) => {
+    stopReverseListeningUI();
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed'){
+      showToast('Нет доступа к микрофону — разреши в настройках браузера');
+    } else if (e.error !== 'no-speech' && e.error !== 'aborted'){
+      showToast('Не удалось распознать речь, попробуй ещё раз');
+    }
+  });
+  reverseRecognition.addEventListener('nomatch', () => { reverseRecognition.stop(); });
+  reverseRecognition.addEventListener('result', (e) => {
+    const said = e.results[0][0].transcript;
+    const input = document.getElementById('reverseSearchInput');
+    input.value = said;
+    renderReverseResults(said);
+    haptic(30);
+    reverseRecognition.stop();
+  });
+  reverseVoiceBtn.addEventListener('click', () => {
+    if (reverseListening){ reverseRecognition.stop(); return; }
+    haptic(10);
+    try { reverseRecognition.start(); } catch(e){ /* уже запущено */ }
   });
 }
 
@@ -3125,6 +3412,14 @@ window.addEventListener('offline', updateOnlineStatus);
 updateOnlineStatus();
 
 /* ================= УПРАВЛЕНИЕ КЭШЕМ ================= */
+document.getElementById('statsBtn').addEventListener('click', () => {
+  const top = getTopUsedPhrases(5);
+  if (!top.length){
+    showToast('Пока нет статистики — используй фразы, и она появится здесь');
+    return;
+  }
+  openCategoryModal({ id:'stats', title:'Моя статистика · топ-5' }, top);
+});
 document.getElementById('clearCacheBtn').addEventListener('click', async () => {
   if (!confirm('Очистить локально сохранённые данные приложения? Офлайн-доступ временно пропадёт, при следующем открытии с интернетом всё загрузится заново. Избранное и свои фразы не удалятся.')){
     return;
@@ -3206,7 +3501,16 @@ if ('serviceWorker' in navigator){
   });
 }
 
+let updateBannerAlreadyShown = false;
 function showUpdateBanner(worker){
+  // защита от повторного показа за одну сессию: два независимых места кода
+  // могут обнаружить одно и то же обновление (сразу при регистрации через
+  // reg.waiting и повторно через updatefound/statechange, особенно из-за
+  // агрессивных проверок reg.update(), добавленных для надёжности на iOS) —
+  // без этой защиты один и тот же баннер мог показаться дважды подряд
+  if (updateBannerAlreadyShown) return;
+  updateBannerAlreadyShown = true;
+
   const banner = document.getElementById('updateBanner');
   const textEl = document.getElementById('updateBannerText');
   banner.hidden = false;
