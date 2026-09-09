@@ -352,6 +352,90 @@ body.compact-mode .phrase{padding-top:8px; padding-bottom:8px;}
 }
 .category-body-inner{padding:0 12px 12px;}
 
+/* профиль и достижения */
+.profile-streak-row{
+  display:flex; gap:10px;
+  margin-bottom:18px;
+}
+.profile-streak-card{
+  flex:1;
+  background:var(--bg-surface);
+  border:1px solid var(--line);
+  border-radius:13px;
+  padding:16px 10px;
+  text-align:center;
+}
+.profile-streak-value{
+  font-family:var(--font-mono);
+  font-weight:800;
+  font-size:28px;
+  color:#f2c98a;
+}
+.profile-streak-label{
+  font-size:11px;
+  color:var(--text-faint);
+  margin-top:2px;
+}
+.profile-section-title{
+  font-family:var(--font-mono);
+  font-weight:700;
+  font-size:13px;
+  color:var(--text-primary);
+  margin:20px 0 10px;
+  letter-spacing:.02em;
+}
+.achievements-list{
+  display:flex; flex-direction:column; gap:9px;
+}
+.achievement-card{
+  display:flex; align-items:center; gap:12px;
+  background:var(--bg-surface);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:12px;
+  opacity:.45;
+  filter:grayscale(1);
+  transition:opacity .2s ease, filter .2s ease;
+}
+.achievement-card.unlocked{
+  opacity:1;
+  filter:none;
+  border-color:rgba(214,144,58,.4);
+  background:rgba(214,144,58,.08);
+}
+.achievement-icon{
+  flex-shrink:0;
+  width:38px; height:38px;
+  border-radius:10px;
+  background:rgba(214,144,58,.16);
+  display:flex; align-items:center; justify-content:center;
+  font-size:19px;
+}
+.achievement-text{flex:1; min-width:0;}
+.achievement-title{font-weight:700; font-size:13.5px; color:var(--text-primary);}
+.achievement-desc{font-size:11.5px; color:var(--text-faint); margin-top:1px;}
+.achievement-progress-bar{
+  height:5px;
+  background:rgba(255,255,255,.08);
+  border-radius:3px;
+  margin-top:7px;
+  overflow:hidden;
+}
+.achievement-progress-fill{
+  height:100%;
+  background:linear-gradient(90deg, rgba(214,144,58,.6), #f2c98a);
+  border-radius:3px;
+  transition:width .3s ease;
+}
+.achievement-progress-text{
+  font-family:var(--font-mono);
+  font-size:10px;
+  color:var(--text-faint);
+  margin-top:3px;
+}
+.achievement-check{flex-shrink:0; font-size:18px; color:#f2c98a; opacity:0;}
+.achievement-card.unlocked .achievement-check{opacity:1;}
+
 /* полноэкранная модалка категории — открывается поверх, как отдельный экран */
 .category-modal{
   position:fixed;
@@ -560,6 +644,8 @@ body.compact-mode .phrase{padding-top:8px; padding-bottom:8px;}
 }
 .io-btn:active{background:var(--bg-elevated);}
 .io-btn-accent{background:rgba(214,144,58,.18); border-color:rgba(214,144,58,.4); color:#f2c98a;}
+.qr-container{margin-top:4px;}
+.qr-container[hidden]{display:none;}
 .custom-add-form{
   background:var(--bg-elevated);
   border:1px solid var(--line);
@@ -1312,6 +1398,9 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
       <button class="favorites-btn" id="customPhrasesBtn" aria-label="Мои фразы">
         <img class="header-icon-img" id="customPhrasesHeaderIcon" src="" alt="" style="width:30px;height:30px;object-fit:cover;">        <span class="favorites-btn-badge" id="customPhrasesBadge" hidden>0</span>
       </button>
+      <button class="favorites-btn" id="randomPhraseBtn" aria-label="Случайная фраза">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f2c98a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="1.3" fill="#f2c98a"/><circle cx="16" cy="8" r="1.3" fill="#f2c98a"/><circle cx="8" cy="16" r="1.3" fill="#f2c98a"/><circle cx="16" cy="16" r="1.3" fill="#f2c98a"/><circle cx="12" cy="12" r="1.3" fill="#f2c98a"/></svg>
+      </button>
     </div>
     <div id="historyStrip" class="history-strip" hidden></div>
     <div id="categoriesGrid" class="categories-grid"></div>
@@ -1367,7 +1456,21 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
   </div>
 
   <!-- STATS SCREEN -->
-  <div class="screen" id="screen-stats" hidden>
+  <!-- PROFILE SCREEN -->
+  <div class="screen" id="screen-profile" hidden>
+    <div class="profile-streak-row">
+      <div class="profile-streak-card">
+        <div class="profile-streak-value" id="profileStreakValue">0</div>
+        <div class="profile-streak-label">дней подряд</div>
+      </div>
+      <div class="profile-streak-card">
+        <div class="profile-streak-value" id="profileTotalValue">0</div>
+        <div class="profile-streak-label">фраз использовано</div>
+      </div>
+    </div>
+    <div class="profile-section-title">Достижения</div>
+    <div id="achievementsList" class="achievements-list"></div>
+    <div class="profile-section-title">Топ-5 самых частых фраз</div>
     <div id="statsResults"></div>
   </div>
 
@@ -1402,9 +1505,9 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
       <span>Карты</span>
     </button>
-    <button class="tab-btn" data-tab="stats">
-      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-      <span>Статистика</span>
+    <button class="tab-btn" data-tab="profile">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a5 5 0 1 0 0-10 5 5 0 0 0 0 10z"/><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>
+      <span>Профиль</span>
     </button>
   </nav>
 </div>
@@ -1463,9 +1566,11 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
   <div class="category-modal-body">
     <div class="io-section">
       <div class="io-label">Экспорт</div>
-      <div class="io-hint">Скопируй этот код и сохрани его (заметка, файл, куда угодно) — он понадобится для восстановления на другом устройстве.</div>
+      <div class="io-hint">Скопируй этот код и сохрани его (заметка, файл, куда угодно) — он понадобится для восстановления на другом устройстве. Или покажи QR-код — тиммейт отсканирует его камерой и получит твой набор фраз.</div>
       <textarea class="io-textarea" id="customExportText" readonly></textarea>
       <button class="io-btn" id="customExportCopyBtn">Скопировать код</button>
+      <button class="io-btn io-btn-accent" id="customExportQrBtn" style="margin-top:8px;">📷 Показать QR-код</button>
+      <div id="customExportQrContainer" class="qr-container" hidden></div>
     </div>
     <div class="io-section">
       <div class="io-label">Импорт</div>
@@ -1473,6 +1578,25 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
       <textarea class="io-textarea" id="customImportText" placeholder="Вставь код экспорта сюда..."></textarea>
       <button class="io-btn io-btn-accent" id="customImportBtn">Импортировать</button>
     </div>
+    <div class="io-section">
+      <div class="io-label">Массовый импорт</div>
+      <div class="io-hint">Добавь сразу несколько фраз — по одной на строку, в формате: <b>английская фраза | транскрипция | перевод</b> (транскрипцию можно пропустить, тогда оставь просто "англ | | рус").</div>
+      <textarea class="io-textarea" id="bulkImportText" placeholder="Nice one | найс ван | Отличный ход&#10;My bad | май бэд | Моя вина"></textarea>
+      <button class="io-btn io-btn-accent" id="bulkImportBtn">Добавить все фразы</button>
+    </div>
+  </div>
+</div>
+
+<div class="category-modal" id="randomPhraseModal" hidden>
+  <div class="category-modal-head">
+    <button class="modal-back-btn" id="randomPhraseBackBtn" aria-label="Назад">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#eae7e0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <span class="category-modal-title">Случайная фраза</span>
+  </div>
+  <div class="category-modal-body">
+    <div id="randomPhraseResult"></div>
+    <button class="io-btn io-btn-accent" id="randomPhraseRerollBtn" style="margin-top:14px;">🎲 Ещё одна</button>
   </div>
 </div>
 
@@ -1501,6 +1625,450 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
 </div>
 
 <script>
+/* ================= QR-КОД (генератор, проверен независимым декодером OpenCV) ================= */
+// Компактный генератор QR-кодов (byte mode), основан на широко известном
+// алгоритме qrcode-generator (kazuhikoarase, MIT license).
+// Поддерживает автоматический подбор версии (typeNumber) под длину данных.
+
+(function(){
+var QRMode = { MODE_8BIT_BYTE: 4 };
+var QRErrorCorrectLevel = { L: 1, M: 0, Q: 3, H: 2 };
+var QRMaskPattern = { PATTERN000: 0, PATTERN001: 1, PATTERN010: 2, PATTERN011: 3, PATTERN100: 4, PATTERN101: 5, PATTERN110: 6, PATTERN111: 7 };
+
+var QRUtil = {
+  PATTERN_POSITION_TABLE: [
+    [], [6, 18], [6, 22], [6, 26], [6, 30], [6, 34], [6, 22, 38], [6, 24, 42], [6, 26, 46], [6, 28, 50],
+    [6, 30, 54], [6, 32, 58], [6, 34, 62], [6, 26, 46, 66], [6, 26, 48, 70], [6, 26, 50, 74], [6, 30, 54, 78],
+    [6, 30, 56, 82], [6, 30, 58, 86], [6, 34, 62, 90], [6, 28, 50, 72, 94], [6, 26, 50, 74, 98], [6, 30, 54, 78, 102],
+    [6, 28, 54, 80, 106], [6, 32, 58, 84, 110], [6, 30, 58, 86, 114], [6, 34, 62, 90, 118], [6, 26, 50, 74, 98, 122],
+    [6, 30, 54, 78, 102, 126], [6, 26, 52, 78, 104, 130], [6, 30, 56, 82, 108, 134], [6, 34, 60, 86, 112, 138],
+    [6, 30, 58, 86, 114, 142], [6, 34, 62, 90, 118, 146], [6, 30, 54, 78, 102, 126, 150], [6, 24, 50, 76, 102, 128, 154],
+    [6, 28, 54, 80, 106, 132, 158], [6, 32, 58, 84, 110, 136, 162], [6, 26, 54, 82, 110, 138, 166], [6, 30, 58, 86, 114, 142, 170]
+  ],
+  G15: (1 << 10) | (1 << 8) | (1 << 5) | (1 << 4) | (1 << 2) | (1 << 1) | (1 << 0),
+  G18: (1 << 12) | (1 << 11) | (1 << 10) | (1 << 9) | (1 << 8) | (1 << 5) | (1 << 2) | (1 << 0),
+  G15_MASK: (1 << 14) | (1 << 12) | (1 << 10) | (1 << 4) | (1 << 1),
+  getBCHTypeInfo: function(data) {
+    var d = data << 10;
+    while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G15) >= 0) {
+      d ^= (QRUtil.G15 << (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G15)));
+    }
+    return ((data << 10) | d) ^ QRUtil.G15_MASK;
+  },
+  getBCHTypeNumber: function(data) {
+    var d = data << 12;
+    while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G18) >= 0) {
+      d ^= (QRUtil.G18 << (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G18)));
+    }
+    return (data << 12) | d;
+  },
+  getBCHDigit: function(data) {
+    var digit = 0;
+    while (data != 0) { digit++; data >>>= 1; }
+    return digit;
+  },
+  getPatternPosition: function(typeNumber) { return QRUtil.PATTERN_POSITION_TABLE[typeNumber - 1]; },
+  getMask: function(maskPattern, i, j) {
+    switch (maskPattern) {
+      case QRMaskPattern.PATTERN000: return (i + j) % 2 == 0;
+      case QRMaskPattern.PATTERN001: return i % 2 == 0;
+      case QRMaskPattern.PATTERN010: return j % 3 == 0;
+      case QRMaskPattern.PATTERN011: return (i + j) % 3 == 0;
+      case QRMaskPattern.PATTERN100: return (Math.floor(i / 2) + Math.floor(j / 3)) % 2 == 0;
+      case QRMaskPattern.PATTERN101: return (i * j) % 2 + (i * j) % 3 == 0;
+      case QRMaskPattern.PATTERN110: return ((i * j) % 2 + (i * j) % 3) % 2 == 0;
+      case QRMaskPattern.PATTERN111: return ((i * j) % 3 + (i + j) % 2) % 2 == 0;
+      default: throw new Error('bad maskPattern:' + maskPattern);
+    }
+  },
+  getErrorCorrectPolynomial: function(errorCorrectLength) {
+    var a = new QRPolynomial([1], 0);
+    for (var i = 0; i < errorCorrectLength; i++) { a = a.multiply(new QRPolynomial([1, QRMath.gexp(i)], 0)); }
+    return a;
+  },
+  getLengthInBits: function(mode, type) {
+    if (type >= 1 && type < 10) { if (mode == QRMode.MODE_8BIT_BYTE) return 8; }
+    else if (type < 27) { if (mode == QRMode.MODE_8BIT_BYTE) return 16; }
+    else if (type < 41) { if (mode == QRMode.MODE_8BIT_BYTE) return 16; }
+    else throw new Error('type:' + type);
+    return 8;
+  },
+  getLostPoint: function(qrCode) {
+    var moduleCount = qrCode.getModuleCount();
+    var lostPoint = 0;
+    for (var row = 0; row < moduleCount; row++) {
+      for (var col = 0; col < moduleCount; col++) {
+        var sameCount = 0;
+        var dark = qrCode.isDark(row, col);
+        for (var r = -1; r <= 1; r++) {
+          if (row + r < 0 || moduleCount <= row + r) continue;
+          for (var c = -1; c <= 1; c++) {
+            if (col + c < 0 || moduleCount <= col + c) continue;
+            if (r == 0 && c == 0) continue;
+            if (dark == qrCode.isDark(row + r, col + c)) sameCount++;
+          }
+        }
+        if (sameCount > 5) lostPoint += (3 + sameCount - 5);
+      }
+    }
+    for (var row = 0; row < moduleCount - 1; row++) {
+      for (var col = 0; col < moduleCount - 1; col++) {
+        var count = 0;
+        if (qrCode.isDark(row, col)) count++;
+        if (qrCode.isDark(row + 1, col)) count++;
+        if (qrCode.isDark(row, col + 1)) count++;
+        if (qrCode.isDark(row + 1, col + 1)) count++;
+        if (count == 0 || count == 4) lostPoint += 3;
+      }
+    }
+    for (var row = 0; row < moduleCount; row++) {
+      for (var col = 0; col < moduleCount - 6; col++) {
+        if (qrCode.isDark(row, col) && !qrCode.isDark(row, col + 1) && qrCode.isDark(row, col + 2) && qrCode.isDark(row, col + 3) && qrCode.isDark(row, col + 4) && !qrCode.isDark(row, col + 5) && qrCode.isDark(row, col + 6)) {
+          lostPoint += 40;
+        }
+      }
+    }
+    for (var col = 0; col < moduleCount; col++) {
+      for (var row = 0; row < moduleCount - 6; row++) {
+        if (qrCode.isDark(row, col) && !qrCode.isDark(row + 1, col) && qrCode.isDark(row + 2, col) && qrCode.isDark(row + 3, col) && qrCode.isDark(row + 4, col) && !qrCode.isDark(row + 5, col) && qrCode.isDark(row + 6, col)) {
+          lostPoint += 40;
+        }
+      }
+    }
+    var darkCount = 0;
+    for (var col = 0; col < moduleCount; col++) { for (var row = 0; row < moduleCount; row++) { if (qrCode.isDark(row, col)) darkCount++; } }
+    var ratio = Math.abs(100 * darkCount / moduleCount / moduleCount - 50) / 5;
+    lostPoint += ratio * 10;
+    return lostPoint;
+  }
+};
+
+var QRMath = {
+  glog: function(n) { if (n < 1) throw new Error('glog(' + n + ')'); return QRMath.LOG_TABLE[n]; },
+  gexp: function(n) { while (n < 0) n += 255; while (n >= 256) n -= 255; return QRMath.EXP_TABLE[n]; },
+  EXP_TABLE: new Array(256),
+  LOG_TABLE: new Array(256)
+};
+for (var i = 0; i < 8; i++) QRMath.EXP_TABLE[i] = 1 << i;
+for (var i = 8; i < 256; i++) QRMath.EXP_TABLE[i] = QRMath.EXP_TABLE[i - 4] ^ QRMath.EXP_TABLE[i - 5] ^ QRMath.EXP_TABLE[i - 6] ^ QRMath.EXP_TABLE[i - 8];
+for (var i = 0; i < 255; i++) QRMath.LOG_TABLE[QRMath.EXP_TABLE[i]] = i;
+
+function QRPolynomial(num, shift) {
+  if (num.length == undefined) throw new Error(num.length + '/' + shift);
+  var offset = 0;
+  while (offset < num.length && num[offset] == 0) offset++;
+  this.num = new Array(num.length - offset + shift);
+  for (var i = 0; i < num.length - offset; i++) this.num[i] = num[i + offset];
+}
+QRPolynomial.prototype = {
+  get: function(index) { return this.num[index]; },
+  getLength: function() { return this.num.length; },
+  multiply: function(e) {
+    var num = new Array(this.getLength() + e.getLength() - 1);
+    for (var i = 0; i < this.getLength(); i++) {
+      for (var j = 0; j < e.getLength(); j++) {
+        num[i + j] ^= QRMath.gexp(QRMath.glog(this.get(i)) + QRMath.glog(e.get(j)));
+      }
+    }
+    return new QRPolynomial(num, 0);
+  },
+  mod: function(e) {
+    if (this.getLength() - e.getLength() < 0) return this;
+    var ratio = QRMath.glog(this.get(0)) - QRMath.glog(e.get(0));
+    var num = new Array(this.getLength());
+    for (var i = 0; i < this.getLength(); i++) num[i] = this.get(i);
+    for (var i = 0; i < e.getLength(); i++) num[i] ^= QRMath.gexp(QRMath.glog(e.get(i)) + ratio);
+    return new QRPolynomial(num, 0).mod(e);
+  }
+};
+
+function QRRSBlock(totalCount, dataCount) { this.totalCount = totalCount; this.dataCount = dataCount; }
+QRRSBlock.RS_BLOCK_TABLE = [
+  [1,26,19],[1,26,16],[1,26,13],[1,26,9],
+  [1,44,34],[1,44,28],[1,44,22],[1,44,16],
+  [1,70,55],[1,70,44],[2,35,17],[2,35,13],
+  [1,100,80],[2,50,32],[2,50,24],[4,25,9],
+  [1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],
+  [2,86,68],[4,43,27],[4,43,19],[4,43,15],
+  [2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],
+  [2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],
+  [2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],
+  [2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],
+  [4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],
+  [2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],
+  [4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],
+  [3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],
+  [5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12,7,37,13],
+  [5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],
+  [1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],
+  [5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],
+  [3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],
+  [3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],
+  [4,144,116,4,145,117],[17,68,42],[17,50,22,6,51,23],[19,46,16,6,47,17],
+  [2,139,111,7,140,112],[17,74,46],[7,54,24,16,55,25],[34,37,13],
+  [4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],
+  [6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],
+  [8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],
+  [10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],
+  [8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],
+  [3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],
+  [7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],
+  [5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],
+  [13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],
+  [17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],
+  [17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],
+  [13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],
+  [12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],
+  [6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],
+  [17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],
+  [4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],
+  [20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],
+  [19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16]
+];
+QRRSBlock.getRSBlocks = function(typeNumber, errorCorrectLevel) {
+  var rsBlock = QRRSBlock.getRsBlockTable(typeNumber, errorCorrectLevel);
+  if (rsBlock == undefined) throw new Error('bad rs block @ typeNumber:' + typeNumber + '/errorCorrectLevel:' + errorCorrectLevel);
+  var length = rsBlock.length / 3;
+  var list = [];
+  for (var i = 0; i < length; i++) {
+    var count = rsBlock[i * 3 + 0], totalCount = rsBlock[i * 3 + 1], dataCount = rsBlock[i * 3 + 2];
+    for (var j = 0; j < count; j++) list.push(new QRRSBlock(totalCount, dataCount));
+  }
+  return list;
+};
+QRRSBlock.getRsBlockTable = function(typeNumber, errorCorrectLevel) {
+  switch (errorCorrectLevel) {
+    case QRErrorCorrectLevel.L: return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 0];
+    case QRErrorCorrectLevel.M: return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 1];
+    case QRErrorCorrectLevel.Q: return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 2];
+    case QRErrorCorrectLevel.H: return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 3];
+    default: return undefined;
+  }
+};
+
+function QRBitBuffer() { this.buffer = []; this.length = 0; }
+QRBitBuffer.prototype = {
+  get: function(index) { var bufIndex = Math.floor(index / 8); return ((this.buffer[bufIndex] >>> (7 - index % 8)) & 1) == 1; },
+  put: function(num, length) { for (var i = 0; i < length; i++) this.putBit(((num >>> (length - i - 1)) & 1) == 1); },
+  getLengthInBits: function() { return this.length; },
+  putBit: function(bit) {
+    var bufIndex = Math.floor(this.length / 8);
+    if (this.buffer.length <= bufIndex) this.buffer.push(0);
+    if (bit) this.buffer[bufIndex] |= (0x80 >>> (this.length % 8));
+    this.length++;
+  }
+};
+
+function QR8bitByte(data) {
+  this.mode = QRMode.MODE_8BIT_BYTE;
+  this.data = data;
+  // корректная побайтовая UTF-8 упаковка (важно для кириллицы в переводах)
+  this.bytes = (function(s) {
+    var arr = [];
+    for (var n = 0; n < s.length; n++) {
+      var c = s.codePointAt(n);
+      if (c > 0xFFFF) n++;
+      if (c < 0x80) arr.push(c);
+      else if (c < 0x800) { arr.push(0xC0 | (c >> 6), 0x80 | (c & 0x3F)); }
+      else if (c < 0x10000) { arr.push(0xE0 | (c >> 12), 0x80 | ((c >> 6) & 0x3F), 0x80 | (c & 0x3F)); }
+      else { arr.push(0xF0 | (c >> 18), 0x80 | ((c >> 12) & 0x3F), 0x80 | ((c >> 6) & 0x3F), 0x80 | (c & 0x3F)); }
+    }
+    return arr;
+  })(data);
+}
+QR8bitByte.prototype = {
+  getLength: function() { return this.bytes.length; },
+  write: function(buffer) { for (var i = 0; i < this.bytes.length; i++) buffer.put(this.bytes[i], 8); }
+};
+
+function QRCodeModel(typeNumber, errorCorrectLevel) {
+  this.typeNumber = typeNumber;
+  this.errorCorrectLevel = errorCorrectLevel;
+  this.modules = null;
+  this.moduleCount = 0;
+  this.dataCache = null;
+  this.dataList = [];
+}
+QRCodeModel.prototype = {
+  addData: function(data) { this.dataList.push(new QR8bitByte(data)); this.dataCache = null; },
+  isDark: function(row, col) {
+    if (row < 0 || this.moduleCount <= row || col < 0 || this.moduleCount <= col) throw new Error(row + ',' + col);
+    return this.modules[row][col];
+  },
+  getModuleCount: function() { return this.moduleCount; },
+  make: function() { this.makeImpl(false, this.getBestMaskPattern()); },
+  makeImpl: function(test, maskPattern) {
+    this.moduleCount = this.typeNumber * 4 + 17;
+    this.modules = new Array(this.moduleCount);
+    for (var row = 0; row < this.moduleCount; row++) {
+      this.modules[row] = new Array(this.moduleCount);
+      for (var col = 0; col < this.moduleCount; col++) this.modules[row][col] = null;
+    }
+    this.setupPositionProbePattern(0, 0);
+    this.setupPositionProbePattern(this.moduleCount - 7, 0);
+    this.setupPositionProbePattern(0, this.moduleCount - 7);
+    this.setupPositionAdjustPattern();
+    this.setupTimingPattern();
+    this.setupTypeInfo(test, maskPattern);
+    if (this.typeNumber >= 7) this.setupTypeNumber(test);
+    if (this.dataCache == null) this.dataCache = QRCodeModel.createData(this.typeNumber, this.errorCorrectLevel, this.dataList);
+    this.mapData(this.dataCache, maskPattern);
+  },
+  setupPositionProbePattern: function(row, col) {
+    for (var r = -1; r <= 7; r++) {
+      if (row + r <= -1 || this.moduleCount <= row + r) continue;
+      for (var c = -1; c <= 7; c++) {
+        if (col + c <= -1 || this.moduleCount <= col + c) continue;
+        if ((0 <= r && r <= 6 && (c == 0 || c == 6)) || (0 <= c && c <= 6 && (r == 0 || r == 6)) || (2 <= r && r <= 4 && 2 <= c && c <= 4)) {
+          this.modules[row + r][col + c] = true;
+        } else { this.modules[row + r][col + c] = false; }
+      }
+    }
+  },
+  getBestMaskPattern: function() {
+    var minLostPoint = 0, pattern = 0;
+    for (var i = 0; i < 8; i++) {
+      this.makeImpl(true, i);
+      var lostPoint = QRUtil.getLostPoint(this);
+      if (i == 0 || minLostPoint > lostPoint) { minLostPoint = lostPoint; pattern = i; }
+    }
+    return pattern;
+  },
+  setupTimingPattern: function() {
+    for (var r = 8; r < this.moduleCount - 8; r++) { if (this.modules[r][6] != null) continue; this.modules[r][6] = (r % 2 == 0); }
+    for (var c = 8; c < this.moduleCount - 8; c++) { if (this.modules[6][c] != null) continue; this.modules[6][c] = (c % 2 == 0); }
+  },
+  setupPositionAdjustPattern: function() {
+    var pos = QRUtil.getPatternPosition(this.typeNumber);
+    for (var i = 0; i < pos.length; i++) {
+      for (var j = 0; j < pos.length; j++) {
+        var row = pos[i], col = pos[j];
+        if (this.modules[row][col] != null) continue;
+        for (var r = -2; r <= 2; r++) {
+          for (var c = -2; c <= 2; c++) {
+            if (r == -2 || r == 2 || c == -2 || c == 2 || (r == 0 && c == 0)) this.modules[row + r][col + c] = true;
+            else this.modules[row + r][col + c] = false;
+          }
+        }
+      }
+    }
+  },
+  setupTypeNumber: function(test) {
+    var bits = QRUtil.getBCHTypeNumber(this.typeNumber);
+    for (var i = 0; i < 18; i++) { var mod = (!test && ((bits >> i) & 1) == 1); this.modules[Math.floor(i / 3)][i % 3 + this.moduleCount - 8 - 3] = mod; }
+    for (var i = 0; i < 18; i++) { var mod = (!test && ((bits >> i) & 1) == 1); this.modules[i % 3 + this.moduleCount - 8 - 3][Math.floor(i / 3)] = mod; }
+  },
+  setupTypeInfo: function(test, maskPattern) {
+    var data = (this.errorCorrectLevel << 3) | maskPattern;
+    var bits = QRUtil.getBCHTypeInfo(data);
+    for (var i = 0; i < 15; i++) {
+      var mod = (!test && ((bits >> i) & 1) == 1);
+      if (i < 6) this.modules[i][8] = mod;
+      else if (i < 8) this.modules[i + 1][8] = mod;
+      else this.modules[this.moduleCount - 15 + i][8] = mod;
+    }
+    for (var i = 0; i < 15; i++) {
+      var mod = (!test && ((bits >> i) & 1) == 1);
+      if (i < 8) this.modules[8][this.moduleCount - i - 1] = mod;
+      else if (i < 9) this.modules[8][15 - i - 1 + 1] = mod;
+      else this.modules[8][15 - i - 1] = mod;
+    }
+    this.modules[this.moduleCount - 8][8] = (!test);
+  },
+  mapData: function(data, maskPattern) {
+    var inc = -1, row = this.moduleCount - 1, bitIndex = 7, byteIndex = 0;
+    for (var col = this.moduleCount - 1; col > 0; col -= 2) {
+      if (col == 6) col--;
+      while (true) {
+        for (var c = 0; c < 2; c++) {
+          if (this.modules[row][col - c] == null) {
+            var dark = false;
+            if (byteIndex < data.length) dark = (((data[byteIndex] >>> bitIndex) & 1) == 1);
+            var mask = QRUtil.getMask(maskPattern, row, col - c);
+            if (mask) dark = !dark;
+            this.modules[row][col - c] = dark;
+            bitIndex--;
+            if (bitIndex == -1) { byteIndex++; bitIndex = 7; }
+          }
+        }
+        row += inc;
+        if (row < 0 || this.moduleCount <= row) { row -= inc; inc = -inc; break; }
+      }
+    }
+  }
+};
+QRCodeModel.PAD0 = 0xEC;
+QRCodeModel.PAD1 = 0x11;
+QRCodeModel.createData = function(typeNumber, errorCorrectLevel, dataList) {
+  var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, errorCorrectLevel);
+  var buffer = new QRBitBuffer();
+  for (var i = 0; i < dataList.length; i++) {
+    var data = dataList[i];
+    buffer.put(data.mode, 4);
+    buffer.put(data.getLength(), QRUtil.getLengthInBits(data.mode, typeNumber));
+    data.write(buffer);
+  }
+  var totalDataCount = 0;
+  for (var i = 0; i < rsBlocks.length; i++) totalDataCount += rsBlocks[i].dataCount;
+  if (buffer.getLengthInBits() + 4 <= totalDataCount * 8) buffer.put(0, 4);
+  while (buffer.getLengthInBits() % 8 != 0) buffer.putBit(false);
+  while (true) {
+    if (buffer.getLengthInBits() >= totalDataCount * 8) break;
+    buffer.put(QRCodeModel.PAD0, 8);
+    if (buffer.getLengthInBits() >= totalDataCount * 8) break;
+    buffer.put(QRCodeModel.PAD1, 8);
+  }
+  return QRCodeModel.createBytes(buffer, rsBlocks);
+};
+QRCodeModel.createBytes = function(buffer, rsBlocks) {
+  var offset = 0, maxDcCount = 0, maxEcCount = 0;
+  var dcdata = new Array(rsBlocks.length), ecdata = new Array(rsBlocks.length);
+  for (var r = 0; r < rsBlocks.length; r++) {
+    var dcCount = rsBlocks[r].dataCount, ecCount = rsBlocks[r].totalCount - dcCount;
+    maxDcCount = Math.max(maxDcCount, dcCount);
+    maxEcCount = Math.max(maxEcCount, ecCount);
+    dcdata[r] = new Array(dcCount);
+    for (var i = 0; i < dcdata[r].length; i++) dcdata[r][i] = 0xff & buffer.buffer[i + offset];
+    offset += dcCount;
+    var rsPoly = QRUtil.getErrorCorrectPolynomial(ecCount);
+    var rawPoly = new QRPolynomial(dcdata[r], rsPoly.getLength() - 1);
+    var modPoly = rawPoly.mod(rsPoly);
+    ecdata[r] = new Array(rsPoly.getLength() - 1);
+    for (var i = 0; i < ecdata[r].length; i++) { var modIndex = i + modPoly.getLength() - ecdata[r].length; ecdata[r][i] = (modIndex >= 0) ? modPoly.get(modIndex) : 0; }
+  }
+  var totalCodeCount = 0;
+  for (var i = 0; i < rsBlocks.length; i++) totalCodeCount += rsBlocks[i].totalCount;
+  var data = new Array(totalCodeCount), index = 0;
+  for (var i = 0; i < maxDcCount; i++) { for (var r = 0; r < rsBlocks.length; r++) { if (i < dcdata[r].length) data[index++] = dcdata[r][i]; } }
+  for (var i = 0; i < maxEcCount; i++) { for (var r = 0; r < rsBlocks.length; r++) { if (i < ecdata[r].length) data[index++] = ecdata[r][i]; } }
+  return data;
+};
+
+// автоподбор минимальной версии (typeNumber), вмещающей данные, с уровнем коррекции L
+function generateQR(text, preferredEcLevel){
+  var ecLevel = QRErrorCorrectLevel[preferredEcLevel || 'L'];
+  var byteData = new QR8bitByte(text);
+  var byteLength = byteData.getLength();
+  for (var typeNumber = 1; typeNumber <= 40; typeNumber++){
+    var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, ecLevel);
+    var totalDataCount = 0;
+    for (var i = 0; i < rsBlocks.length; i++) totalDataCount += rsBlocks[i].dataCount;
+    // 4 бита на индикатор режима + место под длину + сами данные (в битах)
+    var lengthBits = QRUtil.getLengthInBits(QRMode.MODE_8BIT_BYTE, typeNumber);
+    var neededBits = 4 + lengthBits + byteLength * 8;
+    if (neededBits <= totalDataCount * 8){
+      var qr = new QRCodeModel(typeNumber, ecLevel);
+      qr.addData(text);
+      qr.make();
+      return qr;
+    }
+  }
+  throw new Error('Данные слишком большие для QR-кода');
+}
+window.generateQR = generateQR;
+})();
+
+
 /* ================= DATA: PHRASES ================= */
 const categories = [
   { id:'greetings', title:'Приветствия и прощания', phrases:[
@@ -2169,6 +2737,41 @@ customIOModal.addEventListener('transitionend', (e) => {
 document.getElementById('customExportCopyBtn').addEventListener('click', () => {
   copyToClipboard(document.getElementById('customExportText').value, 'Код скопирован в буфер обмена');
 });
+
+/* рендерит QR-код как SVG — чётко масштабируется на любом экране без потери качества */
+function renderQrSvg(text, container){
+  let qr;
+  try {
+    qr = window.generateQR(text, 'L');
+  } catch(e){
+    container.innerHTML = `<div class="empty-state">Слишком много фраз для одного QR-кода — используй текстовый код выше.</div>`;
+    container.hidden = false;
+    return;
+  }
+  const count = qr.getModuleCount();
+  const quiet = 4; // тихая зона по стандарту QR — обязательна для надёжного сканирования
+  const size = count + quiet * 2;
+  let cells = '';
+  for (let r = 0; r < count; r++){
+    for (let c = 0; c < count; c++){
+      if (qr.isDark(r, c)) cells += `<rect x="${c+quiet}" y="${r+quiet}" width="1" height="1"/>`;
+    }
+  }
+  container.innerHTML = `
+    <svg viewBox="0 0 ${size} ${size}" style="width:100%; max-width:260px; display:block; margin:12px auto; background:#fff; border-radius:10px; padding:6px;" shape-rendering="crispEdges">
+      <rect width="${size}" height="${size}" fill="#fff"/>
+      <g fill="#000">${cells}</g>
+    </svg>
+    <div class="io-hint" style="text-align:center; margin-top:2px;">Наведи камеру телефона тиммейта на код</div>
+  `;
+  container.hidden = false;
+}
+document.getElementById('customExportQrBtn').addEventListener('click', () => {
+  const text = document.getElementById('customExportText').value;
+  const container = document.getElementById('customExportQrContainer');
+  renderQrSvg(text, container);
+});
+
 document.getElementById('customImportBtn').addEventListener('click', () => {
   const raw = document.getElementById('customImportText').value.trim();
   if (!raw){ showToast('Вставь код экспорта в поле выше', 2800); return; }
@@ -2190,6 +2793,71 @@ document.getElementById('customImportBtn').addEventListener('click', () => {
     document.getElementById('customExportText').value = JSON.stringify({ app:'counter-chat', type:'custom-phrases', v:1, phrases: getCustomPhrasesArray() });
   } catch(e){
     showToast('Не удалось распознать код — проверь, что скопировал его полностью', 2800);
+  }
+});
+
+/* ================= СЛУЧАЙНАЯ ФРАЗА ================= */
+const randomPhraseModal = document.getElementById('randomPhraseModal');
+function showRandomPhrase(){
+  const resultEl = document.getElementById('randomPhraseResult');
+  const allPhrases = [];
+  categories.forEach(cat => {
+    cat.phrases.forEach(p => allPhrases.push(Object.assign({}, p, { _catId: cat.id })));
+  });
+  if (!allPhrases.length) return;
+  const pick = allPhrases[Math.floor(Math.random() * allPhrases.length)];
+  resultEl.innerHTML = '';
+  resultEl.appendChild(buildPhraseEl(pick, pick._catId, {}));
+}
+document.getElementById('randomPhraseBtn').addEventListener('click', () => {
+  closeAllModals(['randomPhraseModal']);
+  showRandomPhrase();
+  randomPhraseModal.style.transition = 'none';
+  randomPhraseModal.style.transform = 'translateX(100%)';
+  randomPhraseModal.hidden = false;
+  randomPhraseModal.offsetHeight;
+  requestAnimationFrame(() => {
+    randomPhraseModal.style.transition = '';
+    randomPhraseModal.style.transform = '';
+    randomPhraseModal.classList.add('open');
+  });
+});
+document.getElementById('randomPhraseBackBtn').addEventListener('click', () => {
+  randomPhraseModal.classList.remove('open');
+});
+randomPhraseModal.addEventListener('transitionend', (e) => {
+  if (e.propertyName === 'transform' && !randomPhraseModal.classList.contains('open')) randomPhraseModal.hidden = true;
+});
+document.getElementById('randomPhraseRerollBtn').addEventListener('click', () => {
+  haptic(20);
+  showRandomPhrase();
+});
+
+document.getElementById('bulkImportBtn').addEventListener('click', () => {
+  const raw = document.getElementById('bulkImportText').value;
+  const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+  if (!lines.length){ showToast('Вставь хотя бы одну строку', 2800); return; }
+  const existingEn = new Set(getCustomPhrasesArray().map(p => p.en));
+  let added = 0, skipped = 0;
+  lines.forEach(line => {
+    const parts = line.split('|').map(s => s.trim());
+    const en = parts[0];
+    const translit = parts[1];
+    const ru = parts[2];
+    if (en && ru && !existingEn.has(en)){
+      addCustomPhrase({ en, translit: translit || '—', ru });
+      existingEn.add(en);
+      added++;
+    } else {
+      skipped++;
+    }
+  });
+  updateCustomPhrasesBadge();
+  document.getElementById('bulkImportText').value = '';
+  showToast(skipped ? `Добавлено: ${added}, пропущено: ${skipped}` : `Добавлено: ${added}`, 2800);
+  if (added){
+    openCategoryModal({ id:'custom', title:'Мои фразы' }, getCustomPhrasesArray());
+    document.getElementById('customExportText').value = JSON.stringify({ app:'counter-chat', type:'custom-phrases', v:1, phrases: getCustomPhrasesArray() });
   }
 });
 
@@ -2338,7 +3006,7 @@ applyCompactMode();
    ситуации "два экрана сразу" (встречалось в альбомной ориентации) */
 function closeAllModals(exceptIds){
   const keep = Array.isArray(exceptIds) ? exceptIds : [exceptIds];
-  ['categoryModal','voiceModal','favIOModal','customIOModal','mapZoomModal'].forEach(id => {
+  ['categoryModal','voiceModal','favIOModal','customIOModal','randomPhraseModal','mapZoomModal'].forEach(id => {
     if (keep.includes(id)) return;
     const el = document.getElementById(id);
     if (el && !el.hidden){
@@ -3353,7 +4021,7 @@ document.getElementById('mapZoomOutBtn').addEventListener('click', () => {
 });
 
 /* ================= TABS ================= */
-const screens = { phrases: document.getElementById('screen-phrases'), reverse: document.getElementById('screen-reverse'), maps: document.getElementById('screen-maps'), stats: document.getElementById('screen-stats') };
+const screens = { phrases: document.getElementById('screen-phrases'), reverse: document.getElementById('screen-reverse'), maps: document.getElementById('screen-maps'), profile: document.getElementById('screen-profile') };
 const MAPS_HINT_KEY = 'cc_maps_hint_shown';
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -3362,7 +4030,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.classList.add('active');
     const tab = btn.getAttribute('data-tab');
     Object.entries(screens).forEach(([key, el]) => { el.hidden = key !== tab; });
-    if (tab === 'stats') renderStatsScreen();
+    if (tab === 'profile'){ renderProfileScreen(); renderStatsScreen(); }
     if (tab === 'maps' && !localStorage.getItem(MAPS_HINT_KEY)){
       localStorage.setItem(MAPS_HINT_KEY, '1');
       toastEl.textContent = 'Тапни на точку, чтобы услышать произношение и увидеть подробности';
@@ -3419,6 +4087,84 @@ function renderStatsScreen(){
   }
   top.forEach(p => {
     resultsEl.appendChild(buildPhraseEl(p, p._catId, { showCount: true }));
+  });
+}
+
+/* ================= СТРИК ЕЖЕДНЕВНЫХ ПОСЕЩЕНИЙ ================= */
+const STREAK_KEY = 'cc_streak';
+function todayStr(){
+  const d = new Date();
+  return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+}
+function daysBetween(a, b){
+  const [ay,am,ad] = a.split('-').map(Number);
+  const [by,bm,bd] = b.split('-').map(Number);
+  const diffMs = Date.UTC(by,bm-1,bd) - Date.UTC(ay,am-1,ad);
+  return Math.round(diffMs / 86400000);
+}
+function updateStreak(){
+  let data;
+  try { data = JSON.parse(localStorage.getItem(STREAK_KEY)) || {}; } catch(e){ data = {}; }
+  const today = todayStr();
+  if (data.lastDate === today){
+    // уже заходили сегодня — ничего не меняем
+  } else if (data.lastDate && daysBetween(data.lastDate, today) === 1){
+    data.current = (data.current || 0) + 1;
+  } else {
+    data.current = 1;
+  }
+  data.lastDate = today;
+  data.best = Math.max(data.best || 0, data.current || 1);
+  try { localStorage.setItem(STREAK_KEY, JSON.stringify(data)); } catch(e){}
+  return data;
+}
+function getStreak(){
+  try { return JSON.parse(localStorage.getItem(STREAK_KEY)) || { current:0, best:0 }; } catch(e){ return { current:0, best:0 }; }
+}
+updateStreak(); // фиксируем сегодняшний визит сразу при загрузке приложения
+
+/* ================= ДОСТИЖЕНИЯ ================= */
+function getTotalUsageCount(){
+  const usage = getPhraseUsage();
+  return Object.values(usage).reduce((a,b) => a+b, 0);
+}
+const ACHIEVEMENTS = [
+  { id:'first_use', icon:'👋', title:'Первые шаги', desc:'Используй любую фразу один раз', target:1, value: () => getTotalUsageCount() },
+  { id:'use_10', icon:'🔥', title:'Начинающий', desc:'Используй фразы 10 раз', target:10, value: () => getTotalUsageCount() },
+  { id:'use_50', icon:'💪', title:'Опытный', desc:'Используй фразы 50 раз', target:50, value: () => getTotalUsageCount() },
+  { id:'use_200', icon:'🏆', title:'Мастер общения', desc:'Используй фразы 200 раз', target:200, value: () => getTotalUsageCount() },
+  { id:'unique_20', icon:'📚', title:'Полиглот', desc:'Используй 20 разных фраз', target:20, value: () => Object.keys(getPhraseUsage()).length },
+  { id:'fav_5', icon:'⭐', title:'Коллекционер', desc:'Добавь 5 фраз в избранное', target:5, value: () => getFavoriteKeys().size },
+  { id:'custom_3', icon:'✍️', title:'Автор', desc:'Добавь 3 свои фразы', target:3, value: () => getCustomPhrasesArray().length },
+  { id:'streak_3', icon:'📅', title:'Постоянство', desc:'Заходи 3 дня подряд', target:3, value: () => getStreak().best },
+  { id:'streak_7', icon:'🗓️', title:'Неделя силы', desc:'Заходи 7 дней подряд', target:7, value: () => getStreak().best },
+];
+function renderProfileScreen(){
+  const streak = getStreak();
+  document.getElementById('profileStreakValue').textContent = streak.current || 0;
+  document.getElementById('profileTotalValue').textContent = getTotalUsageCount();
+  const listEl = document.getElementById('achievementsList');
+  listEl.innerHTML = '';
+  ACHIEVEMENTS.forEach(a => {
+    const raw = a.value();
+    const current = Math.min(raw, a.target);
+    const unlocked = raw >= a.target;
+    const pct = Math.round((current / a.target) * 100);
+    const card = document.createElement('div');
+    card.className = 'achievement-card' + (unlocked ? ' unlocked' : '');
+    card.innerHTML = `
+      <div class="achievement-icon">${a.icon}</div>
+      <div class="achievement-text">
+        <div class="achievement-title">${a.title}</div>
+        <div class="achievement-desc">${a.desc}</div>
+        ${!unlocked ? `
+          <div class="achievement-progress-bar"><div class="achievement-progress-fill" style="width:${pct}%"></div></div>
+          <div class="achievement-progress-text">${current} / ${a.target}</div>
+        ` : ''}
+      </div>
+      <div class="achievement-check">✓</div>
+    `;
+    listEl.appendChild(card);
   });
 }
 document.getElementById('clearCacheBtn').addEventListener('click', async () => {
