@@ -60,7 +60,14 @@
   --font-mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,'Roboto Mono','Droid Sans Mono','Noto Sans Mono',Consolas,'Courier New',monospace;
   --font-body:'Manrope',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans',Helvetica,Arial,sans-serif;
 }
-html{color-scheme:dark;}
+html{
+  color-scheme:dark;
+  /* запрещаем мобильным браузерам (в первую очередь Android Chrome) самостоятельно
+     "улучшать" размер текста поверх заданных нами значений в px — без этого
+     один и тот же px-размер мог визуально отличаться между iOS и Android */
+  -webkit-text-size-adjust:100%;
+  text-size-adjust:100%;
+}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{margin:0;padding:0;}
 body{
@@ -2113,7 +2120,7 @@ document.getElementById('favExportCopyBtn').addEventListener('click', () => {
 });
 document.getElementById('favImportBtn').addEventListener('click', () => {
   const raw = document.getElementById('favImportText').value.trim();
-  if (!raw){ showToast('Вставь код экспорта в поле выше'); return; }
+  if (!raw){ showToast('Вставь код экспорта в поле выше', 2800); return; }
   try {
     const data = JSON.parse(raw);
     if (!data || !Array.isArray(data.keys)) throw new Error('bad format');
@@ -2121,11 +2128,11 @@ document.getElementById('favImportBtn').addEventListener('click', () => {
     data.keys.forEach(k => current.add(k));
     saveFavoriteKeys(current);
     updateFavoritesBadge();
-    showToast(`Импортировано: ${data.keys.length}`);
+    showToast(`Импортировано: ${data.keys.length}`, 2800);
     openCategoryModal({ id:'favorites', title:'Избранное' }, getFavoritePhrases());
     document.getElementById('favExportText').value = JSON.stringify({ app:'counter-chat', type:'favorites', v:1, keys:[...getFavoriteKeys()] });
   } catch(e){
-    showToast('Не удалось распознать код — проверь, что скопировал его полностью');
+    showToast('Не удалось распознать код — проверь, что скопировал его полностью', 2800);
   }
 });
 
@@ -2157,7 +2164,7 @@ document.getElementById('customExportCopyBtn').addEventListener('click', () => {
 });
 document.getElementById('customImportBtn').addEventListener('click', () => {
   const raw = document.getElementById('customImportText').value.trim();
-  if (!raw){ showToast('Вставь код экспорта в поле выше'); return; }
+  if (!raw){ showToast('Вставь код экспорта в поле выше', 2800); return; }
   try {
     const data = JSON.parse(raw);
     if (!data || !Array.isArray(data.phrases)) throw new Error('bad format');
@@ -2171,11 +2178,11 @@ document.getElementById('customImportBtn').addEventListener('click', () => {
       }
     });
     updateCustomPhrasesBadge();
-    showToast(`Импортировано: ${added}`);
+    showToast(`Импортировано: ${added}`, 2800);
     openCategoryModal({ id:'custom', title:'Мои фразы' }, getCustomPhrasesArray());
     document.getElementById('customExportText').value = JSON.stringify({ app:'counter-chat', type:'custom-phrases', v:1, phrases: getCustomPhrasesArray() });
   } catch(e){
-    showToast('Не удалось распознать код — проверь, что скопировал его полностью');
+    showToast('Не удалось распознать код — проверь, что скопировал его полностью', 2800);
   }
 });
 
@@ -2371,7 +2378,7 @@ function openCategoryModal(cat, phrases){
       const translit = document.getElementById('customTranslitInput').value.trim();
       const ru = document.getElementById('customRuInput').value.trim();
       if (!en || !ru){
-        showToast('Заполни хотя бы английскую фразу и перевод');
+        showToast('Заполни хотя бы английскую фразу и перевод', 2800);
         return;
       }
       addCustomPhrase({ en, translit: translit || '—', ru });
@@ -2672,9 +2679,9 @@ if (SpeechRecognitionAPI){
   recognition.addEventListener('error', (e) => {
     stopListeningUI();
     if (e.error === 'not-allowed' || e.error === 'service-not-allowed'){
-      showToast('Нет доступа к микрофону — разреши в настройках браузера');
+      showToast('Нет доступа к микрофону — разреши в настройках браузера', 2800);
     } else if (e.error !== 'no-speech' && e.error !== 'aborted'){
-      showToast('Не удалось распознать речь, попробуй ещё раз');
+      showToast('Не удалось распознать речь, попробуй ещё раз', 2800);
     }
   });
   recognition.addEventListener('nomatch', () => {
@@ -2728,9 +2735,9 @@ if (SpeechRecognitionAPI){
   reverseRecognition.addEventListener('error', (e) => {
     stopReverseListeningUI();
     if (e.error === 'not-allowed' || e.error === 'service-not-allowed'){
-      showToast('Нет доступа к микрофону — разреши в настройках браузера');
+      showToast('Нет доступа к микрофону — разреши в настройках браузера', 2800);
     } else if (e.error !== 'no-speech' && e.error !== 'aborted'){
-      showToast('Не удалось распознать речь, попробуй ещё раз');
+      showToast('Не удалось распознать речь, попробуй ещё раз', 2800);
     }
   });
   reverseRecognition.addEventListener('nomatch', () => { reverseRecognition.stop(); });
@@ -2870,7 +2877,7 @@ if ('speechSynthesis' in window){
 
 function speak(text, btnEl){
   if (!('speechSynthesis' in window)){
-    showToast('Озвучка не поддерживается в этом браузере');
+    showToast('Озвучка не поддерживается в этом браузере', 2800);
     return;
   }
   window.speechSynthesis.cancel();
@@ -3002,11 +3009,11 @@ function toggleFullscreen(){
   if (!isFullscreen()){
     const request = el.requestFullscreen || el.webkitRequestFullscreen;
     if (!request){
-      showToast('Полноэкранный режим не поддерживается в этом браузере');
+      showToast('Полноэкранный режим не поддерживается в этом браузере', 2800);
       return;
     }
     Promise.resolve(request.call(el)).catch(() => {
-      showToast('Не удалось включить полноэкранный режим');
+      showToast('Не удалось включить полноэкранный режим', 2800);
     });
   } else {
     const exit = document.exitFullscreen || document.webkitExitFullscreen;
@@ -3374,7 +3381,7 @@ installBtn.addEventListener('click', async () => {
     installBtn.hidden = true;
     // сам значок на рабочем столе добавляет операционная система — это происходит
     // не мгновенно, поэтому явно объясняем это пользователю вместо тишины
-    showToast('Готово! Ярлык появится на рабочем столе через несколько секунд');
+    showToast('Готово! Ярлык появится на рабочем столе через несколько секунд', 2800);
   }
   // если пользователь отменил диалог — кнопку не прячем, можно попробовать ещё раз
 });
@@ -3396,7 +3403,7 @@ updateOnlineStatus();
 document.getElementById('statsHeaderBtn').addEventListener('click', () => {
   const top = getTopUsedPhrases(5);
   if (!top.length){
-    showToast('Пока нет статистики — используй фразы, и она появится здесь');
+    showToast('Пока нет статистики — используй фразы, и она появится здесь', 2800);
     return;
   }
   openCategoryModal({ id:'stats', title:'Моя статистика · топ-5' }, top);
@@ -3416,7 +3423,7 @@ document.getElementById('clearCacheBtn').addEventListener('click', async () => {
     }
     showToast('Кэш очищен');
   } catch(e){
-    showToast('Не удалось очистить кэш');
+    showToast('Не удалось очистить кэш', 2800);
   }
 });
 
