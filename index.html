@@ -2551,11 +2551,15 @@ function voiceQualityScore(v){
 }
 function voiceQualityTier(v){
   const n = v.name.toLowerCase();
-  if (v.localService === false || n.includes('google')) return { label:'Сетевой · медленнее', cls:'q-network' };
-  if (n.includes('premium') || n.includes('neural') || n.includes('natural')) return { label:'Премиум', cls:'q-premium' };
-  if (n.includes('enhanced') || n.includes('samantha')) return { label:'Улучшенный', cls:'q-enhanced' };
-  if (n.includes('compact')) return { label:'Базовый', cls:'q-basic' };
-  return { label:'Стандартный', cls:'q-standard' };
+  // ВРЕМЕННАЯ ДИАГНОСТИКА: показывает сырое значение localService прямо в бейдже,
+  // чтобы понять, что реально возвращает браузер на конкретном устройстве —
+  // undefined, true или false. Убрать после того, как разберёмся с багом.
+  const debugSuffix = ` [${v.localService === undefined ? 'undef' : v.localService}]`;
+  if (v.localService === false || n.includes('google')) return { label:'Сетевой · медленнее' + debugSuffix, cls:'q-network' };
+  if (n.includes('premium') || n.includes('neural') || n.includes('natural')) return { label:'Премиум' + debugSuffix, cls:'q-premium' };
+  if (n.includes('enhanced') || n.includes('samantha')) return { label:'Улучшенный' + debugSuffix, cls:'q-enhanced' };
+  if (n.includes('compact')) return { label:'Базовый' + debugSuffix, cls:'q-basic' };
+  return { label:'Стандартный' + debugSuffix, cls:'q-standard' };
 }
 function bestDefaultVoice(){
   const list = englishVoices();
