@@ -167,11 +167,17 @@ body{
 }
 
 /* search */
-.search-and-fav-row{
+.search-row-full{
+  margin-bottom:9px;
+}
+.header-actions-row{
   display:flex;
   align-items:center;
   gap:9px;
   margin-bottom:14px;
+}
+.header-actions-row .favorites-btn{
+  flex:1;
 }
 .search-row{
   display:flex; align-items:center; gap:9px;
@@ -1260,7 +1266,6 @@ body.text-size-sm .phrase-ru{font-size:11.5px;}
       </div>
       <div>
         <div class="brand-title">COUNTER CHAT</div>
-        <div class="brand-sub">EN-коммуникация и позиции карт · CS2</div>
       </div>
       <button class="voice-settings-btn" id="fullscreenBtn" aria-label="Полноэкранный режим">
         <svg id="fullscreenIcon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#eae7e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
@@ -1284,14 +1289,14 @@ body.text-size-sm .phrase-ru{font-size:11.5px;}
 
   <!-- PHRASES SCREEN -->
   <div class="screen" id="screen-phrases">
-    <div class="search-and-fav-row">
-      <div class="search-row">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#eae7e0" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input id="searchInput" placeholder="Найти фразу...">
-        <button class="voice-search-btn" id="voiceSearchBtn" aria-label="Голосовой поиск" hidden>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b9199" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-        </button>
-      </div>
+    <div class="search-row search-row-full">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#eae7e0" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="searchInput" placeholder="Найти фразу...">
+      <button class="voice-search-btn" id="voiceSearchBtn" aria-label="Голосовой поиск" hidden>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b9199" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+      </button>
+    </div>
+    <div class="header-actions-row">
       <button class="favorites-btn" id="favoritesBtn" aria-label="Избранное">
         <img class="header-icon-img" id="favoritesHeaderIcon" src="" alt="">
         <span class="favorites-btn-badge" id="favoritesBadge" hidden>0</span>
@@ -1299,8 +1304,8 @@ body.text-size-sm .phrase-ru{font-size:11.5px;}
       <button class="favorites-btn" id="customPhrasesBtn" aria-label="Мои фразы">
         <img class="header-icon-img" id="customPhrasesHeaderIcon" src="" alt="" style="width:30px;height:30px;object-fit:cover;">        <span class="favorites-btn-badge" id="customPhrasesBadge" hidden>0</span>
       </button>
-      <button class="favorites-btn" id="reverseDictBtn" aria-label="Обратный словарь">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f2c98a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+      <button class="favorites-btn" id="statsHeaderBtn" aria-label="Моя статистика">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f2c98a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
       </button>
     </div>
     <div id="historyStrip" class="history-strip" hidden></div>
@@ -1311,8 +1316,20 @@ body.text-size-sm .phrase-ru{font-size:11.5px;}
       <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M11.979 0C5.678 0 0.511 4.86 0.022 11.037l6.432 2.658a3.386 3.386 0 0 1 1.912-.59c.063 0 .125.002.188.005l2.861-4.142v-.058a4.79 4.79 0 0 1 4.784-4.783 4.79 4.79 0 0 1 4.784 4.784 4.79 4.79 0 0 1-4.784 4.783h-.11l-4.076 2.912c0 .052.003.104.003.157 0 1.882-1.53 3.412-3.412 3.412a3.42 3.42 0 0 1-3.373-2.867l-4.601-1.902C1.598 19.912 6.324 24 11.979 24c6.627 0 12-5.373 12-12s-5.373-12-12-12zM7.54 18.21l-1.473-.609c.261.539.717.987 1.32 1.238a2.5 2.5 0 0 0 3.268-1.353 2.5 2.5 0 0 0-1.354-3.268 2.5 2.5 0 0 0-1.898-.02l1.523.63a1.85 1.85 0 1 1-1.386 3.382zm10.577-9.905a3.19 3.19 0 0 0-3.187-3.187 3.19 3.19 0 0 0-3.19 3.187 3.19 3.19 0 0 0 3.19 3.188 3.19 3.19 0 0 0 3.187-3.188zm-5.583-.006a2.4 2.4 0 0 1 2.4-2.398 2.4 2.4 0 0 1 2.398 2.398 2.4 2.4 0 0 1-2.398 2.4 2.4 2.4 0 0 1-2.4-2.4z"/></svg>
       <span>Сделано Петровичем</span>
     </a>
-    <button class="clear-cache-btn" id="statsBtn">Моя статистика</button>
     <button class="clear-cache-btn" id="clearCacheBtn">Очистить кэш</button>
+  </div>
+
+  <!-- REVERSE DICTIONARY SCREEN -->
+  <div class="screen" id="screen-reverse" hidden>
+    <div class="io-hint">Услышал фразу от союзника на английском, но не понял смысл? Скажи или напиши её сюда (можно и по-русски, если вспомнил смысл, но забыл слово) — найдём перевод.</div>
+    <div class="search-row search-row-full" style="margin-top:14px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#eae7e0" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="reverseSearchInput" placeholder="Что ты услышал?">
+      <button class="voice-search-btn" id="reverseVoiceBtn" aria-label="Голосовой ввод на английском" hidden>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b9199" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+      </button>
+    </div>
+    <div id="reverseResults"></div>
   </div>
 
   <!-- MAPS SCREEN -->
@@ -1366,6 +1383,10 @@ body.text-size-sm .phrase-ru{font-size:11.5px;}
     <button class="tab-btn active" data-tab="phrases">
       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
       <span>Фразы</span>
+    </button>
+    <button class="tab-btn" data-tab="reverse">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+      <span>Перевод</span>
     </button>
     <button class="tab-btn" data-tab="maps">
       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
@@ -1438,26 +1459,6 @@ body.text-size-sm .phrase-ru{font-size:11.5px;}
       <textarea class="io-textarea" id="customImportText" placeholder="Вставь код экспорта сюда..."></textarea>
       <button class="io-btn io-btn-accent" id="customImportBtn">Импортировать</button>
     </div>
-  </div>
-</div>
-
-<div class="category-modal" id="reverseModal" hidden>
-  <div class="category-modal-head">
-    <button class="modal-back-btn" id="reverseBackBtn" aria-label="Назад">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#eae7e0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-    </button>
-    <span class="category-modal-title">Обратный словарь</span>
-  </div>
-  <div class="category-modal-body">
-    <div class="io-hint">Услышал фразу от союзника на английском, но не понял смысл? Скажи или напиши её сюда — найдём перевод.</div>
-    <div class="search-row" style="margin:14px 0;">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#eae7e0" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input id="reverseSearchInput" placeholder="Что ты услышал?">
-      <button class="voice-search-btn" id="reverseVoiceBtn" aria-label="Голосовой ввод на английском" hidden>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b9199" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-      </button>
-    </div>
-    <div id="reverseResults"></div>
   </div>
 </div>
 
@@ -2179,28 +2180,7 @@ document.getElementById('customImportBtn').addEventListener('click', () => {
 });
 
 /* ================= ОБРАТНЫЙ СЛОВАРЬ ================= */
-const reverseModal = document.getElementById('reverseModal');
-document.getElementById('reverseDictBtn').addEventListener('click', () => {
-  closeAllModals(['reverseModal']);
-  document.getElementById('reverseSearchInput').value = '';
-  document.getElementById('reverseResults').innerHTML = `<div class="empty-state">Начни печатать или скажи фразу — покажем перевод</div>`;
-  reverseModal.style.transition = 'none';
-  reverseModal.style.transform = 'translateX(100%)';
-  reverseModal.hidden = false;
-  reverseModal.offsetHeight;
-  requestAnimationFrame(() => {
-    reverseModal.style.transition = '';
-    reverseModal.style.transform = '';
-    reverseModal.classList.add('open');
-  });
-  document.getElementById('reverseSearchInput').focus();
-});
-document.getElementById('reverseBackBtn').addEventListener('click', () => {
-  reverseModal.classList.remove('open');
-});
-reverseModal.addEventListener('transitionend', (e) => {
-  if (e.propertyName === 'transform' && !reverseModal.classList.contains('open')) reverseModal.hidden = true;
-});
+document.getElementById('reverseResults').innerHTML = `<div class="empty-state">Начни печатать или скажи фразу — покажем перевод</div>`;
 
 function renderReverseResults(query){
   const resultsEl = document.getElementById('reverseResults');
@@ -2212,8 +2192,9 @@ function renderReverseResults(query){
   let found = [];
   categories.forEach(cat => {
     cat.phrases.forEach(p => {
-      // ищем в первую очередь по английскому тексту — это и есть суть "обратного" словаря
-      if (p.en.toLowerCase().includes(f)){
+      // ищем по всем полям — фразу могли и написать на русском, и попытаться
+      // вспомнить/напечатать по памяти, а не только услышать на английском
+      if (p.en.toLowerCase().includes(f) || p.ru.toLowerCase().includes(f) || p.translit.toLowerCase().includes(f)){
         found.push(Object.assign({}, p, { _catId: cat.id }));
       }
     });
@@ -2221,7 +2202,7 @@ function renderReverseResults(query){
   if (!found.length && f.length >= 3){
     categories.forEach(cat => {
       cat.phrases.forEach(p => {
-        if (fuzzyMatch(f, { en: p.en, ru: '', translit: '' })){
+        if (fuzzyMatch(f, p)){
           found.push(Object.assign({}, p, { _catId: cat.id }));
         }
       });
@@ -2343,7 +2324,7 @@ applyCompactMode();
    ситуации "два экрана сразу" (встречалось в альбомной ориентации) */
 function closeAllModals(exceptIds){
   const keep = Array.isArray(exceptIds) ? exceptIds : [exceptIds];
-  ['categoryModal','voiceModal','favIOModal','customIOModal','reverseModal','mapZoomModal'].forEach(id => {
+  ['categoryModal','voiceModal','favIOModal','customIOModal','mapZoomModal'].forEach(id => {
     if (keep.includes(id)) return;
     const el = document.getElementById(id);
     if (el && !el.hidden){
@@ -2789,11 +2770,11 @@ function copyToClipboard(text, toastMsg){
     navigator.clipboard.writeText(text).then(done).catch(done);
   } else { done(); }
 }
-function showToast(msg){
+function showToast(msg, duration=1700){
   toastEl.textContent = msg;
   toastEl.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 1700);
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), duration);
 }
 
 /* ================= TEXT-TO-SPEECH ================= */
@@ -3357,7 +3338,7 @@ document.getElementById('mapZoomOutBtn').addEventListener('click', () => {
 });
 
 /* ================= TABS ================= */
-const screens = { phrases: document.getElementById('screen-phrases'), maps: document.getElementById('screen-maps') };
+const screens = { phrases: document.getElementById('screen-phrases'), reverse: document.getElementById('screen-reverse'), maps: document.getElementById('screen-maps') };
 const MAPS_HINT_KEY = 'cc_maps_hint_shown';
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -3412,7 +3393,7 @@ window.addEventListener('offline', updateOnlineStatus);
 updateOnlineStatus();
 
 /* ================= УПРАВЛЕНИЕ КЭШЕМ ================= */
-document.getElementById('statsBtn').addEventListener('click', () => {
+document.getElementById('statsHeaderBtn').addEventListener('click', () => {
   const top = getTopUsedPhrases(5);
   if (!top.length){
     showToast('Пока нет статистики — используй фразы, и она появится здесь');
