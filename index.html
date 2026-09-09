@@ -174,17 +174,14 @@ body{
 }
 
 /* search */
-.search-row-full{
-  margin-bottom:9px;
-}
-.header-actions-row{
+.search-and-fav-row{
   display:flex;
   align-items:center;
   gap:9px;
   margin-bottom:14px;
 }
-.header-actions-row .favorites-btn{
-  flex:1;
+.search-row-full{
+  margin-bottom:9px;
 }
 .search-row{
   display:flex; align-items:center; gap:9px;
@@ -1257,8 +1254,12 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
         <span>Поиск сверху находит фразу по любому слову — на русском или английском</span>
       </div>
       <div class="onboarding-item">
+        <span class="onboarding-item-icon">🎧</span>
+        <span>Услышал фразу от союзника, но не понял? Вкладка «Перевод» внизу — скажи или напиши, что услышал, найдём смысл</span>
+      </div>
+      <div class="onboarding-item">
         <span class="onboarding-item-icon">🗺️</span>
-        <span>Вкладка «Карты» — позиции CS2 с озвучкой английских колаутов</span>
+        <span>Внизу ещё «Карты» (позиции CS2 с озвучкой) и «Статистика» — какие фразы используешь чаще всего</span>
       </div>
     </div>
     <button class="onboarding-btn" id="onboardingCloseBtn">Начать</button>
@@ -1296,23 +1297,20 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
 
   <!-- PHRASES SCREEN -->
   <div class="screen" id="screen-phrases">
-    <div class="search-row search-row-full">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#eae7e0" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input id="searchInput" placeholder="Найти фразу...">
-      <button class="voice-search-btn" id="voiceSearchBtn" aria-label="Голосовой поиск" hidden>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b9199" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-      </button>
-    </div>
-    <div class="header-actions-row">
+    <div class="search-and-fav-row">
+      <div class="search-row">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#eae7e0" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="searchInput" placeholder="Найти фразу...">
+        <button class="voice-search-btn" id="voiceSearchBtn" aria-label="Голосовой поиск" hidden>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b9199" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        </button>
+      </div>
       <button class="favorites-btn" id="favoritesBtn" aria-label="Избранное">
         <img class="header-icon-img" id="favoritesHeaderIcon" src="" alt="">
         <span class="favorites-btn-badge" id="favoritesBadge" hidden>0</span>
       </button>
       <button class="favorites-btn" id="customPhrasesBtn" aria-label="Мои фразы">
         <img class="header-icon-img" id="customPhrasesHeaderIcon" src="" alt="" style="width:30px;height:30px;object-fit:cover;">        <span class="favorites-btn-badge" id="customPhrasesBadge" hidden>0</span>
-      </button>
-      <button class="favorites-btn" id="statsHeaderBtn" aria-label="Моя статистика">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f2c98a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
       </button>
     </div>
     <div id="historyStrip" class="history-strip" hidden></div>
@@ -1368,6 +1366,11 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
     <div class="info-panel" id="infoPanel" hidden></div>
   </div>
 
+  <!-- STATS SCREEN -->
+  <div class="screen" id="screen-stats" hidden>
+    <div id="statsResults"></div>
+  </div>
+
   <div class="map-zoom-modal" id="mapZoomModal" hidden>
     <div class="map-zoom-head">
       <button class="modal-back-btn" id="mapZoomCloseBtn" aria-label="Закрыть">
@@ -1398,6 +1401,10 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
     <button class="tab-btn" data-tab="maps">
       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
       <span>Карты</span>
+    </button>
+    <button class="tab-btn" data-tab="stats">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      <span>Статистика</span>
     </button>
   </nav>
 </div>
@@ -2494,6 +2501,7 @@ function buildPhraseEl(p, catId, opts={}){
     e.stopPropagation();
     haptic(30);
     speak(p.speak || p.en, e.currentTarget);
+    trackPhraseUsage(catId, p.en);
   });
   row.querySelector('.share-btn-side').addEventListener('click', (e) => {
     e.stopPropagation();
@@ -3345,7 +3353,7 @@ document.getElementById('mapZoomOutBtn').addEventListener('click', () => {
 });
 
 /* ================= TABS ================= */
-const screens = { phrases: document.getElementById('screen-phrases'), reverse: document.getElementById('screen-reverse'), maps: document.getElementById('screen-maps') };
+const screens = { phrases: document.getElementById('screen-phrases'), reverse: document.getElementById('screen-reverse'), maps: document.getElementById('screen-maps'), stats: document.getElementById('screen-stats') };
 const MAPS_HINT_KEY = 'cc_maps_hint_shown';
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -3354,6 +3362,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.classList.add('active');
     const tab = btn.getAttribute('data-tab');
     Object.entries(screens).forEach(([key, el]) => { el.hidden = key !== tab; });
+    if (tab === 'stats') renderStatsScreen();
     if (tab === 'maps' && !localStorage.getItem(MAPS_HINT_KEY)){
       localStorage.setItem(MAPS_HINT_KEY, '1');
       toastEl.textContent = 'Тапни на точку, чтобы услышать произношение и увидеть подробности';
@@ -3400,14 +3409,18 @@ window.addEventListener('offline', updateOnlineStatus);
 updateOnlineStatus();
 
 /* ================= УПРАВЛЕНИЕ КЭШЕМ ================= */
-document.getElementById('statsHeaderBtn').addEventListener('click', () => {
+function renderStatsScreen(){
+  const resultsEl = document.getElementById('statsResults');
   const top = getTopUsedPhrases(5);
+  resultsEl.innerHTML = '';
   if (!top.length){
-    showToast('Пока нет статистики — используй фразы, и она появится здесь', 2800);
+    resultsEl.innerHTML = `<div class="empty-state">Пока нет статистики.<br>Используй фразы — здесь появится топ-5 самых частых.</div>`;
     return;
   }
-  openCategoryModal({ id:'stats', title:'Моя статистика · топ-5' }, top);
-});
+  top.forEach(p => {
+    resultsEl.appendChild(buildPhraseEl(p, p._catId, { showCount: true }));
+  });
+}
 document.getElementById('clearCacheBtn').addEventListener('click', async () => {
   if (!confirm('Очистить локально сохранённые данные приложения? Офлайн-доступ временно пропадёт, при следующем открытии с интернетом всё загрузится заново. Избранное и свои фразы не удалятся.')){
     return;
