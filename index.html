@@ -2551,15 +2551,11 @@ function voiceQualityScore(v){
 }
 function voiceQualityTier(v){
   const n = v.name.toLowerCase();
-  // ВРЕМЕННАЯ ДИАГНОСТИКА: показывает сырое значение localService прямо в бейдже,
-  // чтобы понять, что реально возвращает браузер на конкретном устройстве —
-  // undefined, true или false. Убрать после того, как разберёмся с багом.
-  const debugSuffix = ` [${v.localService === undefined ? 'undef' : v.localService}]`;
-  if (v.localService === false || n.includes('google')) return { label:'Сетевой · медленнее' + debugSuffix, cls:'q-network' };
-  if (n.includes('premium') || n.includes('neural') || n.includes('natural')) return { label:'Премиум' + debugSuffix, cls:'q-premium' };
-  if (n.includes('enhanced') || n.includes('samantha')) return { label:'Улучшенный' + debugSuffix, cls:'q-enhanced' };
-  if (n.includes('compact')) return { label:'Базовый' + debugSuffix, cls:'q-basic' };
-  return { label:'Стандартный' + debugSuffix, cls:'q-standard' };
+  if (v.localService === false || n.includes('google')) return { label:'Сетевой · медленнее', cls:'q-network' };
+  if (n.includes('premium') || n.includes('neural') || n.includes('natural')) return { label:'Премиум', cls:'q-premium' };
+  if (n.includes('enhanced') || n.includes('samantha')) return { label:'Улучшенный', cls:'q-enhanced' };
+  if (n.includes('compact')) return { label:'Базовый', cls:'q-basic' };
+  return { label:'Стандартный', cls:'q-standard' };
 }
 function bestDefaultVoice(){
   const list = englishVoices();
@@ -2583,6 +2579,25 @@ function cleanVoiceName(v){
 }
 function updateVoiceRowLabel(){
   // зарезервировано на случай текстового индикатора выбранного голоса в шапке
+}
+
+/* ================= ПРОГРЕВ ДВИЖКА ОЗВУЧКИ =================
+   На части Android-устройств системный движок синтеза речи не «горячий» и при
+   самом первом обращении за сессию инициализируется несколько секунд — это
+   разовые накладные расходы самого движка, а не сетевая задержка конкретного
+   голоса. Запускаем почти беззвучную фразу при первом же касании экрана
+   (задолго до того, как пользователь реально нажмёт на кнопку воспроизведения),
+   чтобы к моменту настоящего нажатия движок уже был прогрет. */
+if ('speechSynthesis' in window){
+  const warmUpSpeech = () => {
+    document.removeEventListener('pointerdown', warmUpSpeech);
+    try {
+      const warmup = new SpeechSynthesisUtterance(' ');
+      warmup.volume = 0;
+      window.speechSynthesis.speak(warmup);
+    } catch(e){}
+  };
+  document.addEventListener('pointerdown', warmUpSpeech, { once: true });
 }
 
 function speak(text, btnEl){
