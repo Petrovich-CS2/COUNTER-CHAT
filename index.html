@@ -668,6 +668,41 @@ body.compact-mode .phrase{padding-top:8px; padding-bottom:8px;}
 }
 .io-btn:active{background:var(--bg-elevated);}
 .io-btn-accent{background:rgba(214,144,58,.18); border-color:rgba(214,144,58,.4); color:#f2c98a;}
+.random-history-title{
+  font-family:var(--font-mono);
+  font-size:11px;
+  font-weight:700;
+  color:var(--text-faint);
+  text-transform:none;
+  margin:22px 0 10px;
+  letter-spacing:.02em;
+}
+.random-history-list{
+  display:flex; flex-direction:column; gap:7px;
+}
+.random-history-item{
+  display:flex; align-items:baseline; gap:7px;
+  background:var(--bg-surface);
+  border:1px solid var(--line);
+  border-radius:9px;
+  padding:8px 11px;
+  opacity:.68;
+  font-size:12px;
+  animation:historyFadeIn .25s ease;
+}
+.random-history-en{
+  font-family:var(--font-mono);
+  font-weight:600;
+  color:#f2c98a;
+  flex-shrink:0;
+}
+.random-history-ru{
+  color:var(--text-faint);
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+@keyframes historyFadeIn{from{opacity:0; transform:translateY(-4px);} to{opacity:.68; transform:translateY(0);}}
 .reverse-lang-toggle{
   display:flex; align-items:center; gap:10px;
   width:100%;
@@ -1683,6 +1718,8 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
   <div class="category-modal-body">
     <div id="randomPhraseResult"></div>
     <button class="io-btn io-btn-accent reroll-btn" id="randomPhraseRerollBtn" style="margin-top:14px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f2c98a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:7px;"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>Ещё одна</button>
+    <div class="random-history-title" id="randomHistoryTitle" hidden>Уже выпадало в этот раз</div>
+    <div id="randomPhraseHistory" class="random-history-list"></div>
   </div>
 </div>
 
@@ -2932,6 +2969,20 @@ document.getElementById('customImportBtn').addEventListener('click', () => {
 /* ================= СЛУЧАЙНАЯ ФРАЗА ================= */
 const randomPhraseModal = document.getElementById('randomPhraseModal');
 let lastRandomPhraseKey = null;
+let currentRandomPhrase = null;
+let randomPhraseHistoryList = [];
+function renderRandomHistory(){
+  const historyEl = document.getElementById('randomPhraseHistory');
+  const titleEl = document.getElementById('randomHistoryTitle');
+  historyEl.innerHTML = '';
+  titleEl.hidden = randomPhraseHistoryList.length === 0;
+  randomPhraseHistoryList.forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'random-history-item';
+    row.innerHTML = `<span class="random-history-en">${p.en}</span><span class="random-history-ru">— ${p.ru}</span>`;
+    historyEl.appendChild(row);
+  });
+}
 function showRandomPhrase(){
   const resultEl = document.getElementById('randomPhraseResult');
   const usage = getPhraseUsage();
@@ -2940,6 +2991,13 @@ function showRandomPhrase(){
     cat.phrases.forEach(p => allPhrases.push(Object.assign({}, p, { _catId: cat.id })));
   });
   if (!allPhrases.length) return;
+
+  // прошлая показанная фраза уходит в историю за этот заход в экран —
+  // заполняет пустое пространство и даёт вернуться взглядом к тому, что уже видел
+  if (currentRandomPhrase){
+    randomPhraseHistoryList.unshift(currentRandomPhrase);
+    if (randomPhraseHistoryList.length > 12) randomPhraseHistoryList.length = 12; // не даём списку расти бесконечно
+  }
 
   // исключаем ту фразу, что выпала прошлый раз, — иначе рандом иногда покажет
   // ту же самую фразу два раза подряд, что выглядит как баг
@@ -2959,11 +3017,15 @@ function showRandomPhrase(){
   }
 
   lastRandomPhraseKey = favKey(pick._catId, pick.en);
+  currentRandomPhrase = pick;
   resultEl.innerHTML = '';
   resultEl.appendChild(buildPhraseEl(pick, pick._catId, {}));
+  renderRandomHistory();
 }
 document.getElementById('randomPhraseBtn').addEventListener('click', () => {
   closeAllModals(['randomPhraseModal']);
+  randomPhraseHistoryList = [];
+  currentRandomPhrase = null;
   showRandomPhrase();
   randomPhraseModal.style.transition = 'none';
   randomPhraseModal.style.transform = 'translateX(100%)';
