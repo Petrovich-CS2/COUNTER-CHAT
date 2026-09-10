@@ -12,14 +12,21 @@
 <!-- отдельная ссылка на РЕАЛЬНЫЙ файл иконки (не base64) — механизм генерации превью
      в системном меню «Поделиться» у iOS сам скачивает иконку по ссылке отдельным
      запросом и не умеет работать с data:-URI, поэтому нужен именно файл -->
+<meta name="description" content="Разговорник на английском для CS2: 240+ готовых фраз с транскрипцией и озвучкой на все игровые ситуации, интерактивные карты с позициями (Dust II, Mirage, Inferno и другие). Работает офлайн, бесплатно, без рекламы.">
+<meta name="keywords" content="CS2 разговорник, английский для CS2, cs2 фразы на английском, cs2 callouts на русском, counter strike 2 английский язык, cs2 позиции карт, cs2 колауты">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://petrovich-cs2.github.io/COUNTER-CHAT/">
+
 <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
 <meta property="og:title" content="Counter Chat — CS2 разговорник">
 <meta property="og:site_name" content="Counter Chat">
 <meta property="og:description" content="EN-фразы, транскрипция и озвучка для CS2">
-<meta property="og:image" content="icon-512.png">
+<meta property="og:image" content="https://petrovich-cs2.github.io/COUNTER-CHAT/icon-512.png">
+<meta property="og:url" content="https://petrovich-cs2.github.io/COUNTER-CHAT/">
 <meta property="og:type" content="website">
+<meta property="og:locale" content="ru_RU">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="icon-512.png">
+<meta name="twitter:image" content="https://petrovich-cs2.github.io/COUNTER-CHAT/icon-512.png">
 
 <!-- загрузочные экраны (splash) для iOS — убирают белую вспышку при запуске с домашнего экрана -->
 <link rel="apple-touch-startup-image" href="splash-1290x2796.png" media="screen and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
@@ -162,6 +169,7 @@ body{
   font-size:17px;
   letter-spacing:.06em;
   line-height:1.15;
+  margin:0;
 }
 .brand-sub{
   font-size:11.5px;
@@ -499,6 +507,7 @@ body.compact-mode .phrase{padding-top:8px; padding-bottom:8px;}
   flex:1;
   font-size:15.5px;
   font-weight:700;
+  margin:0;
 }
 .category-modal-body{
   flex:1;
@@ -888,11 +897,13 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
 .onboarding-modal[hidden]{display:none;}
 .onboarding-card{
   width:100%;
-  background:var(--bg-surface);
+  background:rgba(24,18,12,.55);
+  backdrop-filter:blur(14px) saturate(1.3);
+  -webkit-backdrop-filter:blur(14px) saturate(1.3);
+  box-shadow:0 20px 60px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.05);
   border:1px solid var(--line-strong);
   border-radius:20px;
   padding:26px 22px 22px;
-  box-shadow:0 20px 60px rgba(0,0,0,.5);
 }
 .onboarding-icon{
   width:56px; height:56px;
@@ -1357,6 +1368,30 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
 }
 .update-banner #updateReloadBtn:active{opacity:.85;}
 </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Counter Chat",
+  "alternateName": "Counter Chat — CS2 разговорник",
+  "url": "https://petrovich-cs2.github.io/COUNTER-CHAT/",
+  "description": "Разговорник на английском для CS2: готовые фразы с транскрипцией и озвучкой, интерактивные карты с позициями и колаутами. Работает офлайн.",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any",
+  "browserRequirements": "Requires JavaScript",
+  "inLanguage": "ru",
+  "isAccessibleForFree": true,
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "Петрович"
+  }
+}
+</script>
 </head>
 <body>
 
@@ -1404,7 +1439,7 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
         <img src="data:image/webp;base64,UklGRgAYAABXRUJQVlA4WAoAAAAQAAAAswAAswAAQUxQSDMFAAABJ6egbRvpnOPP+mcQETk8556lyPQT8hBmTAqSPUEuIcf8RB4TattIUhYu/P4rZv4wov8TgLGsrbBZHzFGTZQy0odAt4gGu08qAajCkvC0bbdp27atPW/KpdsY9rRt254he0ZnaP4Tz6gdsm3bnt22as0pBVrtfbaeailpel4RMQH8T39dka5arE6MnzUFQSyIFWNoSB5jpcFYTSE1MxuGJrU2CFBbJElEhHfvHuHRe+/hEUQssPAeLNRg46MmYO29nn77tbu3r1srAzMkW6BmrTVZa81W2AIJE+Hh7nPHw737KszOHv3bn//wW0BNo6IG3Pk1b/nGH/cw0nH0XW+8fwPTeJiz7enPfeT6ED1Af4+uRFcnVimAwAz6Dz/5sQNI42ARu17zphsDDxNinCOcho5+9N2EjYF8eM7LbwzHxNj3aDrzkp2Blk1wz+deH13GJLrb5uc/HteSuT3+/nQZk+keNz39xtAyKbbff0NXY0rNOg+6lSUW227FxdQKdt2Ilob1W5CYXinWDMRyBA6ISRZ+hiU9P2fCdeEwkS84cYwpDw7+jUhnp37PtAc/P6BI1vgZUy++ieUyvn18iImLduCreLKv40x951N/a5Go8VTE5Mdw4cNk6nqD9elTX/9yEjee9ChRQOO5d3FLE7yIXgH1LU8njfmdnkRUAHgsPYt4xpZOCY173xyWxHkcRZTvuAfKYXHLfbAa4NyTpOJ+211FELdngfvjlPE2PEdwT1QFsXtDKIN8wy11gG3bSCmuu74OYsdWlAF2b446xLCFlGIDQRmD9SgDrKOUjaSba2FZ1hOVUJZGKS1LMT2LahFZWsmsZKpFWvs3BlXDclCNtK0WyjKUbA1RsooPtVCWtbWwLK1gwVAw/hmUNGioEpYDGqVUFitY0ApGNSKFgjX1AuyfP55ExYgsDVXCsxiljCQ2VEytFpbFaqGSZZVKZrWILK0WWaVaeMlq7knCaxFJ/nkeXjJqaVm8Yj6vRSuZkkSvRdZqtCxeCyXxOVEJS8Kccoe4VInAUiBmlUg8r4VyCK+F5QAnKqEsnVKmmdciqegFg3ktlMVrkXZeC2Xp//xJOy/ZDFVCeUqZJDhXi7SnSnYMVcKynK5F0lgR1YJTJyh3cOok8U8ez4FxikrOkohjhRDnk8A+ogxwLM0eyhjGcSLJH7AqwLGj5Az2nLYoQnDgEJHkr3uowx/mLUnrP8DL8HOyDrx4z19qEI3vpRE3/HRP1EC//QmeBOOte7wEzhcutsjSeMYeVSAG/wxBVrH2k+YFcL7+/UQ0XkYUAN5PSyQ2/LT55PX2jU/QSdx4JzF1YfFmN1KLZzHx6noW2S3u/FA0acZjr3UlQzzg2q4Jk996L4wlvAeu6fJ2H5ZR3m5jshXcSCwDxIaNUxWw2ULLIQyIKYI1Q7C8/QITHHARtDzBpQOYT0w0Dl1SsMw2+8OFFjEhHnbytxhLLn7yR9RD0+A+8Mufs/wBv/nSpWbeNH7uw3Dkc7+HWDoIO/upr4WiyzRm7hraqfd9dN6CUQz4yTtf86R1REcSGpkggtAa8bePfBJFMJKBBXd79lPvuQYgAuJK4ipodeIyWiQkVh781qd/A+bBeDo4w70eeJ+7Xr9jE2N7/tjRPb/8yX6gxZyRtcbKbTu2btqyce2aobVmzZqZNWtrBrMmQ0EQCBkmrNnQTOAO4e4+n819Npv1uc/77NLFi2dOnz1x4qQD1sQoW2sKRtmEGHMJXU5XFKsQC4IAtEggQJeJFUEE9RQQi/5veABWUDggphIAANBVAJ0BKrQAtAA+PR6LRCIhoRMLRUQgA8SgDXkNsH17p5vle/pn4N/Iz3QO9nqrzJvIvzr/Hf2j8kPm//h/9h7G/zL/svcA/TX/cf3LrKeYD+b/47/qf4f3if9N6hP1v/XP/gfIB/F/7t///aU/1/sF/2P/d+wB/PP8F/7vXC/cf4LP2w/b//2/It+y3/s9gD/5+oB/8+FV/DPxI/vP9X/ZvxLfZ/5T8sM5d91/wn9s/cP2q/3PiT8gtQL8i/nn+E/LbifQAflP9K/2/+A/cr+7+kF/b+iP2H/1/uAfyj+df6b1s/1HiIeK/rn8AX8v/pP/h/zPut/1v/n/03ni/P/83/1/85+7P0Ffy7+tf73+9fk/4P/3Y9m/9jSvO1zlpf0sUB6isYO/cUrRLS1qLnNTXxL6k4myf9v6g3XsOf19TO17IgdLcBYt+ZL1k9KTkbpliLdO7KDy6eGanAjdgKDxMccTMwtCf138LHgCwrMdec5vCBiZ5C5ClQ5BNUetIaWMmB5tAPCFRRWp7KYrh97eneB7JJALeJ7KPwrAl93sJKdPZupahmF+OeIzpohTJr5GWc0l7pOEf2tgwVExwcEI5+N5jn1cNbS9nxSXQmx9jk6s7zFdo3NCPhmU/IUPAR81KjPH3GE9zqSJkmCCZhpWTQPf9WHJGdQ123UgjbqBRLTSWCLCDdQS7B1cCxuKum9vZsPuKnIseeyA4r7Ot7UtVB6QNFjQusKnfdw4jT1WVGLQM7inZZCs7mFSqQhnpJfJAot4500YQ94gyy4dSQEsgjpaQlhm2dYJRe5RS/t85WBBnMPuixuSYMpXKlzjtbrw9HnwEqZHwzCo4cSmhlkGHKgsr75gT/WdnA2FpIUoodyOi3mIdL0Bb2B74ymgo6xU1F2XbDF4oedFLFXT2oOwnpzQAjwAAP7+pThRSt2hjPRQ8/iDcDJHl8NDf61vR+4RmPxLbNsZMnSiWd1v0ydBxT0OfTroMWT2mqJ4Unp6D/jrMFj3Q8CbVcyz6UvvOV1/X88U/L6/F6sVNqz6/Re/slibxqh/GO8L3BOmR7D6jAtQQjLKby1TfUwR74tz6+6Nm4xislXWznih7qBXWa5hBcBWtL/TvE3tklwig6hBMrL5RVAb2vs8BuTGrKP6ByOpRLdg6YluB7o+Hgm8mef+UhfapVgiqJ/gO60tFsZTX1x2koheKzCqpJpwq/RYa7aqACQ4TrT9vj7dgl/eIdHwYTQZLi4+z+TXMPK3icoZ2O5GH1rXqvPoJzj3PWHF2v7j+kCC08V/M2jnAKC7h6B9378YVniYPVqCGuoK3gF+1ANJjkjXIt3GVLfSPQivPvwb5wCl9VRGckEKgb3mQeYg1JFJ9WOj61TW3yEZWoYmvCcWgejHZ93lbq3y+MwJG2vqonNB5F+T0xNcjEGBWhg+Kg73qmxXR/TKQFIbAeb8vgHxUqkWx4TnumhknN1buORKL9BI3QFCOPlUx0GMzZ+Kc/E1HB/z1yr3WxrTVKZ94ed4INoCv/uXuXhU0cLiZ2zKKrHgTUvmgN/i//tH2XZH8TkCOQwV774uLCMue1kSAOlzULM0uwfdMOQemAOZMotkl5vrhD4V0oXM+ejnCo9hTqKPSQOKyUx5EYv1c1zP7JZlbxZ9s1MSEQ+fJDjZCn47UquskBzyJwVBVfM09C9/W/1FF5oueQkzhqls0YBitLC7lJQptpJzUxoyYO45ER/XE+GCSF18NX8drE2WRfOs+UprXy2Pp2pfze2DxaeJiD9VDzNA+Nk8rd9BM/+IGT5dBDK/OsMgNvqYnaSHkH4fokFT95rBe5+h9kKtCcl0g4nnofUZY56/0fPktw6SdiqMqZgRXwhpQ5vGfylE7VoNcoekmzmEUBNTdtFckbjKb/cRywznId4QGtI85FkkSz/gpLNLDQbfXPV/dL6sjPSdU3Ag6vkBToai283wTNa7zxEwHzZCdn2+aI/pbfEh0h9CPn/Z6cG4mZVerjki37X7Iahn78Vu7PqxbnfvJ6jyac30oTG8psHCTK6R1o/BPXEoYO5ZH/tb/2um7C5WBOhKJAfgHbnvXomP9uPAfItl4APIw8gGOi/MyR+GJPvJTfOIxnFrFjBBsds9iZoh7SYVUchPhJ4JDX90E7bHLbQo077j0S04r+qeoaGFnuvDZS3/HTayr1JX5/kx1+oSS/aRYFVifJFvR/27Iw6KYQekUncm7rnzqlov+tz2Gdx4A73p6D/wnBSuS3NX/kUgsxnErp0yVWPZg0c2W+p2s0DwyAQXqUJ4hR6EeI4agwoKH7mni6RhKvtlN8vgJgxodC3XODndP+wWCuiAl4ghsK4eFXmYbIFxPheRc4Kzw75JO6+cRIWQrWQDA+hRNnQmydp62EXaM50igFsqNw7xt/T2tS3Xb0+CZdtcDteKRfMmMkYw+Cp006Cgr5nRFhnN+s9dB9ub5zLPEGVkGce7R0OnJs5yHoNuOMDIMIWoVSX8EtgKhNC167/ybpbmT8ujiPr8Liyxb5rhAJIIfgUq1/DLqXRFwGr9t0sMjHh+TvBJqqRVrY6Pw6Y6VTXx9sSacmhBSL/OwL6KusNNj1Uv6hhhXml7rNdpFqP0bhApyizBjceEBXxy2NwG71gPapgLrjALvbsWXUJAv2XUMf1ksO94kb334CeyJYayhmGv6NbJO1C/gs5bMmDzvRdjsW/7GC3tv5Y4wqUTTqkIkmXOjN/j0xlvy8/BKlh3iT+Zm0vn9PG4KG/2HZHT1zEm/rFibRmOBmyj1Bhx3yT72g1Z/NqT4DQSx8n+GwSqYdoi/qTWbDGTXiSLz4xS/pfmurROreZAfseftehHFg0htWvGWu/cXvCjxqlIvD2BmhkjWVCdg2O/qy1vZWoH6Bi6NMV0FrZ6BCHaNs3g63NFpUYax0ZzR5PYaB9wlhSwB2Ul1v06IuZU0EQ3ToMY0XASemVT2hK5lH8+fQkaiP5KBGnJ49mLFGuWp34c/nEq4Kn+opqKI/N+tF0wTuR/xuoCYLd7lFRrXubrogUZiguASN4zA6xkPHTxqSsttcj59EZv/W5eiX7wbBBRRrpC/3ooJMBl5h/YlHKqGbUYgLiY1tHS3JSvO1QVZz5AAshtC4k9hXE6k56qX4WCA0IFwyNA25WX125ehCy6Bb8kg6pdciOhAVI9t346aYHrx18E+j/k8y8EAfaIhRZ1TTLh1WY8yP304EWtnXP+CBp/1ttsRPrdmh/3/MvlOfYQcFB5/9+2DwO2nKpIHg3G0xjcibHYlrdfPdwB0/apTlIDOENoIlzZpfOZ+Y/qLTQuK43FF1mTLO4/x68qtKHaD7w8lE7JRDIfL53srhTDtdmJNVsfq7i3fODTRNOG7oH5KZWfAJMQOm5wI1wtBHR1s962acdpwoU6duuW2O5OgeaIIf0rc58jAmoGqZ0F/5vHBEwFXfknf5oKCQFlnuhEl5Met5EbxDWO481/gr/rEdOfQ+XjvqiNuc1i5e8hQH8rs+EFyyGzAMfaqyTjKcTEkQRSb5LOBt03Cx4v+Jwqyh7Xz+t1184Tue9cIKFpHHSw7mRrlwystEAxEWhH2pUOOng8zGccs5LWVFQIGkBlrwYy4ELPcA9hGHytemSN73IoA33uFZpiT0frfN4WIpqB85fPvz77EZusb25dyFs4u9GUQtesYG6YzNyYi406ddh0UItToxxAMx1hj4xyD1kJNlNDrYtJEQf2nOHn1gzcxwRiJA/up5xoipgGvhxcteQXKsy2dfFKe2ZJj52yeODwZmFzYdTDBmJnMZ/Eq6Z3DKc2KwbBg4BP+s/lHp7fgXldgSfDjqIyiyUNrDEAgK6I4r5azjvWD9w7AyP5SWoPzEEUAtHkwAcK6+JrK3ns7G2BA7KCbbIQn1qFa5jUPBr8cOFr5C2IRh3HWmGNmBays/azAyAAGnzu6ebMrmsYdNN84JTIWfLkHDn5QkHZWRmG6vZLbgsCdgGfHim4EpMMdOGAQB0EfXNWinUBwL2xuVVdEXcdyIiMqJ2FqcWb7qdZPou/yhgi0zWE27En4xnOX/TCpM9rKQlfNkxKJ92Dr8+SGEWjIyOgJ0luZ74JQs4o4P6XRvpsq0B1uWYTbwI5gf/j3Qs9UI2eZqv6xsVXuJrjY9rq6wx9b08JEmvONsMQ9W1mghmYSGmE0m/N3qe8f/1G/7lZNFGmClbL2T8NWGgsRZHX1yiejk9gjqKVspcbwNBE5wYSQmK2DOaNMd05tqViRXchmpMl71eRMPWgvNxi4N/0n3+ingl7HeIZfAnqETR6f+6ztkMztKxcCUlNHcba7n04pVODC/2v7/x262Xk/M4Xzv05/MzQFZY+X0BuYILsYKFz+jpI4motL5hjFIj7DWdGflTMB/sGx2Yo4Nx1iir3b90CRPA+L/L03+XtIHtEaNbqs/Z7OoV+sJJw6iQF/e1awvXshAEfxDjV9Zef48atqnIc4IybSTNRiqCAEh9mDVecUwJyN9amkYFFgIU4nT+bHQcKtQXG52SBdcRHDgjuCNGAFDIM7Ph4fjRfxUM3f6oIxqI/R5hssAquhJl9kOtexbsT3uIgyuYX0gJBzhmQH8GuADzOv/JRjnMolpal79fEXtbhdXKyXwL1tlENQNwlB5NoQeYtBcJTrZEFFcejFJQrbj+C0PjFnPlm26k2Qn18ZIxK5EumgGX+MhsjYiDh8qHCi1HZZTs38Np5ZwsUR3pqQGZtelE6220IbBSpCpCL99Rp35sBRwkB+JM66JDkyji6m2kF8fn0zxfQ8npCbOOicqhcz0X8F2/g1wQdJAegn9NxY+We7Nc61zxqWIPdMKSf5kun7tPL7mbxa5fGJE9cILE/GS71JNpH1KxNSLdIe9zDhP6klOngF9oYjiWM9Xn/TBt9rC3X8Yvuk/a5Xpj9TZrY92TFHaatsa1+7e+Ba7GHwVg6/cgPEwcBmS1OTT1rFEeWxERYj65pTZxK3Mw+scGQvZDr55CuX9JNyXx8O+vyDBniC1Y1exAe1mdxnFavh2p87q5H9Wd5hVA0KbHGfliiphfRNPR+M7oo0LSbyTOg6JyiJYKbiBn+U0i15Vn55fpwx0VBN314CZQdHPIjb6Fkyw2yFP+RN73PUInWEyATnDTUKNOwUSdUN+sXAo2SBqW+0UYp/NTrG0UyQ902pDZWolEXZ0v7Zb1L42vNVcM9r+LFXukJfBKf2+Osmhddbc8vNTFXT9lNVJZv4moaiNqsvkC/IfwZT8IMGbEHyG31WNMkGOO4oaiBLXz3cvONnW4HKUwj3cLVd6FyA6kChqruhXG97WvdoCqjqckVkZ8N4qe0mZP1LMcyG9TRzpR8Yvxfv3vtAjuRwdShOn5Y6zdfBkOVZW4+hEWuA/4Y0cf0Io+ymudu/ZSe6Q4wstAeIGj4c//QMXsYNJOygOE3ZA78NhJx9AQp4hjYFed3n0N4+tPLWNIOsLqHb2/5lfckI0SbRPR5gDP0jONNyrlavA5fpZ0JXj7toqaOY84Nlbc+RC+Wo8x6oIpcuI+ECAvnMmSsL3FBsfwX9XIz9aPonoLiJYbjSa/nNKOW4fJ6UBvvgn2AawmYzt4VXjSloUbTGezfnzNPv8da3Q6lIpxEP6ZpOHSuDp6j0Ipb/8f/DZI+hDGyuyM4plrvcr177W1O7vmxA70C2PWRAVGvx7RHEQSqVn8SNHZkt0SLCgg2YNTY6YUDbqAbRwu92SjWqfPxThtvKi+I7t6dBZO9/s6unt6Vkn6YTXOmbJGvm6T+/rpQhEx5aoTBz/8aJlCycNR8AzD/3/L6eqFAm1tTGyMR3NyyWQ5oZ7wKdsk2SeriYmjfXEbramlK8z5yMevnIzPVZT9FAHubwWqehsl/i3bP4o5Qke0ez+SiNT+sdDP4f19y3DtXAbcHdWrQUo5tEJ8IHmQz0ITjFlyBE43OY8r1l64mPSNRubNRMpfy+GDXpDuwe7y/D7VAn0Npg0x49lUQ91s0DWst4SHv27UDpoduQOmwsrsNfepvEbPE1ChN+Wi6JnnYQiShg08JBHYXE+lAF5zJpqbPMRYSI3mGjhvVW3Wr2yJDPAzKE3jMIBZMoBK2tYzt/Mfp5daN8Xr+Zap9AmxfjIyCdCTbT1dI9lKLD8kClSL1AXlPCDAtaWVMUFxOSjrihUK2+6hzFlnBuEBX472IzJ2HFWtqK4u1afGyqH5Hoc+MbkPbqjji4YIDJTnNYsPHrHgQ0v6n2AAFsExLEmhZi7gs82Lpojp9RANHz4JYp4DA1u9rwAQZ4YcX36GF1Bc7pFnXXdTygsuONwn+VU0QRvlFjj3gG3oeBCHcAAMC2hK3qAP0AlcMioxYR5RdSDgAAAAAAAA=" alt="Counter Chat">
       </div>
       <div>
-        <div class="brand-title">COUNTER CHAT</div>
+        <h1 class="brand-title">COUNTER CHAT</h1>
       </div>
       <button class="voice-settings-btn" id="fullscreenBtn" aria-label="Полноэкранный режим">
         <svg id="fullscreenIcon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#eae7e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
@@ -1567,7 +1602,7 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#eae7e0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
     </button>
     <span class="category-modal-icon" id="modalIcon"></span>
-    <span class="category-modal-title" id="modalTitle"></span>
+    <h2 class="category-modal-title" id="modalTitle"></h2>
     <span class="category-count" id="modalCount"></span>
     <button class="compact-toggle-btn" id="favExportBtn" aria-label="Экспорт/импорт избранного" hidden>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#eae7e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -1587,7 +1622,7 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
     <button class="modal-back-btn" id="favIOBackBtn" aria-label="Назад">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#eae7e0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
     </button>
-    <span class="category-modal-title">Экспорт и импорт избранного</span>
+    <h2 class="category-modal-title">Экспорт и импорт избранного</h2>
   </div>
   <div class="category-modal-body">
     <div class="io-section">
@@ -1612,7 +1647,7 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
     <button class="modal-back-btn" id="customIOBackBtn" aria-label="Назад">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#eae7e0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
     </button>
-    <span class="category-modal-title">Экспорт и импорт своих фраз</span>
+    <h2 class="category-modal-title">Экспорт и импорт своих фраз</h2>
   </div>
   <div class="category-modal-body">
     <div class="io-section">
@@ -1643,7 +1678,7 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
     <button class="modal-back-btn" id="randomPhraseBackBtn" aria-label="Назад">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#eae7e0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
     </button>
-    <span class="category-modal-title">Случайная фраза</span>
+    <h2 class="category-modal-title">Случайная фраза</h2>
   </div>
   <div class="category-modal-body">
     <div id="randomPhraseResult"></div>
@@ -1657,7 +1692,7 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#eae7e0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
     </button>
     <span class="category-modal-icon">🔊</span>
-    <span class="category-modal-title">Голос озвучки</span>
+    <h2 class="category-modal-title">Голос озвучки</h2>
   </div>
   <div class="category-modal-body">
     <div class="voice-tip glass-panel" id="voiceTip"></div>
