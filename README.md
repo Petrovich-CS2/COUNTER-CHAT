@@ -75,10 +75,10 @@
 
 # 🖼️ Галерея
 
-| ![](Screenshots/Screen1.PNG)<br>Главное меню | ![](Screenshots/Screen2.PNG)<br>Список фраз | ![](Screenshots/Screen3.PNG)<br>Карты |
+| <img src="Screenshots/Screen1.PNG" width="260"><br>Главное меню | <img src="Screenshots/Screen2.PNG" width="260"><br>Список фраз | <img src="Screenshots/Screen3.PNG" width="260"><br>Карты |
 | --- | --- | --- |
-| ![](Screenshots/Screen4.PNG)<br>Обратный словарь | ![](Screenshots/Screen5.PNG)<br>Достижения | ![](Screenshots/Screen6.PNG)<br>QR-код экспорта |
-| ![](Screenshots/Screen7.PNG)<br>Случайная фраза | ![](Screenshots/Screen8.PNG)<br>Поиск | ![](Screenshots/Screen9.PNG)<br>Онбординг |
+| <img src="Screenshots/Screen4.PNG" width="260"><br>Обратный словарь | <img src="Screenshots/Screen5.PNG" width="260"><br>Достижения | <img src="Screenshots/Screen6.PNG" width="260"><br>QR-код экспорта |
+| <img src="Screenshots/Screen7.PNG" width="260"><br>Случайная фраза | <img src="Screenshots/Screen8.PNG" width="260"><br>Поиск | <img src="Screenshots/Screen9.PNG" width="260"><br>Онбординг |
 
 </div>
 
