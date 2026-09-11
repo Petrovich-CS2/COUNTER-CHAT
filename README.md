@@ -75,55 +75,10 @@
 
 # 🖼️ Галерея
 
-<table>
-  <tr>
-    <td width="33%" valign="top" align="center">
-      <img src="./Screenshots/Screen1.PNG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-      <p style="font-size: 14px; color: #666;">Главное меню</p>
-    </td>
-    <td width="33%" valign="top" align="center">
-      <img src="./Screenshots/Screen2.PNG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-      <p style="font-size: 14px; color: #666;">Избранное</p>
-    </td>
-    <td width="33%" valign="top" align="center">
-      <img src="./Screenshots/Screen3.PNG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-      <p style="font-size: 14px; color: #666;">Импорт и экспорт избранного</p>
-    </td>
-  </tr>
-  <tr height="20"></tr>
-  
-  <tr>
-    <td width="33%" valign="top" align="center">
-      <img src="./Screenshots/Screen4.PNG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-      <p style="font-size: 14px; color: #666;">Список фраз</p>
-    </td>
-    <td width="33%" valign="top" align="center">
-      <img src="./Screenshots/Screen5.PNG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-      <p style="font-size: 14px; color: #666;">Компактный режим</p>
-    </td>
-    <td width="33%" valign="top" align="center">
-      <img src="./Screenshots/Screen6.PNG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-      <p style="font-size: 14px; color: #666;">Поиск</p>
-    </td>
-  </tr>
-  <tr height="20"></tr>
-  
-  <tr>
-    <td width="33%" valign="top" align="center">
-      <img src="./Screenshots/Screen7.PNG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-      <p style="font-size: 14px; color: #666;">Добавление своих фраз</p>
-    </td>
-    <td width="33%" valign="top" align="center">
-      <img src="./Screenshots/Screen8.PNG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-      <p style="font-size: 14px; color: #666;">Карты</p>
-    </td>
-    <td width="33%" valign="top" align="center">
-      <img src="./Screenshots/Screen9.PNG" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-      <p style="font-size: 14px; color: #666;">Озвучка</p>
-    </td>
-  </tr>
-  <tr height="20"></tr>
-</table>
+| ![](Screenshots/Screen1.PNG)<br>Главное меню | ![](Screenshots/Screen2.PNG)<br>Список фраз | ![](Screenshots/Screen3.PNG)<br>Карты |
+| --- | --- | --- |
+| ![](Screenshots/Screen4.PNG)<br>Обратный словарь | ![](Screenshots/Screen5.PNG)<br>Профиль и достижения | ![](Screenshots/Screen6.PNG)<br>QR-код экспорта |
+| ![](Screenshots/Screen7.PNG)<br>Случайная фраза | ![](Screenshots/Screen8.PNG)<br>Поиск | ![](Screenshots/Screen9.PNG)<br>Онбординг |
 
 </div>
 
