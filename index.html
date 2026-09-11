@@ -407,22 +407,24 @@ body.compact-mode .phrase{padding-top:8px; padding-bottom:8px;}
 }
 .achievement-card{
   display:flex; align-items:center; gap:12px;
-  background:var(--bg-surface);
+  background:rgba(24,18,12,.46);
+  backdrop-filter:blur(14px) saturate(1.3);
+  -webkit-backdrop-filter:blur(14px) saturate(1.3);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
   border:1px solid var(--line);
   border-radius:12px;
   padding:12px;
-  opacity:.45;
   filter:grayscale(1);
-  transition:opacity .2s ease, filter .2s ease;
+  transition:filter .2s ease, border-color .2s ease, background .2s ease;
 }
 .achievement-card.unlocked{
-  opacity:1;
   filter:none;
   border-color:rgba(214,144,58,.4);
-  background:rgba(214,144,58,.08);
+  background:rgba(214,144,58,.14);
 }
+.achievement-card .achievement-title{color:var(--text-faint);}
+.achievement-card.unlocked .achievement-title{color:var(--text-primary);}
 .achievement-card.secret-locked{
-  opacity:.55;
   filter:none;
   border-style:dashed;
   border-color:rgba(255,255,255,.15);
@@ -1352,24 +1354,30 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
 /* toast */
 .toast{
   position:fixed;
-  bottom:40px; left:50%;
-  transform:translateX(-50%) translateY(20px);
-  background:#eae7e0;
-  color:#12151a;
+  top:50%; left:50%;
+  transform:translate(-50%, -50%) scale(.92);
+  display:flex; align-items:center; gap:10px;
+  background:rgba(20,15,10,.88);
+  backdrop-filter:blur(16px) saturate(1.3);
+  -webkit-backdrop-filter:blur(16px) saturate(1.3);
+  color:#eae7e0;
   font-family:var(--font-mono);
   font-size:12.5px;
   font-weight:600;
-  padding:10px 16px;
-  border-radius:11px;
+  padding:14px 20px 14px 16px;
+  border-radius:12px;
+  border:1px solid rgba(214,144,58,.35);
+  border-left:3px solid #d6903a;
   opacity:0;
   pointer-events:none;
-  transition:all .25s ease;
+  transition:opacity .25s ease, transform .25s ease;
   z-index:999;
   max-width:280px;
-  text-align:center;
-  box-shadow:0 10px 30px -8px rgba(0,0,0,.5);
+  text-align:left;
+  box-shadow:0 20px 50px -10px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.06);
 }
-.toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+.toast-icon{flex-shrink:0;}
+.toast.show{opacity:1; transform:translate(-50%, -50%) scale(1);}
 
 .update-banner{
   position:fixed;
@@ -1747,7 +1755,10 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast">
+  <svg class="toast-icon" id="toastIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#d6903a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toastText"></span>
+</div>
 
 <div class="update-banner" id="updateBanner" hidden>
   <span class="update-banner-text">
@@ -2871,7 +2882,7 @@ document.getElementById('favExportQrBtn').addEventListener('click', (e) => {
 });
 document.getElementById('favImportBtn').addEventListener('click', () => {
   const raw = document.getElementById('favImportText').value.trim();
-  if (!raw){ showToast('Вставь код экспорта в поле выше', 2800); return; }
+  if (!raw){ showToast('Вставь код экспорта в поле выше', 2800, 'warning'); return; }
   try {
     const data = JSON.parse(raw);
     if (!data || !Array.isArray(data.keys)) throw new Error('bad format');
@@ -2883,7 +2894,7 @@ document.getElementById('favImportBtn').addEventListener('click', () => {
     openCategoryModal({ id:'favorites', title:'Избранное' }, getFavoritePhrases());
     document.getElementById('favExportText').value = JSON.stringify({ app:'counter-chat', type:'favorites', v:1, keys:[...getFavoriteKeys()] });
   } catch(e){
-    showToast('Не удалось распознать код — проверь, что скопировал его полностью', 2800);
+    showToast('Не удалось распознать код — проверь, что скопировал его полностью', 2800, 'error');
   }
 });
 
@@ -2966,7 +2977,7 @@ document.getElementById('customExportQrBtn').addEventListener('click', (e) => {
 
 document.getElementById('customImportBtn').addEventListener('click', () => {
   const raw = document.getElementById('customImportText').value.trim();
-  if (!raw){ showToast('Вставь код экспорта в поле выше', 2800); return; }
+  if (!raw){ showToast('Вставь код экспорта в поле выше', 2800, 'warning'); return; }
   try {
     const data = JSON.parse(raw);
     if (!data || !Array.isArray(data.phrases)) throw new Error('bad format');
@@ -2984,7 +2995,7 @@ document.getElementById('customImportBtn').addEventListener('click', () => {
     openCategoryModal({ id:'custom', title:'Мои фразы' }, getCustomPhrasesArray());
     document.getElementById('customExportText').value = JSON.stringify({ app:'counter-chat', type:'custom-phrases', v:1, phrases: getCustomPhrasesArray() });
   } catch(e){
-    showToast('Не удалось распознать код — проверь, что скопировал его полностью', 2800);
+    showToast('Не удалось распознать код — проверь, что скопировал его полностью', 2800, 'error');
   }
 });
 
@@ -3082,7 +3093,7 @@ document.getElementById('randomPhraseRerollBtn').addEventListener('click', () =>
 document.getElementById('bulkImportBtn').addEventListener('click', () => {
   const raw = document.getElementById('bulkImportText').value;
   const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
-  if (!lines.length){ showToast('Вставь хотя бы одну строку', 2800); return; }
+  if (!lines.length){ showToast('Вставь хотя бы одну строку', 2800, 'warning'); return; }
   const existingEn = new Set(getCustomPhrasesArray().map(p => p.en));
   let added = 0, skipped = 0;
   lines.forEach(line => {
@@ -3314,7 +3325,7 @@ function openCategoryModal(cat, phrases){
       const translit = document.getElementById('customTranslitInput').value.trim();
       const ru = document.getElementById('customRuInput').value.trim();
       if (!en || !ru){
-        showToast('Заполни хотя бы английскую фразу и перевод', 2800);
+        showToast('Заполни хотя бы английскую фразу и перевод', 2800, 'warning');
         return;
       }
       addCustomPhrase({ en, translit: translit || '—', ru });
@@ -3633,9 +3644,9 @@ if (SpeechRecognitionAPI){
   recognition.addEventListener('error', (e) => {
     stopListeningUI();
     if (e.error === 'not-allowed' || e.error === 'service-not-allowed'){
-      showToast('Нет доступа к микрофону — разреши в настройках браузера', 2800);
+      showToast('Нет доступа к микрофону — разреши в настройках браузера', 2800, 'error');
     } else if (e.error !== 'no-speech' && e.error !== 'aborted'){
-      showToast('Не удалось распознать речь, попробуй ещё раз', 2800);
+      showToast('Не удалось распознать речь, попробуй ещё раз', 2800, 'error');
     }
   });
   recognition.addEventListener('nomatch', () => {
@@ -3703,9 +3714,9 @@ if (SpeechRecognitionAPI){
   reverseRecognition.addEventListener('error', (e) => {
     stopReverseListeningUI();
     if (e.error === 'not-allowed' || e.error === 'service-not-allowed'){
-      showToast('Нет доступа к микрофону — разреши в настройках браузера', 2800);
+      showToast('Нет доступа к микрофону — разреши в настройках браузера', 2800, 'error');
     } else if (e.error !== 'no-speech' && e.error !== 'aborted'){
-      showToast('Не удалось распознать речь, попробуй ещё раз', 2800);
+      showToast('Не удалось распознать речь, попробуй ещё раз', 2800, 'error');
     }
   });
   reverseRecognition.addEventListener('nomatch', () => { reverseRecognition.stop(); });
@@ -3746,8 +3757,18 @@ function copyToClipboard(text, toastMsg){
     navigator.clipboard.writeText(text).then(done).catch(done);
   } else { done(); }
 }
-function showToast(msg, duration=1700){
-  toastEl.textContent = msg;
+const TOAST_ICONS = {
+  success: '<polyline points="20 6 9 17 4 12"/>',
+  error: '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+  warning: '<line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>',
+};
+function showToast(msg, duration=1700, type='success'){
+  document.getElementById('toastText').textContent = msg;
+  const iconEl = document.getElementById('toastIcon');
+  iconEl.innerHTML = TOAST_ICONS[type] || TOAST_ICONS.success;
+  const accentColor = type === 'error' ? '#e08a8a' : type === 'warning' ? '#d6b466' : '#d6903a';
+  iconEl.setAttribute('stroke', accentColor);
+  toastEl.style.borderLeftColor = accentColor;
   toastEl.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => toastEl.classList.remove('show'), duration);
@@ -3982,7 +4003,7 @@ function toggleFullscreen(){
       return;
     }
     Promise.resolve(request.call(el)).catch(() => {
-      showToast('Не удалось включить полноэкранный режим', 2800);
+      showToast('Не удалось включить полноэкранный режим', 2800, 'error');
     });
   } else {
     const exit = document.exitFullscreen || document.webkitExitFullscreen;
@@ -4338,10 +4359,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
       trackMapViewed(currentMap);
       if (!localStorage.getItem(MAPS_HINT_KEY)){
         localStorage.setItem(MAPS_HINT_KEY, '1');
-        toastEl.textContent = 'Тапни на точку, чтобы услышать произношение и увидеть подробности';
-        toastEl.classList.add('show');
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => toastEl.classList.remove('show'), 3200);
+        showToast('Тапни на точку, чтобы услышать произношение и увидеть подробности', 3200);
       }
     }
   });
@@ -4563,7 +4581,7 @@ document.getElementById('clearCacheBtn').addEventListener('click', async () => {
     }
     showToast('Кэш очищен');
   } catch(e){
-    showToast('Не удалось очистить кэш', 2800);
+    showToast('Не удалось очистить кэш', 2800, 'error');
   }
 });
 
@@ -4590,7 +4608,7 @@ document.getElementById('clearCacheBtn').addEventListener('click', async () => {
       data = JSON.parse(rawCustom);
       if (!data || !Array.isArray(data.phrases)) throw new Error('bad format');
     } catch(e){
-      showToast('Не удалось распознать код в ссылке', 2800);
+      showToast('Не удалось распознать код в ссылке', 2800, 'error');
       return;
     }
     bannerText.textContent = `Импортировать фразы (${data.phrases.length}) от друга?`;
@@ -4619,7 +4637,7 @@ document.getElementById('clearCacheBtn').addEventListener('click', async () => {
       data = JSON.parse(rawFav);
       if (!data || !Array.isArray(data.keys)) throw new Error('bad format');
     } catch(e){
-      showToast('Не удалось распознать код в ссылке', 2800);
+      showToast('Не удалось распознать код в ссылке', 2800, 'error');
       return;
     }
     bannerText.textContent = `Импортировать избранное (${data.keys.length}) от друга?`;
@@ -4690,12 +4708,23 @@ if ('serviceWorker' in navigator){
   });
 
   // как только новый Service Worker реально взял управление — перезагружаем страницу,
-  // чтобы пользователь увидел обновлённый контент
+  // чтобы пользователь увидел обновлённый контент.
+  // ВАЖНО для iOS: обычный reload() на standalone-PWA берёт страницу из
+  // оперативной памяти Safari, а не заново от только что активированного
+  // воркера — из-за этого баннер обновления мог появляться повторно после
+  // первого нажатия. reload(true) — формально устаревший параметр по
+  // спецификации, но на iOS Safari он на практике всё ещё влияет на то,
+  // откуда браузer берёт страницу при перезагрузке, и помогает избежать
+  // повторного показа баннера.
   let refreshingAfterUpdate = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (refreshingAfterUpdate) return;
+    // на iOS standalone не перезагружаем автоматически — пользователь уже
+    // получил честную инструкцию перезапустить приложение вручную выше;
+    // одновременный автоматический reload только запутал бы происходящее
+    if (window.navigator.standalone === true) return;
     refreshingAfterUpdate = true;
-    window.location.reload();
+    window.location.reload(true);
   });
 }
 
@@ -4727,6 +4756,15 @@ function showUpdateBanner(worker){
   document.getElementById('updateReloadBtn').onclick = () => {
     worker.postMessage('SKIP_WAITING');
     banner.hidden = true;
+    // на iOS в standalone-режиме (запуск с домашнего экрана) автоматическая
+    // перезагрузка страницы ненадёжна — Safari берёт содержимое из своего
+    // оперативного кэша, а не от только что активированного воркера, из-за
+    // чего баннер обновления мог появляться повторно. Честно просим
+    // пользователя сделать настоящий перезапуск — единственный способ,
+    // гарантированно подхватывающий новую версию на этой платформе.
+    if (window.navigator.standalone === true){
+      showToast('Обновлено! Полностью закрой приложение и открой снова с домашнего экрана', 4200);
+    }
   };
 }
 
