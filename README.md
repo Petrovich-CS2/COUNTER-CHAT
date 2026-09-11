@@ -75,10 +75,23 @@
 
 # 🖼️ Галерея
 
-| <img src="Screenshots/Screen1.PNG" width="260"><br>Главное меню | <img src="Screenshots/Screen2.PNG" width="260"><br>Список фраз | <img src="Screenshots/Screen3.PNG" width="260"><br>Карты |
-| --- | --- | --- |
-| <img src="Screenshots/Screen4.PNG" width="260"><br>Обратный словарь | <img src="Screenshots/Screen5.PNG" width="260"><br>Достижения | <img src="Screenshots/Screen6.PNG" width="260"><br>QR-код экспорта |
-| <img src="Screenshots/Screen7.PNG" width="260"><br>Случайная фраза | <img src="Screenshots/Screen8.PNG" width="260"><br>Поиск | <img src="Screenshots/Screen9.PNG" width="260"><br>Онбординг |
+<table>
+<tr>
+<td align="center" valign="top" width="33%"><img src="Screenshots/Screen1.PNG" width="260"><br>Главное меню</td>
+<td align="center" valign="top" width="33%"><img src="Screenshots/Screen2.PNG" width="260"><br>Список фраз</td>
+<td align="center" valign="top" width="33%"><img src="Screenshots/Screen3.PNG" width="260"><br>Карты</td>
+</tr>
+<tr>
+<td align="center" valign="top"><img src="Screenshots/Screen4.PNG" width="260"><br>Обратный словарь</td>
+<td align="center" valign="top"><img src="Screenshots/Screen5.PNG" width="260"><br>Достижения</td>
+<td align="center" valign="top"><img src="Screenshots/Screen6.PNG" width="260"><br>QR-код экспорта</td>
+</tr>
+<tr>
+<td align="center" valign="top"><img src="Screenshots/Screen7.PNG" width="260"><br>Случайная фраза</td>
+<td align="center" valign="top"><img src="Screenshots/Screen8.PNG" width="260"><br>Поиск</td>
+<td align="center" valign="top"><img src="Screenshots/Screen9.PNG" width="260"><br>Онбординг</td>
+</tr>
+</table>
 
 </div>
 
