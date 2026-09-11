@@ -25,6 +25,7 @@ const APP_SHELL = [
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
+  './icon-512-maskable.png',
   './splash-1290x2796.png',
   './splash-1179x2556.png',
   './splash-1284x2778.png',
