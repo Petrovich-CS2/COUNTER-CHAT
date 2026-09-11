@@ -12,6 +12,7 @@
 <!-- отдельная ссылка на РЕАЛЬНЫЙ файл иконки (не base64) — механизм генерации превью
      в системном меню «Поделиться» у iOS сам скачивает иконку по ссылке отдельным
      запросом и не умеет работать с data:-URI, поэтому нужен именно файл -->
+<meta name="google-site-verification" content="l_8gBwjYV_tHESuexwD79d1uJ-vewMPZpKBrf9yfENw" />
 <meta name="description" content="Разговорник на английском для CS2: 240+ готовых фраз с транскрипцией и озвучкой на все игровые ситуации, интерактивные карты с позициями (Dust II, Mirage, Inferno и другие). Работает офлайн, бесплатно, без рекламы.">
 <meta name="keywords" content="CS2 разговорник, английский для CS2, cs2 фразы на английском, cs2 callouts на русском, counter strike 2 английский язык, cs2 позиции карт, cs2 колауты">
 <meta name="robots" content="index, follow">
@@ -4284,6 +4285,16 @@ if (new URLSearchParams(location.search).get('resetOnboarding')){
   localStorage.removeItem(ONBOARDING_KEY);
   history.replaceState(null, '', location.origin + location.pathname);
 }
+// аналогичный сброс для достижения "Работает и без сети" — на случай ложного
+// срабатывания (например, сразу после свежего деплоя): ?resetOfflineAchievement=1
+if (new URLSearchParams(location.search).get('resetOfflineAchievement')){
+  localStorage.removeItem('cc_opened_offline');
+  let seen;
+  try { seen = new Set(JSON.parse(localStorage.getItem('cc_achievements_seen')) || []); } catch(e){ seen = new Set(); }
+  seen.delete('offline_hero');
+  localStorage.setItem('cc_achievements_seen', JSON.stringify([...seen]));
+  history.replaceState(null, '', location.origin + location.pathname);
+}
 const onboardingModal = document.getElementById('onboardingModal');
 if (!localStorage.getItem(ONBOARDING_KEY)){
   document.getElementById('onboardingLogo').src = document.querySelector('.brand-mark img').src;
@@ -4292,6 +4303,7 @@ if (!localStorage.getItem(ONBOARDING_KEY)){
 document.getElementById('onboardingCloseBtn').addEventListener('click', () => {
   localStorage.setItem(ONBOARDING_KEY, '1');
   onboardingModal.hidden = true;
+  flushPendingAchievementToasts();
 });
 
 /* ================= ЗУМ КАРТЫ ================= */
@@ -4433,17 +4445,22 @@ async function verifyTrulyOfflineForAchievement(){
   // загрузку страницы, реальная проверка должна выполниться только один раз
   if (offlineAchievementCheckStarted) return;
   offlineAchievementCheckStarted = true;
-  // первая попытка — с запасом по времени, чтобы не путать обычную медленную
-  // сеть (особенно при старте приложения, когда параллельно грузится шрифты,
-  // Service Worker и картинки) с реальным отсутствием связи
-  const first = await probeNetwork(4000);
-  if (first) return; // связь есть — всё в порядке
 
-  // даже если первая попытка не прошла, даём сети секунду прийти в себя и
-  // пробуем ещё раз — засчитываем офлайн только если не получилось дважды подряд
-  await new Promise(r => setTimeout(r, 1000));
-  const second = await probeNetwork(4000);
-  if (second) return;
+  // даём странице немного времени устояться перед самой первой попыткой —
+  // сразу после открытия (особенно если это свежий деплой) Service Worker
+  // может ещё разбираться с обновлением, и сеть в этот момент нестабильна
+  // не по вине пользователя
+  await new Promise(r => setTimeout(r, 2000));
+
+  // три попытки подряд, с запасом по времени на каждую — реальный обрыв связи
+  // почти всегда проваливает все попытки быстро, а транспортные заминки
+  // (медленная сеть, переходный момент после обновления) обычно не длятся
+  // так долго
+  for (let attempt = 1; attempt <= 3; attempt++){
+    const ok = await probeNetwork(4000);
+    if (ok) return; // связь есть — всё в порядке, дальше не проверяем
+    if (attempt < 3) await new Promise(r => setTimeout(r, 1500));
+  }
 
   localStorage.setItem('cc_opened_offline', '1');
   checkAchievementsAndNotify();
@@ -4560,6 +4577,16 @@ const ACHIEVEMENT_SEEN_KEY = 'cc_achievements_seen';
 function getSeenAchievements(){
   try { return new Set(JSON.parse(localStorage.getItem(ACHIEVEMENT_SEEN_KEY)) || []); } catch(e){ return new Set(); }
 }
+let pendingAchievementToasts = [];
+function flushPendingAchievementToasts(){
+  pendingAchievementToasts.forEach((a, i) => {
+    setTimeout(() => {
+      haptic(35);
+      showToast(`🏆 Достижение: ${a.title}`, 3400);
+    }, i * 600); // показываем по очереди с небольшим интервалом, если их несколько
+  });
+  pendingAchievementToasts = [];
+}
 function checkAchievementsAndNotify(){
   const seen = getSeenAchievements();
   const newlyUnlocked = [];
@@ -4571,6 +4598,13 @@ function checkAchievementsAndNotify(){
     }
   });
   localStorage.setItem(ACHIEVEMENT_SEEN_KEY, JSON.stringify([...seen]));
+  // пока открыт экран онбординга — не показываем тост поверх него (перекрывает
+  // текст первого знакомства), откладываем до момента, когда пользователь
+  // сам его закроет нажатием "Начать"
+  if (onboardingModal && !onboardingModal.hidden){
+    pendingAchievementToasts.push(...newlyUnlocked);
+    return;
+  }
   newlyUnlocked.forEach(a => {
     haptic(35);
     showToast(`🏆 Достижение: ${a.title}`, 3400);
