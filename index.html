@@ -4508,19 +4508,16 @@ function getSeenAchievements(){
   try { return new Set(JSON.parse(localStorage.getItem(ACHIEVEMENT_SEEN_KEY)) || []); } catch(e){ return new Set(); }
 }
 function checkAchievementsAndNotify(){
-  const isFirstRun = localStorage.getItem(ACHIEVEMENT_SEEN_KEY) === null;
   const seen = getSeenAchievements();
   const newlyUnlocked = [];
   ACHIEVEMENTS.forEach(a => {
     const unlocked = a.value() >= a.target;
     if (unlocked && !seen.has(a.id)){
       seen.add(a.id);
-      if (!isFirstRun) newlyUnlocked.push(a);
+      newlyUnlocked.push(a);
     }
   });
   localStorage.setItem(ACHIEVEMENT_SEEN_KEY, JSON.stringify([...seen]));
-  // на самом первом запуске этой системы молча фиксируем уже выполненные условия,
-  // не обрушивая на пользователя ворох уведомлений о том, что случилось давно
   newlyUnlocked.forEach(a => {
     haptic(35);
     showToast(`🏆 Достижение: ${a.title}`, 3400);
