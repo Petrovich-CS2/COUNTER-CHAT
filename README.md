@@ -77,7 +77,7 @@
 
 | ![](Screenshots/Screen1.PNG)<br>Главное меню | ![](Screenshots/Screen2.PNG)<br>Список фраз | ![](Screenshots/Screen3.PNG)<br>Карты |
 | --- | --- | --- |
-| ![](Screenshots/Screen4.PNG)<br>Обратный словарь | ![](Screenshots/Screen5.PNG)<br>Профиль и достижения | ![](Screenshots/Screen6.PNG)<br>QR-код экспорта |
+| ![](Screenshots/Screen4.PNG)<br>Обратный словарь | ![](Screenshots/Screen5.PNG)<br>Достижения | ![](Screenshots/Screen6.PNG)<br>QR-код экспорта |
 | ![](Screenshots/Screen7.PNG)<br>Случайная фраза | ![](Screenshots/Screen8.PNG)<br>Поиск | ![](Screenshots/Screen9.PNG)<br>Онбординг |
 
 </div>
