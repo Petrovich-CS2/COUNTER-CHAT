@@ -89,7 +89,7 @@
 <tr>
 <td align="center" valign="top"><img src="Screenshots/Screen7.PNG" width="260"><br>Случайная фраза</td>
 <td align="center" valign="top"><img src="Screenshots/Screen8.PNG" width="260"><br>Поиск</td>
-<td align="center" valign="top"><img src="Screenshots/Screen9.PNG" width="260"><br>Онбординг</td>
+<td align="center" valign="top"><img src="Screenshots/Screen9.png" width="260"><br>Онбординг</td>
 </tr>
 </table>
 
