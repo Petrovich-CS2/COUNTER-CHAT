@@ -76,6 +76,13 @@ self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
 
+  // пробный запрос для проверки реальной доступности сети (используется для
+  // честного определения офлайна на iOS, где navigator.onLine ненадёжен) —
+  // намеренно НЕ перехватываем его вообще, пропускаем напрямую в браузер,
+  // иначе Service Worker может ответить из собственной логики кэширования
+  // и исказить результат проверки
+  if (req.url.includes('probe=')) return;
+
   const isHTML = req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html');
   const isChangelog = req.url.includes('changelog.json');
 

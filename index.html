@@ -4395,13 +4395,59 @@ window.addEventListener('appinstalled', () => {
 const offlineBar = document.getElementById('offlineBar');
 function updateOnlineStatus(){
   offlineBar.hidden = navigator.onLine;
-  if (!navigator.onLine && !localStorage.getItem('cc_opened_offline')){
-    localStorage.setItem('cc_opened_offline', '1');
-    setTimeout(checkAchievementsAndNotify, 0);
-  }
 }
 window.addEventListener('online', updateOnlineStatus);
 window.addEventListener('offline', updateOnlineStatus);
+
+/* достижение «Работает и без сети» проверяем НЕ через navigator.onLine —
+   у этого свойства давний, задокументированный баг именно в WebKit (iOS Safari):
+   оно может всегда возвращать true, даже при полностью выключенных WiFi и
+   мобильном интернете (подтверждено несколькими багрепортами WebKit, включая
+   регрессию конкретно на "wifi turned off"). Вместо доверия этому флагу по-настоящему
+   пробуем выполнить сетевой запрос с уникальным параметром (обходит кэш SW и
+   HTTP-кэш) — если он не проходит за разумное время, это куда надёжнее
+   подтверждает реальное отсутствие связи. */
+async function probeNetwork(timeoutMs){
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    await fetch('./manifest.json?probe=' + Date.now(), { cache: 'no-store', signal: controller.signal });
+    return true; // запрос прошёл
+  } catch(e){
+    return false; // не прошёл — таймаут или сетевая ошибка
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+let offlineAchievementCheckStarted = false;
+async function verifyTrulyOfflineForAchievement(){
+  if (localStorage.getItem('cc_opened_offline')) return;
+  // защита от повторного запуска — что бы ни вызвало функцию дважды за одну
+  // загрузку страницы, реальная проверка должна выполниться только один раз
+  if (offlineAchievementCheckStarted) return;
+  offlineAchievementCheckStarted = true;
+  // первая попытка — с запасом по времени, чтобы не путать обычную медленную
+  // сеть (особенно при старте приложения, когда параллельно грузится шрифты,
+  // Service Worker и картинки) с реальным отсутствием связи
+  const first = await probeNetwork(4000);
+  if (first) return; // связь есть — всё в порядке
+
+  // даже если первая попытка не прошла, даём сети секунду прийти в себя и
+  // пробуем ещё раз — засчитываем офлайн только если не получилось дважды подряд
+  await new Promise(r => setTimeout(r, 1000));
+  const second = await probeNetwork(4000);
+  if (second) return;
+
+  localStorage.setItem('cc_opened_offline', '1');
+  checkAchievementsAndNotify();
+}
+// запускаем проверку только после того, как страница полностью догрузилась —
+// не конкурируем за канал с шрифтами/иконками/регистрацией Service Worker
+if (document.readyState === 'complete'){
+  verifyTrulyOfflineForAchievement();
+} else {
+  window.addEventListener('load', verifyTrulyOfflineForAchievement);
+}
 updateOnlineStatus();
 
 /* ================= УПРАВЛЕНИЕ КЭШЕМ ================= */
@@ -4675,6 +4721,12 @@ document.getElementById('clearCacheBtn').addEventListener('click', async () => {
 const SW_REGISTER_VERSION = '__BUILD_VERSION__';
 
 if ('serviceWorker' in navigator){
+  // запоминаем, был ли уже активный контроллер ДО регистрации — если не было,
+  // значит, это самая первая установка Service Worker на этом устройстве, и
+  // clients.claim() внутри sw.js всё равно вызовет controllerchange, хотя
+  // никакого настоящего обновления контента тут нет — перезагружать нечего
+  const hadControllerBeforeInit = !!navigator.serviceWorker.controller;
+
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js?v=' + SW_REGISTER_VERSION).then((reg) => {
       // проверяем, нет ли уже готового обновления, ожидающего активации
@@ -4716,6 +4768,9 @@ if ('serviceWorker' in navigator){
   let refreshingAfterUpdate = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (refreshingAfterUpdate) return;
+    // самая первая установка (clients.claim() без предшествующего контроллера) —
+    // перезагружать нечего, никакого настоящего обновления контента не было
+    if (!hadControllerBeforeInit) return;
     // на iOS standalone не перезагружаем автоматически — пользователь уже
     // получил честную инструкцию перезапустить приложение вручную выше;
     // одновременный автоматический reload только запутал бы происходящее
