@@ -4277,6 +4277,13 @@ renderSchematic();
 
 /* ================= ОНБОРДИНГ (первый запуск) ================= */
 const ONBOARDING_KEY = 'cc_onboarding_shown';
+// удобный способ увидеть онбординг ещё раз для скриншотов/проверки —
+// достаточно открыть ссылку с ?resetOnboarding=1, не копаясь в настройках
+// браузера (на iOS сайт не всегда легко найти в списке "Данные сайтов")
+if (new URLSearchParams(location.search).get('resetOnboarding')){
+  localStorage.removeItem(ONBOARDING_KEY);
+  history.replaceState(null, '', location.origin + location.pathname);
+}
 const onboardingModal = document.getElementById('onboardingModal');
 if (!localStorage.getItem(ONBOARDING_KEY)){
   document.getElementById('onboardingLogo').src = document.querySelector('.brand-mark img').src;
