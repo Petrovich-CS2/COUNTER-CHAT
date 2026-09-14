@@ -360,7 +360,13 @@ body.compact-mode .phrase{padding-top:8px; padding-bottom:8px;}
   text-align:center;
   color:var(--text-faint);
   font-size:13px;
-  padding:30px 10px;
+  padding:26px 16px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:rgba(24,18,12,.46);
+  backdrop-filter:blur(14px) saturate(1.3);
+  -webkit-backdrop-filter:blur(14px) saturate(1.3);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
 }
 .category-body-inner{padding:0 12px 12px;}
 
@@ -413,6 +419,78 @@ body.compact-mode .phrase{padding-top:8px; padding-bottom:8px;}
 .reminder-switch input:checked + .reminder-switch-slider{background:#d6903a;}
 .reminder-switch input:checked + .reminder-switch-slider::before{transform:translateX(19px);}
 .reminder-switch input:disabled + .reminder-switch-slider{opacity:.4; cursor:not-allowed;}
+.training-entry-card{
+  display:flex; align-items:center; gap:12px;
+  width:100%;
+  border:1px solid rgba(214,144,58,.35);
+  border-radius:13px;
+  padding:14px;
+  margin-top:10px;
+  background:rgba(214,144,58,.1);
+  cursor:pointer;
+  text-align:left;
+}
+.training-entry-icon{font-size:26px; flex-shrink:0;}
+.training-entry-text{flex:1; min-width:0;}
+.training-entry-title{font-size:14px; font-weight:700; color:var(--text-primary);}
+.training-entry-desc{font-size:11.5px; color:var(--text-faint); margin-top:2px; line-height:1.4;}
+
+.training-progress-panel{
+  border:1px solid var(--line);
+  border-radius:13px;
+  padding:12px 14px;
+  margin-bottom:18px;
+}
+.training-progress-text{font-size:12.5px; color:var(--text-muted); font-weight:600; font-family:var(--font-mono); margin-bottom:6px;}
+.training-progress-bar{height:5px; background:rgba(255,255,255,.08); border-radius:3px; overflow:hidden;}
+.training-progress-fill{height:100%; background:#d6903a; border-radius:3px; transition:width .3s ease;}
+.training-card{
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:32px 20px;
+  text-align:center;
+  min-height:160px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+}
+.training-card-en{font-family:var(--font-mono); font-size:22px; font-weight:700; color:var(--text-primary);}
+.training-card-translit{font-family:var(--font-mono); font-size:13px; color:var(--text-faint); margin-top:8px; font-style:italic;}
+.training-card-ru{font-size:17px; color:#f2c98a; margin-top:18px; padding-top:18px; border-top:1px solid var(--line); font-weight:600;}
+.training-assess-row{display:flex; gap:10px; margin-top:10px;}
+.training-assess-row[hidden]{display:none;}
+.training-assess-btn{
+  flex:1;
+  padding:14px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  font-size:14px; font-weight:700;
+  cursor:pointer;
+}
+.training-assess-no{
+  background:rgba(224,138,138,.16);
+  backdrop-filter:blur(14px) saturate(1.3);
+  -webkit-backdrop-filter:blur(14px) saturate(1.3);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+  border-color:rgba(224,138,138,.5);
+  color:#f7c2c2;
+}
+.training-assess-yes{
+  background:rgba(140,200,150,.16);
+  backdrop-filter:blur(14px) saturate(1.3);
+  -webkit-backdrop-filter:blur(14px) saturate(1.3);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+  border-color:rgba(140,200,150,.5);
+  color:#bdf0c7;
+}
+.training-summary-card{
+  border:1px solid rgba(214,144,58,.35);
+  border-radius:16px;
+  padding:28px 20px;
+  text-align:center;
+  background:rgba(214,144,58,.1);
+}
+.training-summary-emoji{font-size:38px;}
+.training-summary-score{font-family:var(--font-mono); font-size:26px; font-weight:700; color:var(--text-primary); margin-top:10px;}
+.training-summary-text{font-size:13px; color:var(--text-faint); margin-top:6px;}
 .profile-streak-value{
   font-family:var(--font-mono);
   font-weight:800;
@@ -705,15 +783,29 @@ body.compact-mode .phrase{padding-top:8px; padding-bottom:8px;}
   cursor:pointer;
 }
 .io-btn:active{background:var(--bg-elevated);}
-.io-btn-accent{background:rgba(214,144,58,.18); border-color:rgba(214,144,58,.4); color:#f2c98a;}
+.io-btn-accent{
+  background:rgba(214,144,58,.18);
+  backdrop-filter:blur(14px) saturate(1.3);
+  -webkit-backdrop-filter:blur(14px) saturate(1.3);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+  border-color:rgba(214,144,58,.4);
+  color:#f2c98a;
+}
 .random-history-title{
+  display:inline-block;
   font-family:var(--font-mono);
   font-size:11px;
   font-weight:700;
-  color:var(--text-faint);
+  color:var(--text-muted);
   text-transform:none;
   margin:22px 0 10px;
   letter-spacing:.02em;
+  padding:6px 11px;
+  border:1px solid var(--line);
+  border-radius:8px;
+  background:rgba(24,18,12,.46);
+  backdrop-filter:blur(14px) saturate(1.3);
+  -webkit-backdrop-filter:blur(14px) saturate(1.3);
 }
 .random-history-list{
   display:flex; flex-direction:column; gap:7px;
@@ -1645,6 +1737,14 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
         <span class="reminder-switch-slider"></span>
       </label>
     </div>
+    <button class="training-entry-card glass-panel" id="trainingEntryBtn">
+      <div class="training-entry-icon">🎯</div>
+      <div class="training-entry-text">
+        <div class="training-entry-title">Режим тренировки</div>
+        <div class="training-entry-desc">Проверь себя — фразы, которые путаешь, будут появляться чаще</div>
+      </div>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b9199" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
     <div class="profile-section-title">Достижения</div>
     <div id="achievementsList" class="achievements-list"></div>
     <div class="profile-section-title">Топ-5 самых частых фраз</div>
@@ -1776,8 +1876,48 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
   <div class="category-modal-body">
     <div id="randomPhraseResult"></div>
     <button class="io-btn io-btn-accent reroll-btn" id="randomPhraseRerollBtn" style="margin-top:14px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f2c98a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:7px;"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>Ещё одна</button>
-    <div class="random-history-title" id="randomHistoryTitle" hidden>Уже выпадало в этот раз</div>
+    <div class="random-history-title" id="randomHistoryTitle" hidden>🕓 Уже выпадало в этот раз</div>
     <div id="randomPhraseHistory" class="random-history-list"></div>
+  </div>
+</div>
+
+<div class="category-modal" id="trainingModal" hidden>
+  <div class="category-modal-head">
+    <button class="modal-back-btn" id="trainingBackBtn" aria-label="Назад">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#eae7e0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <h2 class="category-modal-title">Тренировка</h2>
+  </div>
+  <div class="category-modal-body">
+    <div class="training-progress-panel glass-panel">
+      <div id="trainingProgressText" class="training-progress-text"></div>
+      <div class="training-progress-bar"><div id="trainingProgressFill" class="training-progress-fill" style="width:0%"></div></div>
+    </div>
+
+    <div id="trainingCardArea">
+      <div class="training-card glass-panel">
+        <div class="training-card-en" id="trainingCardEn"></div>
+        <div class="training-card-translit" id="trainingCardTranslit"></div>
+        <div class="training-card-ru" id="trainingCardRu" hidden></div>
+      </div>
+      <button class="io-btn io-btn-accent" id="trainingRevealBtn" style="margin-top:14px;">Показать перевод</button>
+      <div class="training-assess-row" id="trainingAssessRow" hidden>
+        <button class="training-assess-btn training-assess-no" id="trainingKnewNoBtn">😕 Не знал</button>
+        <button class="training-assess-btn training-assess-yes" id="trainingKnewYesBtn">😊 Знал</button>
+      </div>
+    </div>
+
+    <div id="trainingSummary" hidden>
+      <div class="training-summary-card glass-panel">
+        <div class="training-summary-emoji" id="trainingSummaryEmoji">🎯</div>
+        <div class="training-summary-score" id="trainingSummaryScore"></div>
+        <div class="training-summary-text" id="trainingSummaryText"></div>
+      </div>
+      <button class="io-btn io-btn-accent" id="trainingAgainBtn" style="margin-top:14px;">Пройти ещё раз</button>
+      <button class="io-btn" id="trainingDoneBtn" style="margin-top:8px;">Готово</button>
+    </div>
+
+    <div id="trainingEmptyState" class="empty-state" hidden>Пока недостаточно фраз для тренировки</div>
   </div>
 </div>
 
@@ -3041,6 +3181,7 @@ document.getElementById('customImportBtn').addEventListener('click', () => {
 
 /* ================= СЛУЧАЙНАЯ ФРАЗА ================= */
 const randomPhraseModal = document.getElementById('randomPhraseModal');
+const trainingModal = document.getElementById('trainingModal');
 let lastRandomPhraseKey = null;
 let currentRandomPhrase = null;
 let randomPhraseHistoryList = [];
@@ -3128,6 +3269,166 @@ randomPhraseModal.addEventListener('transitionend', (e) => {
 document.getElementById('randomPhraseRerollBtn').addEventListener('click', () => {
   haptic(20);
   showRandomPhrase();
+});
+
+/* ================= РЕЖИМ ТРЕНИРОВКИ (интервальное повторение) =================
+   Лёгкая реализация spaced repetition без сервера: фразы, которые пользователь
+   недавно отметил "не знал", или те, что вообще ещё не тренировались, получают
+   больший вес при случайном выборе следующей карточки. Фразы с длинной чередой
+   правильных самооценок подряд — реже. Это не полноценный алгоритм SM-2, а его
+   упрощённый, но рабочий аналог. */
+const TRAINING_STATS_KEY = 'cc_training_stats';
+function getTrainingStats(){
+  try { return JSON.parse(localStorage.getItem(TRAINING_STATS_KEY)) || {}; } catch(e){ return {}; }
+}
+function saveTrainingStats(stats){
+  try { localStorage.setItem(TRAINING_STATS_KEY, JSON.stringify(stats)); } catch(e){}
+}
+function getAllTrainablePhrases(){
+  const all = [];
+  categories.forEach(cat => {
+    cat.phrases.forEach(p => all.push({ en: p.en, translit: p.translit, ru: p.ru, _catId: cat.id }));
+  });
+  getCustomPhrasesArray().forEach(p => all.push({ en: p.en, translit: p.translit, ru: p.ru, _catId: 'custom' }));
+  return all;
+}
+function buildTrainingQueue(size){
+  const stats = getTrainingStats();
+  const all = getAllTrainablePhrases();
+  const weighted = all.map(p => {
+    const key = favKey(p._catId, p.en);
+    const s = stats[key];
+    let weight;
+    if (!s) weight = 12; // никогда не тренировали — высокий приоритет
+    else {
+      weight = 12 / (1 + s.correctStreak * 2.5);
+      if (s.lastResult === 'wrong') weight += 5; // недавняя ошибка — поднимаем приоритет
+    }
+    return { phrase: p, key, weight };
+  });
+
+  const pool = [...weighted];
+  const n = Math.min(size, pool.length);
+  const selected = [];
+  for (let i = 0; i < n; i++){
+    const totalWeight = pool.reduce((a, b) => a + b.weight, 0);
+    let r = Math.random() * totalWeight;
+    let idx = pool.length - 1;
+    for (let j = 0; j < pool.length; j++){
+      r -= pool[j].weight;
+      if (r <= 0){ idx = j; break; }
+    }
+    selected.push(pool[idx]);
+    pool.splice(idx, 1);
+  }
+  return selected;
+}
+
+let trainingSession = null; // { queue, index, correct }
+
+function startTrainingSession(){
+  const queue = buildTrainingQueue(10);
+  const hasCards = queue.length > 0;
+  document.getElementById('trainingEmptyState').hidden = hasCards;
+  document.getElementById('trainingCardArea').hidden = !hasCards;
+  document.getElementById('trainingSummary').hidden = true;
+  if (!hasCards) return;
+  trainingSession = { queue, index: 0, correct: 0 };
+  showTrainingCard();
+}
+
+function showTrainingCard(){
+  const { queue, index } = trainingSession;
+  const item = queue[index];
+  document.getElementById('trainingCardEn').textContent = item.phrase.en;
+  document.getElementById('trainingCardTranslit').textContent = item.phrase.translit ? `[${item.phrase.translit}]` : '';
+  const ruEl = document.getElementById('trainingCardRu');
+  ruEl.textContent = item.phrase.ru;
+  ruEl.hidden = true;
+  document.getElementById('trainingRevealBtn').hidden = false;
+  document.getElementById('trainingAssessRow').hidden = true;
+
+  const pct = Math.round((index / queue.length) * 100);
+  document.getElementById('trainingProgressText').textContent = `Карточка ${index + 1} из ${queue.length}`;
+  document.getElementById('trainingProgressFill').style.width = pct + '%';
+}
+
+document.getElementById('trainingRevealBtn').addEventListener('click', () => {
+  document.getElementById('trainingCardRu').hidden = false;
+  document.getElementById('trainingRevealBtn').hidden = true;
+  document.getElementById('trainingAssessRow').hidden = false;
+  haptic(20);
+});
+
+function answerTraining(knew){
+  const { queue, index } = trainingSession;
+  const item = queue[index];
+  const stats = getTrainingStats();
+  const s = stats[item.key] || { correctStreak: 0, wrongCount: 0, timesShown: 0 };
+  s.timesShown = (s.timesShown || 0) + 1;
+  if (knew){
+    s.correctStreak = (s.correctStreak || 0) + 1;
+    s.lastResult = 'correct';
+    trainingSession.correct++;
+  } else {
+    s.correctStreak = 0;
+    s.wrongCount = (s.wrongCount || 0) + 1;
+    s.lastResult = 'wrong';
+  }
+  stats[item.key] = s;
+  saveTrainingStats(stats);
+  haptic(knew ? 20 : 30);
+
+  trainingSession.index++;
+  if (trainingSession.index >= queue.length) showTrainingSummary();
+  else showTrainingCard();
+}
+document.getElementById('trainingKnewYesBtn').addEventListener('click', () => answerTraining(true));
+document.getElementById('trainingKnewNoBtn').addEventListener('click', () => answerTraining(false));
+
+function showTrainingSummary(){
+  const { queue, correct } = trainingSession;
+  document.getElementById('trainingCardArea').hidden = true;
+  document.getElementById('trainingSummary').hidden = false;
+  document.getElementById('trainingProgressText').textContent = 'Готово';
+  document.getElementById('trainingProgressFill').style.width = '100%';
+
+  const pct = Math.round((correct / queue.length) * 100);
+  document.getElementById('trainingSummaryScore').textContent = `${correct} из ${queue.length}`;
+  let emoji = '🎯', text = 'Неплохо, продолжай в том же духе';
+  if (pct === 100){ emoji = '🏆'; text = 'Идеально! Все фразы даются легко'; }
+  else if (pct >= 70){ emoji = '🔥'; text = 'Отличный результат!'; }
+  else if (pct < 40){ emoji = '💪'; text = 'Есть над чем поработать — тренируйся почаще'; }
+  document.getElementById('trainingSummaryEmoji').textContent = emoji;
+  document.getElementById('trainingSummaryText').textContent = text;
+
+  const sessionsCount = parseInt(localStorage.getItem('cc_training_sessions') || '0', 10) + 1;
+  localStorage.setItem('cc_training_sessions', String(sessionsCount));
+  setTimeout(checkAchievementsAndNotify, 0);
+}
+
+document.getElementById('trainingAgainBtn').addEventListener('click', () => startTrainingSession());
+document.getElementById('trainingDoneBtn').addEventListener('click', () => trainingModal.classList.remove('open'));
+
+document.getElementById('trainingEntryBtn').addEventListener('click', () => {
+  closeAllModals(['trainingModal']);
+  startTrainingSession();
+  trainingModal.style.transition = 'none';
+  trainingModal.style.transform = 'translateX(100%)';
+  trainingModal.hidden = false;
+  trainingModal.offsetHeight;
+  requestAnimationFrame(() => {
+    trainingModal.style.transition = '';
+    trainingModal.style.transform = '';
+    trainingModal.classList.add('open');
+  });
+});
+document.getElementById('trainingBackBtn').addEventListener('click', () => {
+  trainingModal.classList.remove('open');
+});
+attachSwipeBack(trainingModal, () => trainingModal.classList.remove('open'));
+trainingModal.addEventListener('transitionend', (e) => {
+  if (e.propertyName === 'transform' && !trainingModal.classList.contains('open')) trainingModal.hidden = true;
 });
 
 document.getElementById('bulkImportBtn').addEventListener('click', () => {
@@ -4652,7 +4953,7 @@ function updateReminderToggleUI(){
   if (!reminderSupported()){
     input.disabled = true;
     input.checked = false;
-    desc.textContent = 'Не поддерживается этим браузером/устройством (в частности, скорее всего не сработает на iOS)';
+    desc.textContent = 'Эта технология сейчас не поддерживается практически нигде (ни в Chrome, ни на Android, ни на iOS) — ждём, пока браузеры её доделают';
     return;
   }
   if (Notification.permission === 'denied'){
@@ -4756,6 +5057,7 @@ const ACHIEVEMENTS = [
   { id:'bilingual', icon:'🌐', title:'Двуязычный', desc:'Используй «Обратный словарь» голосом и на английском, и на русском', target:2, value: () => { try { const d = JSON.parse(localStorage.getItem('cc_reverse_lang_used')) || {}; return (d.en?1:0)+(d.ru?1:0); } catch(e){ return 0; } } },
   { id:'offline_hero', icon:'📡', title:'Работает и без сети', desc:'Открой приложение по-настоящему в офлайне хотя бы раз', target:1, value: () => localStorage.getItem('cc_opened_offline') ? 1 : 0 },
   { id:'gambler', icon:'🎲', title:'Азартный игрок', desc:'Сделай 20+ перебросов «Случайной фразы» за один заход', target:20, value: () => parseInt(localStorage.getItem('cc_max_reroll_streak') || '0', 10) },
+  { id:'trainer', icon:'🎯', title:'Ученик', desc:'Пройди 3 тренировки', target:3, value: () => parseInt(localStorage.getItem('cc_training_sessions') || '0', 10) },
   { id:'night_owl', icon:'🌙', title:'Полуночник', desc:'Зайди в приложение между 00:00 и 05:00 по местному времени', target:1, value: () => localStorage.getItem('cc_midnight_owl') ? 1 : 0, secret:true },
   { id:'speedrunner', icon:'⚡', title:'Скорострел', desc:'Скопируй 5 разных фраз за 30 секунд подряд', target:1, value: () => localStorage.getItem('cc_speedrunner') ? 1 : 0, secret:true },
   { id:'easter_egg', icon:'🥚', title:'Нашёл пасхалку', desc:'Тапни по логотипу в шапке 5 раз подряд', target:1, value: () => localStorage.getItem('cc_easter_egg_found') ? 1 : 0, secret:true },
