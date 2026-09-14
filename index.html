@@ -385,6 +385,34 @@ body.compact-mode .phrase{padding-top:8px; padding-bottom:8px;}
   padding:16px 10px;
   text-align:center;
 }
+.reminder-toggle-card{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  padding:13px 14px;
+  margin-top:10px;
+}
+.reminder-toggle-title{font-size:13.5px; font-weight:700; color:var(--text-primary);}
+.reminder-toggle-desc{font-size:11.5px; color:var(--text-faint); margin-top:2px; line-height:1.4;}
+.reminder-switch{position:relative; flex-shrink:0; width:46px; height:27px;}
+.reminder-switch input{opacity:0; width:0; height:0;}
+.reminder-switch-slider{
+  position:absolute; inset:0; cursor:pointer;
+  background:rgba(255,255,255,.14);
+  border:1px solid var(--line);
+  border-radius:27px;
+  transition:background .2s ease;
+}
+.reminder-switch-slider::before{
+  content:''; position:absolute;
+  height:21px; width:21px; left:2px; top:2px;
+  background:#eae7e0;
+  border-radius:50%;
+  transition:transform .2s ease;
+}
+.reminder-switch input:checked + .reminder-switch-slider{background:#d6903a;}
+.reminder-switch input:checked + .reminder-switch-slider::before{transform:translateX(19px);}
+.reminder-switch input:disabled + .reminder-switch-slider{opacity:.4; cursor:not-allowed;}
 .profile-streak-value{
   font-family:var(--font-mono);
   font-weight:800;
@@ -1606,6 +1634,16 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
         <div class="profile-streak-value" id="profileTotalValue">0</div>
         <div class="profile-streak-label">фраз использовано</div>
       </div>
+    </div>
+    <div class="reminder-toggle-card glass-panel" id="reminderToggleCard">
+      <div class="reminder-toggle-text">
+        <div class="reminder-toggle-title">🔔 Напоминать о серии</div>
+        <div class="reminder-toggle-desc" id="reminderToggleDesc">Пришлём уведомление вечером, если сегодня ещё не заходил</div>
+      </div>
+      <label class="reminder-switch">
+        <input type="checkbox" id="reminderToggleInput">
+        <span class="reminder-switch-slider"></span>
+      </label>
     </div>
     <div class="profile-section-title">Достижения</div>
     <div id="achievementsList" class="achievements-list"></div>
@@ -3764,7 +3802,16 @@ const TOAST_ICONS = {
   error: '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
   warning: '<line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>',
 };
+let toastQueue = [];
+let toastCurrentlyShowing = false;
 function showToast(msg, duration=1700, type='success'){
+  toastQueue.push({ msg, duration, type });
+  if (!toastCurrentlyShowing) processToastQueue();
+}
+function processToastQueue(){
+  if (!toastQueue.length){ toastCurrentlyShowing = false; return; }
+  toastCurrentlyShowing = true;
+  const { msg, duration, type } = toastQueue.shift();
   document.getElementById('toastText').textContent = msg;
   const iconEl = document.getElementById('toastIcon');
   iconEl.innerHTML = TOAST_ICONS[type] || TOAST_ICONS.success;
@@ -3773,7 +3820,11 @@ function showToast(msg, duration=1700, type='success'){
   toastEl.style.borderLeftColor = accentColor;
   toastEl.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toastEl.classList.remove('show'), duration);
+  toastTimer = setTimeout(() => {
+    toastEl.classList.remove('show');
+    // даём время анимации скрытия отыграть, прежде чем показать следующий тост в очереди
+    setTimeout(processToastQueue, 300);
+  }, duration);
 }
 
 /* ================= TEXT-TO-SPEECH ================= */
@@ -4297,6 +4348,22 @@ if (new URLSearchParams(location.search).get('resetOfflineAchievement')){
   history.replaceState(null, '', location.origin + location.pathname);
 }
 const onboardingModal = document.getElementById('onboardingModal');
+// очередь отложенных тостов — используется и достижениями, и реакцией на серию дней,
+// поэтому объявлена здесь, до первого возможного обращения к ней
+let pendingToasts = []; // { kind:'achievement', title } | { kind:'generic', text, type, duration }
+function flushPendingToasts(){
+  pendingToasts.forEach((item, i) => {
+    setTimeout(() => {
+      if (item.kind === 'achievement'){
+        haptic(35);
+        showToast(`🏆 Достижение: ${item.title}`, 3400);
+      } else {
+        showToast(item.text, item.duration || 3000, item.type || 'success');
+      }
+    }, i * 600); // показываем по очереди с небольшим интервалом, если их несколько
+  });
+  pendingToasts = [];
+}
 if (!localStorage.getItem(ONBOARDING_KEY)){
   document.getElementById('onboardingLogo').src = document.querySelector('.brand-mark img').src;
   onboardingModal.hidden = false;
@@ -4304,7 +4371,7 @@ if (!localStorage.getItem(ONBOARDING_KEY)){
 document.getElementById('onboardingCloseBtn').addEventListener('click', () => {
   localStorage.setItem(ONBOARDING_KEY, '1');
   onboardingModal.hidden = true;
-  flushPendingAchievementToasts();
+  flushPendingToasts();
 });
 
 /* ================= ЗУМ КАРТЫ ================= */
@@ -4374,7 +4441,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.classList.add('active');
     const tab = btn.getAttribute('data-tab');
     Object.entries(screens).forEach(([key, el]) => { el.hidden = key !== tab; });
-    if (tab === 'profile'){ renderProfileScreen(); renderStatsScreen(); }
+    if (tab === 'profile'){ renderProfileScreen(); renderStatsScreen(); updateReminderToggleUI(); }
     if (tab === 'maps'){
       trackMapViewed(currentMap);
       if (!localStorage.getItem(MAPS_HINT_KEY)){
@@ -4505,21 +4572,125 @@ function updateStreak(){
   let data;
   try { data = JSON.parse(localStorage.getItem(STREAK_KEY)) || {}; } catch(e){ data = {}; }
   const today = todayStr();
+  const wasFirstEver = !data.lastDate;
+  let status;
   if (data.lastDate === today){
-    // уже заходили сегодня — ничего не меняем
+    status = 'same-day'; // уже заходили сегодня — ничего не меняем
   } else if (data.lastDate && daysBetween(data.lastDate, today) === 1){
     data.current = (data.current || 0) + 1;
+    status = 'continued';
   } else {
+    const brokenStreak = !wasFirstEver && (data.current || 0) >= 2; // была реальная серия, и она прервалась
     data.current = 1;
+    status = brokenStreak ? 'reset' : 'first-ever';
   }
   data.lastDate = today;
   data.best = Math.max(data.best || 0, data.current || 1);
   try { localStorage.setItem(STREAK_KEY, JSON.stringify(data)); } catch(e){}
-  return data;
+  return Object.assign({}, data, { status });
 }
 function getStreak(){
   try { return JSON.parse(localStorage.getItem(STREAK_KEY)) || { current:0, best:0 }; } catch(e){ return { current:0, best:0 }; }
 }
+
+/* ================= НАПОМИНАНИЕ О СЕРИИ (Notification Triggers API) =================
+   Планирует локальное уведомление на сегодняшний вечер, если пользователь ещё не
+   заходил сегодня — чтобы не терять серию дней подряд. Строится на экспериментальном
+   showTrigger, который умеет показывать уведомление в заданное время без сервера —
+   но эта технология поддерживается ДАЛЕКО не везде (в частности, под большим вопросом
+   на iOS/Safari). Всё здесь написано с расчётом на честную деградацию: если
+   API недоступен, просто явно сообщаем об этом и не даём включить переключатель. */
+const REMINDER_ENABLED_KEY = 'cc_streak_reminder_enabled';
+const REMINDER_HOUR = 20; // напоминание планируется на 20:00 по местному времени
+
+function reminderSupported(){
+  return 'serviceWorker' in navigator && 'Notification' in window && 'showTrigger' in Notification.prototype;
+}
+
+async function scheduleStreakReminder(){
+  if (!reminderSupported()) return;
+  if (localStorage.getItem(REMINDER_ENABLED_KEY) !== '1') return;
+  if (Notification.permission !== 'granted') return;
+
+  const streak = getStreak();
+  const today = todayStr();
+  if (streak.lastDate === today) return; // уже заходил сегодня — напоминание не нужно
+
+  const target = new Date();
+  target.setHours(REMINDER_HOUR, 0, 0, 0);
+  if (Date.now() >= target.getTime()) return; // время сегодня уже прошло, ждём следующего дня
+
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    // убираем ранее запланированное на сегодня, чтобы не задвоить при повторном заходе
+    const existing = await reg.getNotifications({ tag: 'streak-reminder', includeTriggered: true });
+    existing.forEach(n => n.close());
+
+    const days = streak.current || 0;
+    const dayWord = days % 10 === 1 && days % 100 !== 11 ? 'день' : (days % 10 >= 2 && days % 10 <= 4 && (days % 100 < 10 || days % 100 >= 20)) ? 'дня' : 'дней';
+
+    await reg.showNotification('🔥 Не теряй серию!', {
+      body: days > 0 ? `Серия ${days} ${dayWord} подряд — зайди в Counter Chat сегодня, чтобы не потерять` : 'Загляни в Counter Chat сегодня — начни новую серию дней',
+      tag: 'streak-reminder',
+      icon: './icon-192.png',
+      badge: './icon-192.png',
+      showTrigger: new TimestampTrigger(target.getTime()),
+      data: { url: location.origin + location.pathname },
+    });
+  } catch(e){
+    // showTrigger технически определился, но реальный вызов не прошёл (бывает на некоторых
+    // платформах даже при формальном наличии свойства) — тихо не показываем напоминание
+  }
+}
+
+function updateReminderToggleUI(){
+  const card = document.getElementById('reminderToggleCard');
+  const input = document.getElementById('reminderToggleInput');
+  const desc = document.getElementById('reminderToggleDesc');
+  if (!card) return;
+
+  if (!reminderSupported()){
+    input.disabled = true;
+    input.checked = false;
+    desc.textContent = 'Не поддерживается этим браузером/устройством (в частности, скорее всего не сработает на iOS)';
+    return;
+  }
+  if (Notification.permission === 'denied'){
+    input.disabled = true;
+    input.checked = false;
+    desc.textContent = 'Уведомления запрещены в настройках браузера — разреши их вручную, чтобы включить';
+    return;
+  }
+  input.disabled = false;
+  input.checked = localStorage.getItem(REMINDER_ENABLED_KEY) === '1';
+  desc.textContent = 'Пришлём уведомление вечером, если сегодня ещё не заходил';
+}
+
+document.getElementById('reminderToggleInput')?.addEventListener('change', async (e) => {
+  const wantsOn = e.target.checked;
+  if (!wantsOn){
+    localStorage.setItem(REMINDER_ENABLED_KEY, '0');
+    if (reminderSupported()){
+      const reg = await navigator.serviceWorker.ready.catch(() => null);
+      if (reg){
+        const existing = await reg.getNotifications({ tag: 'streak-reminder', includeTriggered: true });
+        existing.forEach(n => n.close());
+      }
+    }
+    return;
+  }
+  // включение — сначала спрашиваем разрешение, если ещё не решено
+  const perm = Notification.permission === 'default' ? await Notification.requestPermission() : Notification.permission;
+  if (perm !== 'granted'){
+    e.target.checked = false;
+    updateReminderToggleUI();
+    showToast('Уведомления не разрешены — не могу включить напоминание', 2800, 'warning');
+    return;
+  }
+  localStorage.setItem(REMINDER_ENABLED_KEY, '1');
+  await scheduleStreakReminder();
+  showToast('Напоминание включено — пришлём уведомление сегодня в 20:00, если не зайдёшь сам', 3400);
+});
 /* секретная пасхалка — 5 быстрых тапов по логотипу подряд */
 (function setupLogoEasterEgg(){
   const logo = document.getElementById('logoEasterEgg');
@@ -4540,7 +4711,23 @@ function getStreak(){
   });
 })();
 
-updateStreak(); // фиксируем сегодняшний визит сразу при загрузке приложения
+// фиксируем сегодняшний визит сразу при загрузке приложения и мягко
+// подкрепляем привычку — поощряем за продолженную серию, по-доброму
+// встречаем после перерыва. Единственный вариант "напоминания", который
+// технически возможен без сервера и push-уведомлений: реагировать в момент,
+// когда пользователь и так уже открыл приложение, а не пытаться позвать его
+// заранее (что физически невозможно без надёжной поддержки браузера).
+const streakResult = updateStreak();
+if (streakResult.status === 'continued' && streakResult.current >= 2){
+  const entry = { kind:'generic', text: `🔥 Серия продолжается: ${streakResult.current} дней подряд!`, duration: 3000, type: 'success' };
+  if (onboardingModal && !onboardingModal.hidden) pendingToasts.push(entry);
+  else showToast(entry.text, entry.duration, entry.type);
+} else if (streakResult.status === 'reset'){
+  const entry = { kind:'generic', text: 'Серия прервалась, но ты здесь — начинаем новую! 💪', duration: 3000, type: 'success' };
+  if (onboardingModal && !onboardingModal.hidden) pendingToasts.push(entry);
+  else showToast(entry.text, entry.duration, entry.type);
+}
+scheduleStreakReminder(); // если напоминание включено — переустанавливаем на сегодняшний вечер
 
 // секретное достижение «Полуночник» — зашёл между 00:00 и 05:00 по местному времени
 (function checkMidnightOwl(){
@@ -4578,16 +4765,6 @@ const ACHIEVEMENT_SEEN_KEY = 'cc_achievements_seen';
 function getSeenAchievements(){
   try { return new Set(JSON.parse(localStorage.getItem(ACHIEVEMENT_SEEN_KEY)) || []); } catch(e){ return new Set(); }
 }
-let pendingAchievementToasts = [];
-function flushPendingAchievementToasts(){
-  pendingAchievementToasts.forEach((a, i) => {
-    setTimeout(() => {
-      haptic(35);
-      showToast(`🏆 Достижение: ${a.title}`, 3400);
-    }, i * 600); // показываем по очереди с небольшим интервалом, если их несколько
-  });
-  pendingAchievementToasts = [];
-}
 function checkAchievementsAndNotify(){
   const seen = getSeenAchievements();
   const newlyUnlocked = [];
@@ -4603,7 +4780,7 @@ function checkAchievementsAndNotify(){
   // текст первого знакомства), откладываем до момента, когда пользователь
   // сам его закроет нажатием "Начать"
   if (onboardingModal && !onboardingModal.hidden){
-    pendingAchievementToasts.push(...newlyUnlocked);
+    pendingToasts.push(...newlyUnlocked.map(a => ({ kind:'achievement', title: a.title })));
     return;
   }
   newlyUnlocked.forEach(a => {
