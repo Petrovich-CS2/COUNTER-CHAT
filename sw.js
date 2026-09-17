@@ -1,3 +1,7 @@
+// OneSignal — веб-пуш уведомления. Совмещаем с нашим собственным SW в один файл,
+// а не регистрируем два отдельных на одном скоупе (так рекомендует сам OneSignal).
+importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
+
 /*
   Service Worker для Counter Chat.
 

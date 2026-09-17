@@ -14,6 +14,19 @@
      запросом и не умеет работать с data:-URI, поэтому нужен именно файл -->
 <meta name="google-site-verification" content="l_8gBwjYV_tHESuexwD79d1uJ-vewMPZpKBrf9yfENw" />
 <meta name="yandex-verification" content="3005436fe03c7d40" />
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "d43f1352-7f7a-4fb6-b0b6-f2a6c2339c2e",
+      // наш sw.js лежит не в корне домена, а в /COUNTER-CHAT/ (сайт на GitHub Pages) —
+      // без этих двух параметров OneSignal искал бы файл не там и регистрация не прошла бы
+      serviceWorkerParam: { scope: "/COUNTER-CHAT/" },
+      serviceWorkerPath: "sw.js",
+    });
+  });
+</script>
 <meta name="description" content="Разговорник на английском для CS2: 240+ готовых фраз с транскрипцией и озвучкой на все игровые ситуации, интерактивные карты с позициями (Dust II, Mirage, Inferno и другие). Работает офлайн, бесплатно, без рекламы.">
 <meta name="keywords" content="CS2 разговорник, английский для CS2, cs2 фразы на английском, cs2 callouts на русском, counter strike 2 английский язык, cs2 позиции карт, cs2 колауты">
 <meta name="robots" content="index, follow">
@@ -5045,95 +5058,108 @@ function getStreak(){
    на iOS/Safari). Всё здесь написано с расчётом на честную деградацию: если
    API недоступен, просто явно сообщаем об этом и не даём включить переключатель. */
 const REMINDER_ENABLED_KEY = 'cc_streak_reminder_enabled';
-const REMINDER_HOUR = 20; // напоминание планируется на 20:00 по местному времени
 
-function reminderSupported(){
-  return 'serviceWorker' in navigator && 'Notification' in window && 'showTrigger' in Notification.prototype;
+// достаём готовый инстанс OneSignal через их же очередь отложенных вызовов —
+// если SDK ещё не подгрузился, дождёмся, если уже готов — получим сразу.
+// С тайм-аутом: если SDK не ответил за разумное время (блокировщик рекламы часто
+// блокирует именно onesignal.com, или просто нет сети) — не виснем бесконечно
+function getOneSignal(){
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => reject(new Error('OneSignal не ответил вовремя')), 4000);
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    window.OneSignalDeferred.push((OneSignal) => {
+      clearTimeout(timeout);
+      resolve(OneSignal);
+    });
+  });
 }
 
-async function scheduleStreakReminder(){
-  if (!reminderSupported()) return;
-  if (localStorage.getItem(REMINDER_ENABLED_KEY) !== '1') return;
-  if (Notification.permission !== 'granted') return;
-
-  const streak = getStreak();
-  const today = todayStr();
-  if (streak.lastDate === today) return; // уже заходил сегодня — напоминание не нужно
-
-  const target = new Date();
-  target.setHours(REMINDER_HOUR, 0, 0, 0);
-  if (Date.now() >= target.getTime()) return; // время сегодня уже прошло, ждём следующего дня
-
+async function reminderSupported(){
   try {
-    const reg = await navigator.serviceWorker.ready;
-    // убираем ранее запланированное на сегодня, чтобы не задвоить при повторном заходе
-    const existing = await reg.getNotifications({ tag: 'streak-reminder', includeTriggered: true });
-    existing.forEach(n => n.close());
-
-    const days = streak.current || 0;
-    const dayWord = days % 10 === 1 && days % 100 !== 11 ? 'день' : (days % 10 >= 2 && days % 10 <= 4 && (days % 100 < 10 || days % 100 >= 20)) ? 'дня' : 'дней';
-
-    await reg.showNotification('🔥 Не теряй серию!', {
-      body: days > 0 ? `Серия ${days} ${dayWord} подряд — зайди в Counter Chat сегодня, чтобы не потерять` : 'Загляни в Counter Chat сегодня — начни новую серию дней',
-      tag: 'streak-reminder',
-      icon: './icon-192.png',
-      badge: './icon-192.png',
-      showTrigger: new TimestampTrigger(target.getTime()),
-      data: { url: location.origin + location.pathname },
-    });
+    const OneSignal = await getOneSignal();
+    return await OneSignal.Notifications.isPushSupported();
   } catch(e){
-    // showTrigger технически определился, но реальный вызов не прошёл (бывает на некоторых
-    // платформах даже при формальном наличии свойства) — тихо не показываем напоминание
+    return false;
   }
 }
 
-function updateReminderToggleUI(){
+// подкладываем актуальную серию и дату последнего визита тегами на пользователя —
+// сама отправка вечернего напоминания настраивается отдельно, в панели OneSignal
+// (сценарий "Journey": если тег streak_reminder=enabled и не заходил N часов —
+// прислать пуш с упоминанием current_streak)
+async function syncStreakTagToOneSignal(){
+  if (localStorage.getItem(REMINDER_ENABLED_KEY) !== '1') return;
+  try {
+    const OneSignal = await getOneSignal();
+    const streak = getStreak();
+    await OneSignal.User.addTag('current_streak', String(streak.current || 0));
+    await OneSignal.User.addTag('last_visit_date', todayStr());
+  } catch(e){}
+}
+
+async function updateReminderToggleUI(){
   const card = document.getElementById('reminderToggleCard');
   const input = document.getElementById('reminderToggleInput');
   const desc = document.getElementById('reminderToggleDesc');
   if (!card) return;
 
-  if (!reminderSupported()){
+  const supported = await reminderSupported();
+  if (!supported){
     input.disabled = true;
     input.checked = false;
-    desc.textContent = 'Эта технология сейчас не поддерживается практически нигде (ни в Chrome, ни на Android, ни на iOS) — ждём, пока браузеры её доделают';
+    desc.textContent = 'Push-уведомления не поддерживаются в этом браузере или устройстве';
     return;
   }
-  if (Notification.permission === 'denied'){
-    input.disabled = true;
-    input.checked = false;
-    desc.textContent = 'Уведомления запрещены в настройках браузера — разреши их вручную, чтобы включить';
-    return;
-  }
+
+  try {
+    const OneSignal = await getOneSignal();
+    if (OneSignal.Notifications.permission === false){
+      input.disabled = true;
+      input.checked = false;
+      desc.textContent = 'Уведомления запрещены в настройках браузера — разреши их вручную, чтобы включить';
+      return;
+    }
+  } catch(e){}
+
   input.disabled = false;
   input.checked = localStorage.getItem(REMINDER_ENABLED_KEY) === '1';
-  desc.textContent = 'Пришлём уведомление вечером, если сегодня ещё не заходил';
+  desc.textContent = 'Пришлём уведомление, если давно не заходил';
 }
 
 document.getElementById('reminderToggleInput')?.addEventListener('change', async (e) => {
   const wantsOn = e.target.checked;
+  let OneSignal;
+  try { OneSignal = await getOneSignal(); } catch(err){}
+
   if (!wantsOn){
     localStorage.setItem(REMINDER_ENABLED_KEY, '0');
-    if (reminderSupported()){
-      const reg = await navigator.serviceWorker.ready.catch(() => null);
-      if (reg){
-        const existing = await reg.getNotifications({ tag: 'streak-reminder', includeTriggered: true });
-        existing.forEach(n => n.close());
-      }
-    }
+    if (OneSignal){ try { await OneSignal.User.addTag('streak_reminder', 'disabled'); } catch(e){} }
     return;
   }
-  // включение — сначала спрашиваем разрешение, если ещё не решено
-  const perm = Notification.permission === 'default' ? await Notification.requestPermission() : Notification.permission;
-  if (perm !== 'granted'){
+
+  if (!OneSignal){
+    e.target.checked = false;
+    showToast('Не получилось включить напоминание — попробуй позже', 2800, 'warning');
+    return;
+  }
+
+  try {
+    const granted = await OneSignal.Notifications.requestPermission();
+    if (!granted){
+      e.target.checked = false;
+      updateReminderToggleUI();
+      showToast('Уведомления не разрешены — не могу включить напоминание', 2800, 'warning');
+      return;
+    }
+    localStorage.setItem(REMINDER_ENABLED_KEY, '1');
+    await OneSignal.User.addTag('streak_reminder', 'enabled');
+    await syncStreakTagToOneSignal();
+    showToast('Напоминание включено', 3400);
+  } catch(err){
     e.target.checked = false;
     updateReminderToggleUI();
-    showToast('Уведомления не разрешены — не могу включить напоминание', 2800, 'warning');
-    return;
+    showToast('Не получилось включить напоминание — попробуй позже', 2800, 'warning');
   }
-  localStorage.setItem(REMINDER_ENABLED_KEY, '1');
-  await scheduleStreakReminder();
-  showToast('Напоминание включено — пришлём уведомление сегодня в 20:00, если не зайдёшь сам', 3400);
 });
 /* секретная пасхалка — 5 быстрых тапов по логотипу подряд */
 (function setupLogoEasterEgg(){
@@ -5171,7 +5197,7 @@ if (streakResult.status === 'continued' && streakResult.current >= 2){
   if (onboardingModal && !onboardingModal.hidden) pendingToasts.push(entry);
   else showToast(entry.text, entry.duration, entry.type);
 }
-scheduleStreakReminder(); // если напоминание включено — переустанавливаем на сегодняшний вечер
+syncStreakTagToOneSignal(); // если напоминание включено — обновляем тег с актуальной серией для OneSignal
 
 // секретное достижение «Полуночник» — зашёл между 00:00 и 05:00 по местному времени
 (function checkMidnightOwl(){
