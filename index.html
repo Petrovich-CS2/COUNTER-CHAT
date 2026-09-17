@@ -5074,10 +5074,14 @@ function getOneSignal(){
   });
 }
 
+let reminderSupportedCache = null; // кэшируем только успешный положительный результат
 async function reminderSupported(){
+  if (reminderSupportedCache === true) return true;
   try {
     const OneSignal = await getOneSignal();
-    return await OneSignal.Notifications.isPushSupported();
+    const result = await OneSignal.Notifications.isPushSupported();
+    if (result) reminderSupportedCache = true;
+    return result;
   } catch(e){
     return false;
   }
@@ -5412,7 +5416,12 @@ if ('serviceWorker' in navigator){
   const hadControllerBeforeInit = !!navigator.serviceWorker.controller;
 
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js?v=' + SW_REGISTER_VERSION).then((reg) => {
+    // ВАЖНО: раньше здесь был query-параметр ?v=... для более надёжного обновления
+    // на iOS. Но раз OneSignal регистрирует тот же самый файл без такого параметра,
+    // это создавало ДВЕ РАЗНЫЕ регистрации на одном скоупе вместо одной общей —
+    // из-за чего push-подписка не создавалась. Обновление всё равно надёжно
+    // работает за счёт явных reg.update() ниже, поэтому query-параметр больше не нужен.
+    navigator.serviceWorker.register('sw.js').then((reg) => {
       // проверяем, нет ли уже готового обновления, ожидающего активации
       if (reg.waiting){
         showUpdateBanner(reg.waiting);
