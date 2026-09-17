@@ -5111,16 +5111,10 @@ async function updateReminderToggleUI(){
     return;
   }
 
-  try {
-    const OneSignal = await getOneSignal();
-    if (OneSignal.Notifications.permission === false){
-      input.disabled = true;
-      input.checked = false;
-      desc.textContent = 'Уведомления запрещены в настройках браузера — разреши их вручную, чтобы включить';
-      return;
-    }
-  } catch(e){}
-
+  // OneSignal.Notifications.permission — это упрощённый булев флаг: false означает
+  // и "запрещено", и "ещё не спрашивали" одновременно, без разницы между ними.
+  // Поэтому НЕ блокируем тумблер заранее по этому флагу — просто даём попробовать,
+  // а настоящий результат (разрешил / отказал) увидим уже после реального запроса
   input.disabled = false;
   input.checked = localStorage.getItem(REMINDER_ENABLED_KEY) === '1';
   desc.textContent = 'Пришлём уведомление, если давно не заходил';
@@ -5148,7 +5142,7 @@ document.getElementById('reminderToggleInput')?.addEventListener('change', async
     if (!granted){
       e.target.checked = false;
       updateReminderToggleUI();
-      showToast('Уведомления не разрешены — не могу включить напоминание', 2800, 'warning');
+      showToast('Уведомления отклонены. Settings → Notifications → Counter Chat → Allow Notifications', 4200, 'warning');
       return;
     }
     localStorage.setItem(REMINDER_ENABLED_KEY, '1');
