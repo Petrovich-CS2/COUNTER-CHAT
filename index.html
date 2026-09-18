@@ -1709,8 +1709,6 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
       <span>Сделано Петровичем</span>
     </a>
     <button class="clear-cache-btn" id="clearCacheBtn">Очистить кэш</button>
-    <button class="clear-cache-btn" id="debugNativeNotifBtn" style="margin-top:8px;">🔧 Тест: запрос напрямую (без OneSignal)</button>
-    <button class="clear-cache-btn" style="margin-top:8px;" onclick="alert('Кнопки работают, JS выполняется. Версия файла загружена.')">🔧 Тест 2: просто кнопка (изолированная)</button>
   </div>
 
   <!-- REVERSE DICTIONARY SCREEN -->
@@ -5309,26 +5307,6 @@ function renderProfileScreen(){
     listEl.appendChild(card);
   });
 }
-document.getElementById('debugNativeNotifBtn')?.addEventListener('click', async () => {
-  const lines = [];
-  lines.push('Notification' in window ? '✅ Notification API есть' : '❌ Notification API отсутствует');
-  if (!('Notification' in window)){
-    alert(lines.join('\n'));
-    return;
-  }
-  lines.push('Текущий статус: ' + Notification.permission);
-  lines.push('serviceWorker в navigator: ' + ('serviceWorker' in navigator));
-  lines.push('PushManager есть: ' + ('PushManager' in window));
-  lines.push('Режим отображения standalone: ' + window.matchMedia('(display-mode: standalone)').matches);
-  try {
-    const result = await Notification.requestPermission();
-    lines.push('→ Результат запроса напрямую: ' + result);
-  } catch(err){
-    lines.push('→ Ошибка при запросе: ' + err.message);
-  }
-  alert(lines.join('\n'));
-});
-
 document.getElementById('clearCacheBtn').addEventListener('click', async () => {
   if (!confirm('Очистить локально сохранённые данные приложения? Офлайн-доступ временно пропадёт, при следующем открытии с интернетом всё загрузится заново. Избранное и свои фразы не удалятся.')){
     return;
