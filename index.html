@@ -1709,7 +1709,38 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
       <span>Сделано Петровичем</span>
     </a>
     <button class="clear-cache-btn" id="clearCacheBtn">Очистить кэш</button>
+    <button class="clear-cache-btn" style="margin-top:8px;" onclick="(async()=>{
+      let out = '';
+      try {
+        const t0 = Date.now();
+        const res = await fetch('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js', { mode: 'no-cors' });
+        out += 'fetch дошёл, статус (no-cors всегда opaque): ok, время=' + (Date.now()-t0) + 'мс';
+      } catch(err){
+        out += 'fetch ОШИБКА: ' + err.message;
+      }
+      out += '\\n\\nЗагружен ли сам тег script: ' + (document.querySelector('script[src*=\"onesignal\"]') ? 'да, тег есть в разметке' : 'нет тега вообще');
+      const scriptEl = document.querySelector('script[src*=\"onesignal\"]');
+      if (scriptEl){
+        out += '\\nsrc: ' + scriptEl.src;
+      }
+      alert(out);
+    })()">🔧 Проверка доступности cdn.onesignal.com</button>
+    <button class="clear-cache-btn" style="margin-top:8px;" onclick="alert('Базовый тест: кнопки работают, ' + new Date().toLocaleTimeString())">🔧 Базовый тест (просто alert)</button>
     <button class="clear-cache-btn" id="debugOneSignalBtn" style="margin-top:8px;">🔧 Диагностика OneSignal</button>
+    <button class="clear-cache-btn" style="margin-top:8px;" onclick="(async()=>{
+      let out = 'Тест начался. ';
+      try {
+        out += 'window.OneSignalDeferred существует: ' + (typeof window.OneSignalDeferred) + '. ';
+        out += 'window.OneSignal существует: ' + (typeof window.OneSignal) + '. ';
+        const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('тайм-аут 3с')), 3000));
+        const wait = new Promise((res) => { window.OneSignalDeferred = window.OneSignalDeferred || []; window.OneSignalDeferred.push(res); });
+        const OneSignal = await Promise.race([wait, timeout]);
+        out += 'OneSignal получен успешно. permission=' + OneSignal.Notifications.permission;
+      } catch(err){
+        out += 'ОШИБКА: ' + err.message;
+      }
+      alert(out);
+    })()">🔧 Изолированный тест OneSignal</button>
   </div>
 
   <!-- REVERSE DICTIONARY SCREEN -->
