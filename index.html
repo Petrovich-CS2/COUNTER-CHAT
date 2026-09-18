@@ -1709,6 +1709,7 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
       <span>Сделано Петровичем</span>
     </a>
     <button class="clear-cache-btn" id="clearCacheBtn">Очистить кэш</button>
+    <button class="clear-cache-btn" id="debugOneSignalBtn" style="margin-top:8px;">🔧 Диагностика OneSignal</button>
   </div>
 
   <!-- REVERSE DICTIONARY SCREEN -->
@@ -5334,6 +5335,50 @@ function renderProfileScreen(){
     listEl.appendChild(card);
   });
 }
+document.getElementById('debugOneSignalBtn')?.addEventListener('click', async () => {
+  const lines = [];
+  lines.push('Notification.permission: ' + (('Notification' in window) ? Notification.permission : 'нет API'));
+
+  try {
+    const regs = await navigator.serviceWorker.getRegistrations();
+    lines.push('SW регистраций: ' + regs.length);
+    regs.forEach((r, i) => {
+      lines.push(`  [${i}] scope=${r.scope} активен=${!!r.active} url=${r.active?.scriptURL || '—'}`);
+    });
+  } catch(e){
+    lines.push('Ошибка чтения SW: ' + e.message);
+  }
+
+  try {
+    const OneSignal = await getOneSignal();
+    lines.push('OneSignal SDK: загружен');
+    lines.push('OneSignal.Notifications.permission: ' + OneSignal.Notifications.permission);
+    try {
+      lines.push('PushSubscription.id: ' + OneSignal.User.PushSubscription.id);
+      lines.push('PushSubscription.token: ' + (OneSignal.User.PushSubscription.token ? 'есть (' + OneSignal.User.PushSubscription.token.slice(0,20) + '...)' : 'null'));
+      lines.push('PushSubscription.optedIn: ' + OneSignal.User.PushSubscription.optedIn);
+    } catch(e){
+      lines.push('Ошибка чтения PushSubscription: ' + e.message);
+    }
+
+    lines.push('--- пробую optIn() ---');
+    try {
+      await OneSignal.User.PushSubscription.optIn();
+      lines.push('optIn() выполнен без ошибки');
+    } catch(e){
+      lines.push('optIn() выдал ошибку: ' + e.message);
+    }
+    await new Promise(r => setTimeout(r, 1500));
+    lines.push('После optIn — id: ' + OneSignal.User.PushSubscription.id);
+    lines.push('После optIn — token: ' + (OneSignal.User.PushSubscription.token ? 'есть' : 'null'));
+    lines.push('После optIn — optedIn: ' + OneSignal.User.PushSubscription.optedIn);
+  } catch(e){
+    lines.push('Ошибка OneSignal SDK: ' + e.message);
+  }
+
+  alert(lines.join('\n'));
+});
+
 document.getElementById('clearCacheBtn').addEventListener('click', async () => {
   if (!confirm('Очистить локально сохранённые данные приложения? Офлайн-доступ временно пропадёт, при следующем открытии с интернетом всё загрузится заново. Избранное и свои фразы не удалятся.')){
     return;
