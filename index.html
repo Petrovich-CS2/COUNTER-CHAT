@@ -5151,22 +5151,33 @@ document.getElementById('reminderToggleInput')?.addEventListener('change', async
     return;
   }
 
+  // сначала пробуем через обёртку OneSignal (запускает у них внутреннюю регистрацию подписки)
   try {
-    const granted = await OneSignal.Notifications.requestPermission();
-    if (!granted){
-      e.target.checked = false;
-      updateReminderToggleUI();
-      showToast('Уведомления отклонены. Settings → Notifications → Counter Chat → Allow Notifications', 4200, 'warning');
-      return;
-    }
-    localStorage.setItem(REMINDER_ENABLED_KEY, '1');
-    await OneSignal.User.addTag('streak_reminder', 'enabled');
-    await syncStreakTagToOneSignal();
-    showToast('Напоминание включено', 3400);
-  } catch(err){
+    await OneSignal.Notifications.requestPermission();
+  } catch(err){}
+
+  // но решение принимаем по настоящему браузерному статусу, а не по тому, что вернула
+  // обёртка — на практике обёртка иногда сообщает false, даже когда разрешение
+  // на самом деле уже выдано на уровне браузера
+  const actuallyGranted = ('Notification' in window) && Notification.permission === 'granted';
+
+  if (!actuallyGranted){
     e.target.checked = false;
     updateReminderToggleUI();
-    showToast('Не получилось включить напоминание — попробуй позже', 2800, 'warning');
+    showToast('Уведомления отклонены. Settings → Notifications → Counter Chat → Allow Notifications', 4200, 'warning');
+    return;
+  }
+
+  // разрешение точно есть — сохраняем это сразу, независимо от исхода необязательных
+  // шагов ниже (простановка тегов), чтобы их возможный сбой не откатывал тумблер обратно
+  localStorage.setItem(REMINDER_ENABLED_KEY, '1');
+  showToast('Напоминание включено', 3400);
+
+  try {
+    await OneSignal.User.addTag('streak_reminder', 'enabled');
+    await syncStreakTagToOneSignal();
+  } catch(err){
+    // тег не проставился — не страшно, попробуем снова при следующем открытии приложения
   }
 });
 /* секретная пасхалка — 5 быстрых тапов по логотипу подряд */
