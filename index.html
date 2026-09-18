@@ -5063,16 +5063,26 @@ const REMINDER_ENABLED_KEY = 'cc_streak_reminder_enabled';
 // если SDK ещё не подгрузился, дождёмся, если уже готов — получим сразу.
 // С тайм-аутом: если SDK не ответил за разумное время (блокировщик рекламы часто
 // блокирует именно onesignal.com, или просто нет сети) — не виснем бесконечно
+let resolvedOneSignal = null; // кэш уже готового инстанса
 function getOneSignal(){
+  if (resolvedOneSignal) return Promise.resolve(resolvedOneSignal); // без лишнего асинхронного шага
   return new Promise((resolve, reject) => {
     const timeout = setTimeout(() => reject(new Error('OneSignal не ответил вовремя')), 4000);
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     window.OneSignalDeferred.push((OneSignal) => {
       clearTimeout(timeout);
+      resolvedOneSignal = OneSignal;
       resolve(OneSignal);
     });
   });
 }
+// запускаем получение сразу при загрузке страницы, не дожидаясь, пока пользователь
+// нажмёт тумблер — так к моменту реального клика вызов requestPermission() внутри
+// обработчика произойдёт синхронно (без await посреди цепочки), а не после лишнего
+// асинхронного шага. На iOS Safari даже небольшая асинхронная задержка между тапом
+// и вызовом системного запроса может привести к тому, что браузер сочтёт действие
+// "недостаточно доверенным" и молча не покажет диалог вообще
+getOneSignal().catch(() => {});
 
 let reminderSupportedCache = null; // кэшируем только успешный положительный результат
 async function reminderSupported(){
