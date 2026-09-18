@@ -5174,13 +5174,17 @@ document.getElementById('reminderToggleInput')?.addEventListener('click', functi
     }
 
     // разрешение точно есть — сохраняем сразу, независимо от исхода необязательных
-    // шагов ниже (обёртка OneSignal, теги), чтобы их возможный сбой не откатывал тумблер
+    // шагов ниже (создание подписки в OneSignal, теги), чтобы их возможный сбой
+    // не откатывал тумблер
     localStorage.setItem(REMINDER_ENABLED_KEY, '1');
     showToast('Напоминание включено', 3400);
 
     getOneSignal().then(async (OneSignal) => {
       try {
-        await OneSignal.Notifications.requestPermission(); // даём их SDK узнать о разрешении и зарегистрировать подписку
+        // именно optIn() явно создаёт подписку у OneSignal — простой запрос разрешения
+        // (requestPermission) сам по себе этого не делает, если разрешение уже выдано
+        // на уровне браузера в обход их обёртки
+        await OneSignal.User.PushSubscription.optIn();
         await OneSignal.User.addTag('streak_reminder', 'enabled');
         await syncStreakTagToOneSignal();
       } catch(err){}
