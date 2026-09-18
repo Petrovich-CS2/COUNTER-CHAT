@@ -5145,7 +5145,7 @@ async function updateReminderToggleUI(){
   desc.textContent = 'Пришлём уведомление, если давно не заходил';
 }
 
-document.getElementById('reminderToggleInput')?.addEventListener('change', function(e){
+document.getElementById('reminderToggleInput')?.addEventListener('click', function(e){
   const wantsOn = e.target.checked;
 
   if (!wantsOn){
