@@ -5085,8 +5085,19 @@ function getOneSignal(){
 getOneSignal().catch(() => {});
 
 let reminderSupportedCache = null; // кэшируем только успешный положительный результат
+
+// прямая проверка нужных браузерных API — не зависит от обёртки OneSignal,
+// которая на практике иногда сообщает неверный результат
+function rawPushSupported(){
+  return ('Notification' in window) && ('serviceWorker' in navigator) && ('PushManager' in window);
+}
+
 async function reminderSupported(){
   if (reminderSupportedCache === true) return true;
+  if (rawPushSupported()){
+    reminderSupportedCache = true;
+    return true;
+  }
   try {
     const OneSignal = await getOneSignal();
     const result = await OneSignal.Notifications.isPushSupported();
@@ -5134,52 +5145,53 @@ async function updateReminderToggleUI(){
   desc.textContent = 'Пришлём уведомление, если давно не заходил';
 }
 
-document.getElementById('reminderToggleInput')?.addEventListener('change', async (e) => {
+document.getElementById('reminderToggleInput')?.addEventListener('change', function(e){
   const wantsOn = e.target.checked;
-  let OneSignal;
-  try { OneSignal = await getOneSignal(); } catch(err){}
 
   if (!wantsOn){
     localStorage.setItem(REMINDER_ENABLED_KEY, '0');
-    if (OneSignal){ try { await OneSignal.User.addTag('streak_reminder', 'disabled'); } catch(e){} }
+    getOneSignal().then(OneSignal => OneSignal.User.addTag('streak_reminder', 'disabled')).catch(()=>{});
     return;
   }
 
-  if (!OneSignal){
+  if (!('Notification' in window)){
     e.target.checked = false;
     showToast('Не получилось включить напоминание — попробуй позже', 2800, 'warning');
     return;
   }
 
-  // сначала пробуем через обёртку OneSignal (запускает у них внутреннюю регистрацию подписки)
-  try {
-    await OneSignal.Notifications.requestPermission();
-  } catch(err){}
+  // запрос разрешения — самое первое и самое прямое действие в обработчике, без единого
+  // await перед ним. Раньше здесь сначала дожидались готовности OneSignal (await getOneSignal()),
+  // и даже с кэшированием оставался шанс на настоящую асинхронную паузу между тапом
+  // пользователя и вызовом — а на iOS Safari этого достаточно, чтобы браузер перестал
+  // считать действие "доверенным" и молча не показал системное окно вообще
+  Notification.requestPermission().then((permission) => {
+    if (permission !== 'granted'){
+      e.target.checked = false;
+      updateReminderToggleUI();
+      showToast('Уведомления отклонены. Settings → Notifications → Counter Chat → Allow Notifications', 4200, 'warning');
+      return;
+    }
 
-  // но решение принимаем по настоящему браузерному статусу, а не по тому, что вернула
-  // обёртка — на практике обёртка иногда сообщает false, даже когда разрешение
-  // на самом деле уже выдано на уровне браузера
-  const actuallyGranted = ('Notification' in window) && Notification.permission === 'granted';
+    // разрешение точно есть — сохраняем сразу, независимо от исхода необязательных
+    // шагов ниже (обёртка OneSignal, теги), чтобы их возможный сбой не откатывал тумблер
+    localStorage.setItem(REMINDER_ENABLED_KEY, '1');
+    showToast('Напоминание включено', 3400);
 
-  if (!actuallyGranted){
+    getOneSignal().then(async (OneSignal) => {
+      try {
+        await OneSignal.Notifications.requestPermission(); // даём их SDK узнать о разрешении и зарегистрировать подписку
+        await OneSignal.User.addTag('streak_reminder', 'enabled');
+        await syncStreakTagToOneSignal();
+      } catch(err){}
+    }).catch(()=>{});
+  }).catch(() => {
     e.target.checked = false;
     updateReminderToggleUI();
-    showToast('Уведомления отклонены. Settings → Notifications → Counter Chat → Allow Notifications', 4200, 'warning');
-    return;
-  }
-
-  // разрешение точно есть — сохраняем это сразу, независимо от исхода необязательных
-  // шагов ниже (простановка тегов), чтобы их возможный сбой не откатывал тумблер обратно
-  localStorage.setItem(REMINDER_ENABLED_KEY, '1');
-  showToast('Напоминание включено', 3400);
-
-  try {
-    await OneSignal.User.addTag('streak_reminder', 'enabled');
-    await syncStreakTagToOneSignal();
-  } catch(err){
-    // тег не проставился — не страшно, попробуем снова при следующем открытии приложения
-  }
+    showToast('Не получилось включить напоминание — попробуй позже', 2800, 'warning');
+  });
 });
+
 /* секретная пасхалка — 5 быстрых тапов по логотипу подряд */
 (function setupLogoEasterEgg(){
   const logo = document.getElementById('logoEasterEgg');
