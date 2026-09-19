@@ -1718,10 +1718,10 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
       } catch(err){
         out += 'fetch ОШИБКА: ' + err.message;
       }
-      out += '\\n\\nЗагружен ли сам тег script: ' + (document.querySelector('script[src*=\"onesignal\"]') ? 'да, тег есть в разметке' : 'нет тега вообще');
-      const scriptEl = document.querySelector('script[src*=\"onesignal\"]');
+      out += String.fromCharCode(10,10) + 'Загружен ли сам тег script: ' + (document.querySelector('script[src*=onesignal]') ? 'да, тег есть в разметке' : 'нет тега вообще');
+      const scriptEl = document.querySelector('script[src*=onesignal]');
       if (scriptEl){
-        out += '\\nsrc: ' + scriptEl.src;
+        out += String.fromCharCode(10) + 'src: ' + scriptEl.src;
       }
       alert(out);
     })()">🔧 Проверка доступности cdn.onesignal.com</button>
