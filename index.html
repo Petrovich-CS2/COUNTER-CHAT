@@ -22,12 +22,30 @@ window.addEventListener('error', (e) => {
 window.addEventListener('unhandledrejection', (e) => {
   window.__capturedErrors.push('unhandledrejection: ' + (e.reason?.message || e.reason || 'без деталей'));
 });
+
+// перехват console.* — чтобы увидеть подробный trace-лог самого SDK OneSignal
+// прямо в нашей диагностике, без необходимости в Mac и Safari Web Inspector
+window.__capturedConsoleLogs = [];
+['log','debug','info','warn','error'].forEach((method) => {
+  const original = console[method].bind(console);
+  console[method] = function(...args){
+    try {
+      window.__capturedConsoleLogs.push('[' + method + '] ' + args.map(a => {
+        if (typeof a === 'string') return a;
+        try { return JSON.stringify(a); } catch(e){ return String(a); }
+      }).join(' '));
+      if (window.__capturedConsoleLogs.length > 300) window.__capturedConsoleLogs.shift(); // не даём расти бесконечно
+    } catch(e){}
+    original(...args);
+  };
+});
 </script>
 <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 <script>
   window.OneSignalDeferred = window.OneSignalDeferred || [];
   OneSignalDeferred.push(async function(OneSignal) {
     try {
+      OneSignal.Debug.setLogLevel('trace'); // подробный лог их SDK — попадёт в перехват console выше
       await OneSignal.init({
         appId: "d43f1352-7f7a-4fb6-b0b6-f2a6c2339c2e",
         // наш sw.js лежит не в корне домена, а в /COUNTER-CHAT/ (сайт на GitHub Pages) —
@@ -1752,6 +1770,8 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
     })()">🔧 Проверка api.onesignal.com</button>
     <button class="clear-cache-btn" style="margin-top:8px;" onclick="alert('Базовый тест: кнопки работают, ' + new Date().toLocaleTimeString())">🔧 Базовый тест (просто alert)</button>
     <button class="clear-cache-btn" id="debugOneSignalBtn" style="margin-top:8px;">🔧 Диагностика OneSignal</button>
+    <textarea id="debugOutputArea" readonly style="display:none; width:100%; height:240px; margin-top:8px; font-family:monospace; font-size:11px; background:#000; color:#8f8; padding:10px; border-radius:8px; border:1px solid var(--line);"></textarea>
+    <button class="clear-cache-btn" id="debugCopyBtn" style="display:none; margin-top:8px;">📋 Скопировать результат</button>
     <button class="clear-cache-btn" style="margin-top:8px;" onclick="(async()=>{
       let out = 'Тест начался. ';
       try {
@@ -5398,6 +5418,21 @@ function withTimeout(promise, ms, label){
   ]);
 }
 
+document.getElementById('debugCopyBtn')?.addEventListener('click', async () => {
+  const area = document.getElementById('debugOutputArea');
+  const btn = document.getElementById('debugCopyBtn');
+  const original = btn.textContent;
+  try {
+    await navigator.clipboard.writeText(area.value);
+    btn.textContent = '✅ Скопировано!';
+  } catch(e){
+    area.select();
+    try { document.execCommand('copy'); btn.textContent = '✅ Скопировано!'; }
+    catch(e2){ btn.textContent = '⚠️ Не вышло — выдели текст вручную выше'; }
+  }
+  setTimeout(() => { btn.textContent = original; }, 2000);
+});
+
 document.getElementById('debugOneSignalBtn')?.addEventListener('click', async () => {
   const btn = document.getElementById('debugOneSignalBtn');
   const originalLabel = btn.textContent;
@@ -5447,11 +5482,19 @@ document.getElementById('debugOneSignalBtn')?.addEventListener('click', async ()
 
     lines.push('--- Пойманные ошибки на странице (' + window.__capturedErrors.length + ') ---');
     window.__capturedErrors.forEach(err => lines.push(err));
+
+    lines.push('--- Trace-логи SDK OneSignal (' + (window.__capturedConsoleLogs?.length || 0) + ') ---');
+    (window.__capturedConsoleLogs || []).forEach(log => lines.push(log));
   } catch(fatal){
     lines.push('НЕОЖИДАННАЯ ОШИБКА в самой диагностике: ' + fatal.message);
   } finally {
     // гарантированно выполняется, что бы ни произошло выше — кнопка не зависнет
-    alert(lines.join('\n'));
+    const output = lines.join('\n');
+    const area = document.getElementById('debugOutputArea');
+    area.value = output;
+    area.style.display = 'block';
+    document.getElementById('debugCopyBtn').style.display = 'block';
+    area.scrollIntoView({ behavior: 'smooth' });
     btn.textContent = originalLabel;
     btn.disabled = false;
   }
