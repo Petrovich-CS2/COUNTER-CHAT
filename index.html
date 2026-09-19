@@ -5378,6 +5378,10 @@ function renderProfileScreen(){
   });
 }
 document.getElementById('debugOneSignalBtn')?.addEventListener('click', async () => {
+  const btn = document.getElementById('debugOneSignalBtn');
+  const originalLabel = btn.textContent;
+  btn.textContent = '⏳ Проверяю... (до 15 секунд)';
+  btn.disabled = true;
   const lines = [];
   lines.push('Notification.permission: ' + (('Notification' in window) ? Notification.permission : 'нет API'));
 
@@ -5419,6 +5423,8 @@ document.getElementById('debugOneSignalBtn')?.addEventListener('click', async ()
   }
 
   alert(lines.join('\n'));
+  btn.textContent = originalLabel;
+  btn.disabled = false;
 });
 
 document.getElementById('clearCacheBtn').addEventListener('click', async () => {
