@@ -14,17 +14,31 @@
      запросом и не умеет работать с data:-URI, поэтому нужен именно файл -->
 <meta name="google-site-verification" content="l_8gBwjYV_tHESuexwD79d1uJ-vewMPZpKBrf9yfENw" />
 <meta name="yandex-verification" content="3005436fe03c7d40" />
+<script>
+window.__capturedErrors = [];
+window.addEventListener('error', (e) => {
+  window.__capturedErrors.push('error: ' + (e.message || 'без сообщения') + (e.filename ? ' (' + e.filename.split('/').pop() + ':' + e.lineno + ')' : ''));
+});
+window.addEventListener('unhandledrejection', (e) => {
+  window.__capturedErrors.push('unhandledrejection: ' + (e.reason?.message || e.reason || 'без деталей'));
+});
+</script>
 <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 <script>
   window.OneSignalDeferred = window.OneSignalDeferred || [];
   OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.init({
-      appId: "d43f1352-7f7a-4fb6-b0b6-f2a6c2339c2e",
-      // наш sw.js лежит не в корне домена, а в /COUNTER-CHAT/ (сайт на GitHub Pages) —
-      // без этих двух параметров OneSignal искал бы файл не там и регистрация не прошла бы
-      serviceWorkerParam: { scope: "/COUNTER-CHAT/" },
-      serviceWorkerPath: "COUNTER-CHAT/sw.js",
-    });
+    try {
+      await OneSignal.init({
+        appId: "d43f1352-7f7a-4fb6-b0b6-f2a6c2339c2e",
+        // наш sw.js лежит не в корне домена, а в /COUNTER-CHAT/ (сайт на GitHub Pages) —
+        // без этих двух параметров OneSignal искал бы файл не там и регистрация не прошла бы
+        serviceWorkerParam: { scope: "/COUNTER-CHAT/" },
+        serviceWorkerPath: "COUNTER-CHAT/sw.js",
+      });
+      window.__capturedErrors.push('OneSignal.init(): успешно завершён');
+    } catch(err){
+      window.__capturedErrors.push('OneSignal.init() выбросил ошибку: ' + err.message);
+    }
   });
 </script>
 <meta name="description" content="Разговорник на английском для CS2: 240+ готовых фраз с транскрипцией и озвучкой на все игровые ситуации, интерактивные карты с позициями (Dust II, Mirage, Inferno и другие). Работает офлайн, бесплатно, без рекламы.">
@@ -5384,6 +5398,8 @@ document.getElementById('debugOneSignalBtn')?.addEventListener('click', async ()
   btn.disabled = true;
   const lines = [];
   lines.push('Notification.permission: ' + (('Notification' in window) ? Notification.permission : 'нет API'));
+  lines.push('typeof window.OneSignal: ' + typeof window.OneSignal);
+  lines.push('window.OneSignalDeferred.length: ' + (window.OneSignalDeferred ? window.OneSignalDeferred.length : 'не существует'));
 
   try {
     const regs = await navigator.serviceWorker.getRegistrations();
@@ -5421,6 +5437,9 @@ document.getElementById('debugOneSignalBtn')?.addEventListener('click', async ()
   } catch(e){
     lines.push('Ошибка OneSignal SDK: ' + e.message);
   }
+
+  lines.push('--- Пойманные ошибки на странице (' + window.__capturedErrors.length + ') ---');
+  window.__capturedErrors.forEach(err => lines.push(err));
 
   alert(lines.join('\n'));
   btn.textContent = originalLabel;
