@@ -5110,7 +5110,7 @@ let resolvedOneSignal = null; // кэш уже готового инстанса
 function getOneSignal(){
   if (resolvedOneSignal) return Promise.resolve(resolvedOneSignal); // без лишнего асинхронного шага
   return new Promise((resolve, reject) => {
-    const timeout = setTimeout(() => reject(new Error('OneSignal не ответил вовремя')), 4000);
+    const timeout = setTimeout(() => reject(new Error('OneSignal не ответил вовремя')), 15000);
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     window.OneSignalDeferred.push((OneSignal) => {
       clearTimeout(timeout);
