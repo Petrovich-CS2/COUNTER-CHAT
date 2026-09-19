@@ -335,10 +335,27 @@ body{
 }
 .history-chip:active{background:var(--bg-elevated);}
 
-/* компактный режим */
-body.compact-mode .phrase-ru{display:none;}
-body.compact-mode .phrase-translit{margin-top:2px;}
+/* компактный режим — плавное сворачивание перевода вместо мгновенного скрытия.
+   Приём с grid-template-rows 1fr->0fr корректно анимирует ЛЮБУЮ высоту текста,
+   не завися от того, короткий перевод или длинный (в отличие от max-height,
+   где пришлось бы гадать с запасом на всё сразу) */
+.phrase-ru-collapse{
+  display:grid;
+  grid-template-rows:1fr;
+  transition:grid-template-rows .26s ease;
+}
+.phrase-ru-collapse > .phrase-ru{
+  overflow:hidden;
+  min-height:0;
+}
+body.compact-mode .phrase-ru-collapse{grid-template-rows:0fr;}
+body.compact-mode .phrase-translit{margin-top:2px; transition:margin-top .26s ease;}
+.phrase-translit{transition:margin-top .26s ease;}
 body.compact-mode .phrase{padding-top:8px; padding-bottom:8px;}
+.phrase{transition:padding-top .26s ease, padding-bottom .26s ease;}
+@media (prefers-reduced-motion: reduce){
+  .phrase-ru-collapse, .phrase-translit, .phrase{transition:none;}
+}
 .search-row input{
   background:none; border:none; outline:none;
   color:var(--text-primary);
@@ -500,18 +517,82 @@ body.compact-mode .phrase{padding-top:8px; padding-bottom:8px;}
 .training-progress-bar{height:5px; background:rgba(255,255,255,.08); border-radius:3px; overflow:hidden;}
 .training-progress-fill{height:100%; background:#d6903a; border-radius:3px; transition:width .3s ease;}
 .training-card{
+  position:relative;
   border:1px solid var(--line);
   border-radius:16px;
   padding:32px 20px;
   text-align:center;
   min-height:160px;
   display:flex; flex-direction:column; align-items:center; justify-content:center;
+  touch-action:pan-y; /* горизонтальный жест перехватываем сами, вертикальная прокрутка страницы не блокируется */
+  transition:transform .3s cubic-bezier(.2,.8,.2,1), opacity .3s ease;
+  will-change:transform;
+  user-select:none;
+  cursor:pointer;
+}
+.training-card-tap-hint{
+  margin-top:16px;
+  font-family:var(--font-mono);
+  font-size:11.5px;
+  color:var(--text-faint);
+  letter-spacing:.02em;
+}
+.training-card.revealed .training-card-tap-hint{display:none;}
+.training-card.revealed{cursor:default;}
+.training-card.dragging{transition:none;} /* во время самого жеста — карточка следует за пальцем без запаздывания */
+.training-card.swiping-away{transition:transform .32s ease, opacity .32s ease;}
+@keyframes trainingCardEnter{
+  from{opacity:0; transform:scale(.94) translateY(6px);}
+  to{opacity:1; transform:scale(1) translateY(0);}
+}
+.training-card.card-enter{animation:trainingCardEnter .26s ease;}
+@keyframes swipeDemoWiggle{
+  0%, 100%{transform:translateX(0) rotate(0);}
+  22%{transform:translateX(38px) rotate(4deg);}
+  45%{transform:translateX(0) rotate(0);}
+  67%{transform:translateX(-38px) rotate(-4deg);}
+  88%{transform:translateX(0) rotate(0);}
+}
+.training-card.swipe-demo{animation:swipeDemoWiggle 1.6s ease-in-out .4s;}
+.training-swipe-hint{
+  margin-top:12px;
+  text-align:center;
+  font-family:var(--font-mono);
+  font-size:11.5px;
+  color:var(--text-faint);
+  letter-spacing:.02em;
+  animation:swipeHintPulse 1.8s ease-in-out infinite;
+}
+@keyframes swipeHintPulse{
+  0%,100%{opacity:.55;}
+  50%{opacity:1;}
+}
+@media (prefers-reduced-motion: reduce){
+  .training-card{transition:none;}
+  .training-card.card-enter{animation:none;}
+  .training-card.swipe-demo{animation:none;}
+  .training-swipe-hint{animation:none;}
 }
 .training-card-en{font-family:var(--font-mono); font-size:22px; font-weight:700; color:var(--text-primary);}
 .training-card-translit{font-family:var(--font-mono); font-size:13px; color:var(--text-faint); margin-top:8px; font-style:italic;}
 .training-card-ru{font-size:17px; color:#f2c98a; margin-top:18px; padding-top:18px; border-top:1px solid var(--line); font-weight:600;}
+.training-card-ru:not([hidden]){animation:slideUp .28s ease;}
+.swipe-indicator{
+  position:absolute; top:16px;
+  font-family:var(--font-mono); font-weight:800; font-size:14px;
+  padding:6px 12px; border-radius:8px;
+  border:2px solid; opacity:0;
+  pointer-events:none;
+  transform:scale(.85) rotate(0deg);
+}
+.swipe-indicator-no{left:16px; color:#e08a8a; border-color:#e08a8a; transform-origin:top left;}
+.swipe-indicator-yes{right:16px; color:#7fc98f; border-color:#7fc98f; transform-origin:top right;}
 .training-assess-row{display:flex; gap:10px; margin-top:10px;}
+.training-assess-row:not([hidden]){animation:slideUp .28s ease .05s both;}
 .training-assess-row[hidden]{display:none;}
+@media (prefers-reduced-motion: reduce){
+  .training-card-ru:not([hidden]), .training-assess-row:not([hidden]){animation:none;}
+}
 .training-assess-btn{
   flex:1;
   padding:14px;
@@ -2063,16 +2144,19 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
     </div>
 
     <div id="trainingCardArea">
-      <div class="training-card glass-panel">
+      <div class="training-card glass-panel" id="trainingCard">
+        <div class="swipe-indicator swipe-indicator-no" id="swipeIndicatorNo">😕 Не знал</div>
+        <div class="swipe-indicator swipe-indicator-yes" id="swipeIndicatorYes">😊 Знал</div>
         <div class="training-card-en" id="trainingCardEn"></div>
         <div class="training-card-translit" id="trainingCardTranslit"></div>
+        <div class="training-card-tap-hint" id="trainingCardTapHint">тапни, чтобы увидеть перевод</div>
         <div class="training-card-ru" id="trainingCardRu" hidden></div>
       </div>
-      <button class="io-btn io-btn-accent" id="trainingRevealBtn" style="margin-top:14px;">Показать перевод</button>
       <div class="training-assess-row" id="trainingAssessRow" hidden>
         <button class="training-assess-btn training-assess-no" id="trainingKnewNoBtn">😕 Не знал</button>
         <button class="training-assess-btn training-assess-yes" id="trainingKnewYesBtn">😊 Знал</button>
       </div>
+      <div class="training-swipe-hint" id="trainingSwipeHint" hidden>← смахни карточку в сторону →</div>
     </div>
 
     <div id="trainingSummary" hidden>
@@ -3624,20 +3708,127 @@ function showTrainingCard(){
   const ruEl = document.getElementById('trainingCardRu');
   ruEl.textContent = item.phrase.ru;
   ruEl.hidden = true;
-  document.getElementById('trainingRevealBtn').hidden = false;
   document.getElementById('trainingAssessRow').hidden = true;
+  document.getElementById('trainingSwipeHint').hidden = true;
+  trainingCardEl.classList.remove('revealed');
+
+  trainingCardEl.classList.remove('card-enter');
+  void trainingCardEl.offsetWidth;
+  trainingCardEl.classList.add('card-enter');
 
   const pct = Math.round((index / queue.length) * 100);
   document.getElementById('trainingProgressText').textContent = `Карточка ${index + 1} из ${queue.length}`;
   document.getElementById('trainingProgressFill').style.width = pct + '%';
 }
 
-document.getElementById('trainingRevealBtn').addEventListener('click', () => {
+const TRAINING_SWIPE_USED_KEY = 'cc_training_swipe_used';
+function revealTranslation(){
   document.getElementById('trainingCardRu').hidden = false;
-  document.getElementById('trainingRevealBtn').hidden = true;
   document.getElementById('trainingAssessRow').hidden = false;
+  trainingCardEl.classList.add('revealed');
   haptic(20);
+
+  if (localStorage.getItem(TRAINING_SWIPE_USED_KEY) !== '1'){
+    document.getElementById('trainingSwipeHint').hidden = false;
+    trainingCardEl.classList.remove('swipe-demo');
+    void trainingCardEl.offsetWidth;
+    trainingCardEl.classList.add('swipe-demo'); // сама карточка один раз молча показывает, что её можно тянуть в стороны
+  }
+}
+
+/* ================= СВАЙП КАРТОЧКИ (как в приложениях знакомств) =================
+   Работает только после того, как перевод уже открыт (trainingAssessRow видим) —
+   до этого тап по карточке открывает перевод (см. revealTranslation), а свайп
+   ничего не значит, ответ ещё не раскрыт. Кнопки "Знал"/"Не знал" остаются
+   рабочими как есть — свайп это дополнительный, а не единственный способ. */
+const trainingCardEl = document.getElementById('trainingCard');
+const swipeNoEl = document.getElementById('swipeIndicatorNo');
+const swipeYesEl = document.getElementById('swipeIndicatorYes');
+const SWIPE_THRESHOLD = 90; // px — сколько нужно протащить, чтобы засчитать ответ
+let swipeStartX = 0, swipeCurrentX = 0, isDragging = false, swipePointerId = null;
+
+function swipeAssessRowVisible(){
+  return !document.getElementById('trainingAssessRow').hidden;
+}
+
+function updateSwipeVisuals(deltaX){
+  const rotate = deltaX / 18;
+  trainingCardEl.style.transform = `translateX(${deltaX}px) rotate(${rotate}deg)`;
+  const progress = Math.min(Math.abs(deltaX) / SWIPE_THRESHOLD, 1);
+  if (deltaX > 0){
+    swipeYesEl.style.opacity = progress;
+    swipeYesEl.style.transform = `scale(${.85 + progress*.15}) rotate(${progress*4}deg)`;
+    swipeNoEl.style.opacity = 0;
+  } else if (deltaX < 0){
+    swipeNoEl.style.opacity = progress;
+    swipeNoEl.style.transform = `scale(${.85 + progress*.15}) rotate(${-progress*4}deg)`;
+    swipeYesEl.style.opacity = 0;
+  } else {
+    swipeYesEl.style.opacity = 0;
+    swipeNoEl.style.opacity = 0;
+  }
+}
+
+function resetSwipeVisuals(){
+  trainingCardEl.classList.remove('dragging', 'swiping-away');
+  trainingCardEl.style.transform = '';
+  trainingCardEl.style.opacity = '';
+  swipeYesEl.style.opacity = 0;
+  swipeNoEl.style.opacity = 0;
+  swipeYesEl.style.transform = '';
+  swipeNoEl.style.transform = '';
+}
+
+trainingCardEl.addEventListener('click', () => {
+  if (swipeAssessRowVisible()) return; // перевод уже открыт — тап по карточке не при делах, дальше только свайп/кнопки
+  revealTranslation();
 });
+
+trainingCardEl.addEventListener('pointerdown', (e) => {
+  if (!swipeAssessRowVisible()) return; // перевод ещё не открыт — свайп не активен
+  isDragging = true;
+  swipePointerId = e.pointerId;
+  swipeStartX = e.clientX;
+  swipeCurrentX = 0;
+  trainingCardEl.classList.add('dragging');
+  trainingCardEl.setPointerCapture(e.pointerId);
+});
+
+trainingCardEl.addEventListener('pointermove', (e) => {
+  if (!isDragging || e.pointerId !== swipePointerId) return;
+  swipeCurrentX = e.clientX - swipeStartX;
+  updateSwipeVisuals(swipeCurrentX);
+});
+
+function finishSwipe(){
+  if (!isDragging) return;
+  isDragging = false;
+  trainingCardEl.classList.remove('dragging');
+
+  if (Math.abs(swipeCurrentX) >= SWIPE_THRESHOLD){
+    // свайп засчитан — запоминаем, что подсказку больше показывать не нужно
+    if (localStorage.getItem(TRAINING_SWIPE_USED_KEY) !== '1'){
+      localStorage.setItem(TRAINING_SWIPE_USED_KEY, '1');
+      document.getElementById('trainingSwipeHint').hidden = true;
+    }
+    // свайп засчитан — карточка улетает за пределы экрана в сторону жеста
+    const knew = swipeCurrentX > 0;
+    const flyDistance = window.innerWidth;
+    haptic(knew ? 20 : 30);
+    trainingCardEl.classList.add('swiping-away');
+    trainingCardEl.style.transform = `translateX(${knew ? flyDistance : -flyDistance}px) rotate(${knew ? 18 : -18}deg)`;
+    trainingCardEl.style.opacity = '0';
+    setTimeout(() => {
+      resetSwipeVisuals();
+      answerTraining(knew);
+    }, 280);
+  } else {
+    // жест недостаточный — карточка плавно возвращается на место
+    resetSwipeVisuals();
+  }
+}
+trainingCardEl.addEventListener('pointerup', finishSwipe);
+trainingCardEl.addEventListener('pointercancel', finishSwipe);
 
 function answerTraining(knew){
   const { queue, index } = trainingSession;
@@ -3887,6 +4078,7 @@ function applyCompactMode(){
   document.getElementById('compactModeBtn').classList.toggle('active', on);
 }
 document.getElementById('compactModeBtn').addEventListener('click', () => {
+  haptic(30);
   localStorage.setItem(COMPACT_MODE_KEY, isCompactMode() ? '0' : '1');
   applyCompactMode();
 });
@@ -4036,10 +4228,9 @@ function buildPhraseEl(p, catId, opts={}){
         ${opts.showCount ? `<span class="phrase-usage-count">×${p._count}</span>` : ''}
       </div>
       <div class="phrase-translit">[${p.translit}]</div>
-      <div class="phrase-ru">${p.ru}</div>
+      <div class="phrase-ru-collapse"><div class="phrase-ru">${p.ru}</div></div>
     </div>
-    <div class="phrase-actions">
-      <button class="share-btn-side" aria-label="Поделиться">
+    <div class="phrase-actions">      <button class="share-btn-side" aria-label="Поделиться">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8b9199" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></svg>
       </button>
       ${opts.allowDelete ? `
@@ -4053,7 +4244,7 @@ function buildPhraseEl(p, catId, opts={}){
   `;
   row.querySelector('.phrase-text').addEventListener('click', () => {
     haptic(30);
-    copyToClipboard(p.en);
+    copyToClipboard(p.en, null, true); // без toast — тут уже есть галочка прямо на месте, тост только мешал бы, перекрывая её
     flashCheckmark(row.querySelector('.phrase-copy-hint'));
     addToHistory(catId, p);
     trackPhraseUsage(catId, p.en);
@@ -4399,9 +4590,8 @@ function flashCheckmark(svgEl, revertDelay = 1100){
   }, revertDelay);
 }
 
-function copyToClipboard(text, toastMsg){
-  const msg = toastMsg || ('Скопировано: ' + text);
-  const done = () => showToast(msg);
+function copyToClipboard(text, toastMsg, skipToast){
+  const done = () => { if (!skipToast) showToast(toastMsg || ('Скопировано: ' + text)); };
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text).then(done).catch(done);
   } else { done(); }
@@ -4935,6 +5125,18 @@ if (new URLSearchParams(location.search).get('resetOfflineAchievement')){
   try { seen = new Set(JSON.parse(localStorage.getItem('cc_achievements_seen')) || []); } catch(e){ seen = new Set(); }
   seen.delete('offline_hero');
   localStorage.setItem('cc_achievements_seen', JSON.stringify([...seen]));
+  history.replaceState(null, '', location.origin + location.pathname);
+}
+// полный сброс "просмотренных" достижений — удобно для проверки анимации:
+// ?resetAchievements=1. Все уже выполненные по факту (по текущей статистике)
+// тут же покажутся заново как "новые", ничего в самой статистике не удаляется
+if (new URLSearchParams(location.search).get('resetAchievements')){
+  localStorage.removeItem('cc_achievements_seen');
+  history.replaceState(null, '', location.origin + location.pathname);
+}
+// сброс подсказки про свайп в тренировке — ?resetSwipeHint=1
+if (new URLSearchParams(location.search).get('resetSwipeHint')){
+  localStorage.removeItem('cc_training_swipe_used');
   history.replaceState(null, '', location.origin + location.pathname);
 }
 const onboardingModal = document.getElementById('onboardingModal');
