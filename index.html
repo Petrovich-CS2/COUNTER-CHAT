@@ -1725,6 +1725,17 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
       }
       alert(out);
     })()">🔧 Проверка доступности cdn.onesignal.com</button>
+    <button class="clear-cache-btn" style="margin-top:8px;" onclick="(async()=>{
+      let out = '';
+      try {
+        const t0 = Date.now();
+        await fetch('https://api.onesignal.com/', { mode: 'no-cors' });
+        out += 'api.onesignal.com: fetch дошёл за ' + (Date.now()-t0) + 'мс';
+      } catch(err){
+        out += 'api.onesignal.com: ОШИБКА — ' + err.message;
+      }
+      alert(out);
+    })()">🔧 Проверка api.onesignal.com</button>
     <button class="clear-cache-btn" style="margin-top:8px;" onclick="alert('Базовый тест: кнопки работают, ' + new Date().toLocaleTimeString())">🔧 Базовый тест (просто alert)</button>
     <button class="clear-cache-btn" id="debugOneSignalBtn" style="margin-top:8px;">🔧 Диагностика OneSignal</button>
     <button class="clear-cache-btn" style="margin-top:8px;" onclick="(async()=>{
