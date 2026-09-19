@@ -5606,7 +5606,9 @@ if ('serviceWorker' in navigator){
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') reg.update().catch(() => {});
       });
-    }).catch(() => {});
+    }).catch((err) => {
+      (window.__capturedErrors = window.__capturedErrors || []).push('navigator.serviceWorker.register() провалился: ' + err.message);
+    });
   });
 
   // как только новый Service Worker реально взял управление — перезагружаем страницу,
