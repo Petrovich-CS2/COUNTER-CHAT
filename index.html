@@ -976,12 +976,12 @@ body.compact-mode .phrase{padding-top:8px; padding-bottom:8px;}
   line-height:1;
 }
 @keyframes rerollDiceSpin{
-  0%{transform:rotate(0deg) scale(1);}
-  30%{transform:rotate(190deg) scale(1.2);}
-  60%{transform:rotate(340deg) scale(.92);}
-  100%{transform:rotate(360deg) scale(1);}
+  0%{transform:scale(1) translateY(0);}
+  30%{transform:scale(1.3) translateY(-3px);}
+  55%{transform:scale(.9) translateY(1px);}
+  100%{transform:scale(1) translateY(0);}
 }
-.reroll-dice.spin{animation:rerollDiceSpin .5s cubic-bezier(.34,1.2,.4,1);}
+.reroll-dice.spin{animation:rerollDiceSpin .45s cubic-bezier(.34,1.2,.4,1);}
 @media (prefers-reduced-motion: reduce){
   .reroll-dice.spin{animation:none;}
 }
@@ -1060,7 +1060,7 @@ body.compact-mode .phrase{padding-top:8px; padding-bottom:8px;}
   text-align:left;
 }
 .reverse-lang-toggle[hidden]{display:none;}
-.reverse-lang-toggle img{width:34px; height:34px; flex-shrink:0; object-fit:contain; transition:transform .16s ease; transform-style:preserve-3d;}
+.reverse-lang-toggle img{width:34px; height:34px; flex-shrink:0; object-fit:contain; transition:transform .16s ease;}
 @media (prefers-reduced-motion: reduce){
   .reverse-lang-toggle img{transition:none;}
 }
@@ -4612,13 +4612,13 @@ if (SpeechRecognitionAPI){
   reverseLangToggle.addEventListener('click', () => {
     haptic(10);
     const iconEl = document.getElementById('reverseLangIcon');
-    iconEl.style.transform = 'rotateY(90deg)';
+    iconEl.style.transform = 'scaleX(0)';
     setTimeout(() => {
       reverseLang = reverseLang === 'en-US' ? 'ru-RU' : 'en-US';
       reverseRecognition.lang = reverseLang;
       reverseLangLabel.textContent = reverseLang === 'en-US' ? 'английском' : 'русском';
       iconEl.src = reverseLang === 'en-US' ? LANG_EN_ICON_IMG : LANG_RU_ICON_IMG;
-      iconEl.style.transform = 'rotateY(0deg)';
+      iconEl.style.transform = 'scaleX(1)';
     }, 160);
   });
   const reverseRecognition = new SpeechRecognitionAPI();
@@ -5448,6 +5448,12 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
       icon.classList.remove('pop');
       void icon.offsetWidth;
       icon.classList.add('pop');
+      // toast мог быть показан на предыдущем экране и ещё не успеть скрыться сам —
+      // без этого он продолжал бы висеть поверх нового экрана до истечения таймера
+      toastEl.classList.remove('show');
+      clearTimeout(toastTimer);
+      toastQueue = [];
+      toastCurrentlyShowing = false;
     }
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
