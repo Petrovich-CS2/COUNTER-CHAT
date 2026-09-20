@@ -5773,11 +5773,26 @@ document.getElementById('reminderToggleInput')?.addEventListener('click', functi
     if (now - lastTapTime > 1500) tapCount = 0; // слишком долгая пауза — сброс
     lastTapTime = now;
     tapCount++;
-    if (tapCount >= 5){
-      tapCount = 0;
+    if (tapCount === 5){
       if (!localStorage.getItem('cc_easter_egg_found')){
         localStorage.setItem('cc_easter_egg_found', '1');
         setTimeout(checkAchievementsAndNotify, 0);
+      }
+    }
+    // ещё 2 тапа сверх пасхалки (итого 7 подряд) — служебное переключение
+    // SW-диагностики. Нужно именно так, тапом по самому приложению, а не через
+    // URL — в standalone-режиме (открыт со значка домашнего экрана) нет
+    // адресной строки, где можно было бы вписать параметр
+    if (tapCount >= 7){
+      tapCount = 0;
+      const isOn = localStorage.getItem('cc_swdebug') === '1';
+      if (isOn){
+        localStorage.removeItem('cc_swdebug');
+        showToastDirect('🔧 SW-диагностика выключена');
+      } else {
+        localStorage.setItem('cc_swdebug', '1');
+        showToastDirect('🔧 SW-диагностика включена — появится внизу через секунду');
+        setTimeout(runSwDebugDiagnostics, 1200);
       }
     }
   });
@@ -6080,41 +6095,47 @@ if ('serviceWorker' in navigator){
   // диагностика состояния SW прямо на экране — включается через ?swdebug=1
   // (закрепляется в localStorage, чтобы сработать и при следующих открытиях
   // именно со значка домашнего экрана, где нет адресной строки для параметра),
-  // выключается через ?swdebugoff=1
+  // выключается через ?swdebugoff=1 (или тем же жестом — 7 тапов по логотипу)
   if (new URLSearchParams(location.search).get('swdebug')){
     localStorage.setItem('cc_swdebug', '1');
   }
   if (new URLSearchParams(location.search).get('swdebugoff')){
     localStorage.removeItem('cc_swdebug');
   }
+  function runSwDebugDiagnostics(){
+    // убираем предыдущий баннер, если уже висит — не плодим дубли друг под другом
+    document.querySelectorAll('.__sw-debug-banner').forEach(el => el.remove());
+    navigator.serviceWorker.getRegistration().then((reg) => {
+      const lines = [];
+      lines.push('время: ' + new Date().toLocaleTimeString());
+      lines.push('standalone: ' + (window.navigator.standalone === true));
+      lines.push('display-mode standalone: ' + window.matchMedia('(display-mode: standalone)').matches);
+      lines.push('controller есть: ' + !!navigator.serviceWorker.controller);
+      lines.push('controller scriptURL: ' + (navigator.serviceWorker.controller ? navigator.serviceWorker.controller.scriptURL : '—'));
+      if (reg){
+        lines.push('active: ' + (reg.active ? reg.active.scriptURL + ' [' + reg.active.state + ']' : 'нет'));
+        lines.push('waiting: ' + (reg.waiting ? reg.waiting.scriptURL + ' [' + reg.waiting.state + ']' : 'нет'));
+        lines.push('installing: ' + (reg.installing ? reg.installing.scriptURL + ' [' + reg.installing.state + ']' : 'нет'));
+        lines.push('scope: ' + reg.scope);
+      } else {
+        lines.push('getRegistration() вернул null — регистрации вообще нет');
+      }
+      const banner = document.createElement('div');
+      banner.className = '__sw-debug-banner';
+      banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:2147483647;background:#1a3a5c;color:#fff;font-family:monospace;font-size:10.5px;line-height:1.5;padding:10px;word-break:break-all;max-height:50vh;overflow:auto;';
+      banner.textContent = '🔧 SW-диагностика (выключить: 7 тапов по логотипу ещё раз):\n' + lines.join('\n');
+      document.documentElement.appendChild(banner);
+    }).catch((err) => {
+      const banner = document.createElement('div');
+      banner.className = '__sw-debug-banner';
+      banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:2147483647;background:#1a3a5c;color:#fff;font-family:monospace;font-size:11px;padding:10px;';
+      banner.textContent = '🔧 SW-диагностика: ошибка — ' + err.message;
+      document.documentElement.appendChild(banner);
+    });
+  }
+  window.runSwDebugDiagnostics = runSwDebugDiagnostics; // делаем доступной за пределами этого блока — вызывается из жеста-пасхалки по логотипу
   if (localStorage.getItem('cc_swdebug') === '1'){
-    setTimeout(() => {
-      navigator.serviceWorker.getRegistration().then((reg) => {
-        const lines = [];
-        lines.push('время: ' + new Date().toLocaleTimeString());
-        lines.push('standalone: ' + (window.navigator.standalone === true));
-        lines.push('display-mode standalone: ' + window.matchMedia('(display-mode: standalone)').matches);
-        lines.push('controller есть: ' + !!navigator.serviceWorker.controller);
-        lines.push('controller scriptURL: ' + (navigator.serviceWorker.controller ? navigator.serviceWorker.controller.scriptURL : '—'));
-        if (reg){
-          lines.push('active: ' + (reg.active ? reg.active.scriptURL + ' [' + reg.active.state + ']' : 'нет'));
-          lines.push('waiting: ' + (reg.waiting ? reg.waiting.scriptURL + ' [' + reg.waiting.state + ']' : 'нет'));
-          lines.push('installing: ' + (reg.installing ? reg.installing.scriptURL + ' [' + reg.installing.state + ']' : 'нет'));
-          lines.push('scope: ' + reg.scope);
-        } else {
-          lines.push('getRegistration() вернул null — регистрации вообще нет');
-        }
-        const banner = document.createElement('div');
-        banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:2147483647;background:#1a3a5c;color:#fff;font-family:monospace;font-size:10.5px;line-height:1.5;padding:10px;word-break:break-all;max-height:50vh;overflow:auto;';
-        banner.textContent = '🔧 SW-диагностика (выключить: ?swdebugoff=1):\n' + lines.join('\n');
-        document.documentElement.appendChild(banner);
-      }).catch((err) => {
-        const banner = document.createElement('div');
-        banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:2147483647;background:#1a3a5c;color:#fff;font-family:monospace;font-size:11px;padding:10px;';
-        banner.textContent = '🔧 SW-диагностика: ошибка — ' + err.message;
-        document.documentElement.appendChild(banner);
-      });
-    }, 1500); // с запасом — дать реальному состоянию устояться после pageshow/load
+    setTimeout(runSwDebugDiagnostics, 1500); // с запасом — дать реальному состоянию устояться после pageshow/load
   }
 
   // как только новый Service Worker реально взял управление — перезагружаем страницу,
