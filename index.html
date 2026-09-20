@@ -16,11 +16,26 @@
 <meta name="yandex-verification" content="3005436fe03c7d40" />
 <script>
 window.__capturedErrors = [];
+let __errorBannerShown = false;
+function __showErrorBanner(text){
+  if (__errorBannerShown) return; // показываем только первую ошибку, чтобы не спамить
+  __errorBannerShown = true;
+  try {
+    const banner = document.createElement('div');
+    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:2147483647;background:#c0392b;color:#fff;font-family:monospace;font-size:11px;line-height:1.4;padding:10px;word-break:break-all;';
+    banner.textContent = '⚠️ Ошибка на странице: ' + text;
+    document.documentElement.appendChild(banner);
+  } catch(e){}
+}
 window.addEventListener('error', (e) => {
-  window.__capturedErrors.push('error: ' + (e.message || 'без сообщения') + (e.filename ? ' (' + e.filename.split('/').pop() + ':' + e.lineno + ')' : ''));
+  const msg = 'error: ' + (e.message || 'без сообщения') + (e.filename ? ' (' + e.filename.split('/').pop() + ':' + e.lineno + ')' : '');
+  window.__capturedErrors.push(msg);
+  __showErrorBanner(msg);
 });
 window.addEventListener('unhandledrejection', (e) => {
-  window.__capturedErrors.push('unhandledrejection: ' + (e.reason?.message || e.reason || 'без деталей'));
+  const msg = 'unhandledrejection: ' + (e.reason?.message || e.reason || 'без деталей');
+  window.__capturedErrors.push(msg);
+  __showErrorBanner(msg);
 });
 
 // перехват console.* — чтобы увидеть подробный trace-лог самого SDK OneSignal
