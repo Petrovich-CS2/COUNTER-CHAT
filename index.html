@@ -189,6 +189,16 @@ body{
   display:flex; align-items:center; justify-content:center;
   cursor:pointer;
 }
+@keyframes fontSizePop{
+  0%{transform:scale(1);}
+  40%{transform:scale(1.35) rotate(-6deg);}
+  70%{transform:scale(.92) rotate(3deg);}
+  100%{transform:scale(1) rotate(0);}
+}
+#fontSizeLabel.pop{animation:fontSizePop .4s cubic-bezier(.34,1.4,.4,1);}
+@media (prefers-reduced-motion: reduce){
+  #fontSizeLabel.pop{animation:none;}
+}
 .voice-settings-btn:active{background:var(--bg-elevated);}
 .voice-settings-btn[hidden]{display:none;}
 .offline-bar{
@@ -789,7 +799,15 @@ body.compact-mode .phrase{padding-top:8px; padding-bottom:8px;}
   padding:11px 12px;
   cursor:pointer;
 }
-.voice-option.selected{border-color:var(--t-orange); background:var(--bg-elevated-2); box-shadow:0 0 0 1px var(--t-orange) inset;}
+@keyframes voiceSelectPulse{
+  0%{transform:scale(1);}
+  35%{transform:scale(1.025);}
+  100%{transform:scale(1);}
+}
+.voice-option.selected{
+  border-color:var(--t-orange); background:var(--bg-elevated-2); box-shadow:0 0 0 1px var(--t-orange) inset;
+  animation:voiceSelectPulse .3s ease;
+}
 .voice-option-radio{
   width:18px; height:18px; border-radius:50%;
   border:2px solid var(--line-strong);
@@ -797,7 +815,15 @@ body.compact-mode .phrase{padding-top:8px; padding-bottom:8px;}
   display:flex; align-items:center; justify-content:center;
 }
 .voice-option.selected .voice-option-radio{border-color:var(--t-orange);}
-.voice-option.selected .voice-option-radio::after{content:""; width:9px; height:9px; border-radius:50%; background:var(--t-orange);}
+@keyframes voiceRadioDotPop{
+  0%{transform:scale(0);}
+  60%{transform:scale(1.3);}
+  100%{transform:scale(1);}
+}
+.voice-option.selected .voice-option-radio::after{content:""; width:9px; height:9px; border-radius:50%; background:var(--t-orange); animation:voiceRadioDotPop .32s cubic-bezier(.34,1.4,.4,1) .05s both;}
+@media (prefers-reduced-motion: reduce){
+  .voice-option.selected, .voice-option.selected .voice-option-radio::after{animation:none;}
+}
 .voice-option-text{flex:1; min-width:0;}
 .voice-option-name{font-size:13.5px; font-weight:600;}
 .voice-quality-badge{
@@ -927,6 +953,39 @@ body.compact-mode .phrase{padding-top:8px; padding-bottom:8px;}
   border-color:rgba(214,144,58,.4);
   color:#f2c98a;
 }
+.reroll-dice{
+  display:inline-block;
+  vertical-align:middle;
+  margin-right:7px;
+  font-size:16px;
+  line-height:1;
+}
+@keyframes rerollDiceSpin{
+  0%{transform:rotate(0deg) scale(1);}
+  30%{transform:rotate(190deg) scale(1.2);}
+  60%{transform:rotate(340deg) scale(.92);}
+  100%{transform:rotate(360deg) scale(1);}
+}
+.reroll-dice.spin{animation:rerollDiceSpin .5s cubic-bezier(.34,1.2,.4,1);}
+@media (prefers-reduced-motion: reduce){
+  .reroll-dice.spin{animation:none;}
+}
+@keyframes addBtnPop{
+  0%{transform:scale(1);}
+  35%{transform:scale(.9);}
+  60%{transform:scale(1.06);}
+  100%{transform:scale(1);}
+}
+#customAddBtn.pop{animation:addBtnPop .32s cubic-bezier(.34,1.4,.4,1);}
+@keyframes newPhraseHighlight{
+  0%{opacity:0; transform:translateY(-8px); background:rgba(214,144,58,.22);}
+  60%{opacity:1; transform:translateY(0); background:rgba(214,144,58,.22);}
+  100%{opacity:1; transform:translateY(0); background:transparent;}
+}
+.phrase.newly-added{animation:newPhraseHighlight .9s ease;}
+@media (prefers-reduced-motion: reduce){
+  #customAddBtn.pop, .phrase.newly-added{animation:none;}
+}
 .random-history-title{
   display:inline-block;
   font-family:var(--font-mono);
@@ -986,7 +1045,10 @@ body.compact-mode .phrase{padding-top:8px; padding-bottom:8px;}
   text-align:left;
 }
 .reverse-lang-toggle[hidden]{display:none;}
-.reverse-lang-toggle img{width:34px; height:34px; flex-shrink:0; object-fit:contain;}
+.reverse-lang-toggle img{width:34px; height:34px; flex-shrink:0; object-fit:contain; transition:transform .16s ease; transform-style:preserve-3d;}
+@media (prefers-reduced-motion: reduce){
+  .reverse-lang-toggle img{transition:none;}
+}
 .reverse-lang-toggle b{color:#f2c98a;}
 .reverse-lang-toggle:active{background:var(--bg-elevated);}
 .qr-container{margin-top:4px;}
@@ -1386,6 +1448,14 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
   overflow:hidden;
   margin-bottom:10px;
 }
+@keyframes schematicSwitchIn{
+  from{opacity:0; transform:scale(.985);}
+  to{opacity:1; transform:scale(1);}
+}
+.schematic.switch-in{animation:schematicSwitchIn .22s ease;}
+@media (prefers-reduced-motion: reduce){
+  .schematic.switch-in{animation:none;}
+}
 .schematic.schematic-real-bg{
   aspect-ratio:1/1;
   background-size:cover;
@@ -1640,6 +1710,15 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
 .tab-btn svg{stroke:var(--text-faint); transition:stroke .15s ease;}
 .tab-btn.active{color:var(--t-orange);}
 .tab-btn.active svg{stroke:var(--t-orange);}
+@keyframes tabIconPop{
+  0%{transform:scale(1);}
+  45%{transform:scale(1.16);}
+  100%{transform:scale(1);}
+}
+.tab-btn svg.pop{animation:tabIconPop .22s ease;}
+@media (prefers-reduced-motion: reduce){
+  .tab-btn svg.pop{animation:none;}
+}
 
 /* toast */
 .toast{
@@ -2124,7 +2203,7 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
   </div>
   <div class="category-modal-body">
     <div id="randomPhraseResult"></div>
-    <button class="io-btn io-btn-accent reroll-btn" id="randomPhraseRerollBtn" style="margin-top:14px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f2c98a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:7px;"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>Ещё одна</button>
+    <button class="io-btn io-btn-accent reroll-btn" id="randomPhraseRerollBtn" style="margin-top:14px;"><span class="reroll-dice" id="rerollDiceIcon">🎲</span>Ещё одна</button>
     <div class="random-history-title" id="randomHistoryTitle" hidden>🕓 Уже выпадало в этот раз</div>
     <div id="randomPhraseHistory" class="random-history-list"></div>
   </div>
@@ -3631,6 +3710,10 @@ randomPhraseModal.addEventListener('transitionend', (e) => {
 });
 document.getElementById('randomPhraseRerollBtn').addEventListener('click', () => {
   haptic(20);
+  const diceIcon = document.getElementById('rerollDiceIcon');
+  diceIcon.classList.remove('spin');
+  void diceIcon.offsetWidth;
+  diceIcon.classList.add('spin');
   showRandomPhrase();
 });
 
@@ -4144,6 +4227,13 @@ function openCategoryModal(cat, phrases){
       haptic(35);
       updateCustomPhrasesBadge();
       openCategoryModal(cat, getCustomPhrasesArray());
+      // кнопка и список выше пересоздаются заново внутри openCategoryModal —
+      // ищем уже НОВЫЕ элементы и анимируем их, а не те, что были нажаты до пересоздания
+      document.getElementById('customAddBtn')?.classList.add('pop');
+      // новая фраза всегда оказывается первой строкой (addCustomPhrase кладёт её в начало) —
+      // подсвечиваем именно её, чтобы было видно, что она действительно добавилась
+      const firstPhrase = categoryModalBody.querySelector('.phrase');
+      if (firstPhrase) firstPhrase.classList.add('newly-added');
     });
   }
   categoryModal.style.transition = 'none';
@@ -4505,11 +4595,16 @@ if (SpeechRecognitionAPI){
   let reverseLang = 'en-US';
   document.getElementById('reverseLangIcon').src = LANG_EN_ICON_IMG;
   reverseLangToggle.addEventListener('click', () => {
-    reverseLang = reverseLang === 'en-US' ? 'ru-RU' : 'en-US';
-    reverseRecognition.lang = reverseLang;
-    reverseLangLabel.textContent = reverseLang === 'en-US' ? 'английском' : 'русском';
-    document.getElementById('reverseLangIcon').src = reverseLang === 'en-US' ? LANG_EN_ICON_IMG : LANG_RU_ICON_IMG;
     haptic(10);
+    const iconEl = document.getElementById('reverseLangIcon');
+    iconEl.style.transform = 'rotateY(90deg)';
+    setTimeout(() => {
+      reverseLang = reverseLang === 'en-US' ? 'ru-RU' : 'en-US';
+      reverseRecognition.lang = reverseLang;
+      reverseLangLabel.textContent = reverseLang === 'en-US' ? 'английском' : 'русском';
+      iconEl.src = reverseLang === 'en-US' ? LANG_EN_ICON_IMG : LANG_RU_ICON_IMG;
+      iconEl.style.transform = 'rotateY(0deg)';
+    }, 160);
   });
   const reverseRecognition = new SpeechRecognitionAPI();
   reverseRecognition.lang = reverseLang;
@@ -4635,6 +4730,25 @@ function processAchievementQueue(){
 function showToast(msg, duration=1700, type='success'){
   toastQueue.push({ msg, duration, type });
   if (!toastCurrentlyShowing) processToastQueue();
+}
+// показывает toast мгновенно, в обход общей очереди — если toast уже показан,
+// просто обновляет его текст и продлевает время показа, вместо того чтобы
+// накапливать повторные вызовы в очереди с задержкой между каждым (нужно для
+// действий, которые можно повторять быстро подряд, вроде переключения размера шрифта)
+function showToastDirect(msg, type='success'){
+  toastCurrentlyShowing = true;
+  document.getElementById('toastText').textContent = msg;
+  const iconEl = document.getElementById('toastIcon');
+  iconEl.innerHTML = TOAST_ICONS[type] || TOAST_ICONS.success;
+  const accentColor = type === 'error' ? '#e08a8a' : type === 'warning' ? '#d6b466' : '#d6903a';
+  iconEl.setAttribute('stroke', accentColor);
+  toastEl.style.borderLeftColor = accentColor;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    toastEl.classList.remove('show');
+    setTimeout(processToastQueue, 300); // после скрытия впускаем обычную очередь, если там что-то накопилось
+  }, 1700);
 }
 function processToastQueue(){
   if (!toastQueue.length){ toastCurrentlyShowing = false; return; }
@@ -4911,7 +5025,11 @@ document.getElementById('fontSizeBtn').addEventListener('click', () => {
   applyFontSize();
   haptic(30);
   const names = { sm:'Мелкий', md:'Обычный', lg:'Крупный' };
-  showToast('Размер шрифта: ' + names[next]);
+  showToastDirect('Размер шрифта: ' + names[next]);
+  const label = document.getElementById('fontSizeLabel');
+  label.classList.remove('pop');
+  void label.offsetWidth;
+  label.classList.add('pop');
 });
 applyFontSize();
 
@@ -5022,6 +5140,9 @@ function renderSchematic(){
   infoPanel.hidden = true;
   const data = maps[currentMap];
   schematic.innerHTML = "";
+  schematic.classList.remove('switch-in');
+  void schematic.offsetWidth;
+  schematic.classList.add('switch-in');
 
   const hasRealImage = !!data.bg;
   schematic.classList.toggle('schematic-real-bg', hasRealImage);
@@ -5212,7 +5333,10 @@ document.getElementById('mapZoomBtn').addEventListener('click', () => {
   // клонирование через innerHTML не переносит обработчики событий — навешиваем их заново,
   // сопоставляя точки по подписи с данными текущей карты
   const zoomTip = document.querySelector('.map-zoom-tip');
-  const defaultTip = 'Перетаскивай пальцем, чтобы посмотреть другие участки карты';
+  const MAP_PINCH_USED_KEY = 'cc_map_pinch_used';
+  const defaultTip = localStorage.getItem(MAP_PINCH_USED_KEY) === '1'
+    ? 'Перетаскивай пальцем, чтобы посмотреть другие участки карты'
+    : 'Перетаскивай пальцем, чтобы посмотреть другие участки карты. Своди/разводи два пальца — масштаб';
   mapZoomContent.querySelectorAll('.pin').forEach(pinClone => {
     const label = pinClone.querySelector('.pin-label')?.textContent;
     const pt = maps[currentMap].points.find(p => p.n === label);
@@ -5232,6 +5356,16 @@ document.getElementById('mapZoomBtn').addEventListener('click', () => {
   requestAnimationFrame(() => {
     const vp = document.getElementById('mapZoomViewport');
     vp.scrollLeft = (vp.scrollWidth - vp.clientWidth) / 2;
+
+    // при самом первом открытии — молча показываем, что масштаб вообще можно менять:
+    // короткий плавный "пульс" приближения-отдаления, без участия пользователя
+    if (localStorage.getItem('cc_map_pinch_used') !== '1'){
+      const r = vp.getBoundingClientRect();
+      const cx = r.left + r.width/2, cy = r.top + r.height/2;
+      const startScale = zoomScale;
+      setTimeout(() => applyZoomScale(startScale + 0.35, cx, cy), 500);
+      setTimeout(() => applyZoomScale(startScale, cx, cy), 950);
+    }
   });
 });
 document.getElementById('mapZoomCloseBtn').addEventListener('click', () => {
@@ -5269,6 +5403,9 @@ mapZoomViewport.addEventListener('touchstart', (e) => {
 mapZoomViewport.addEventListener('touchmove', (e) => {
   if (e.touches.length === 2 && pinchStartDist){
     e.preventDefault(); // отменяем нативный скролл-жест только пока два пальца на экране
+    if (localStorage.getItem('cc_map_pinch_used') !== '1'){
+      localStorage.setItem('cc_map_pinch_used', '1'); // подсказка про масштаб больше не понадобится
+    }
     const dist = Math.hypot(
       e.touches[0].clientX - e.touches[1].clientX,
       e.touches[0].clientY - e.touches[1].clientY
@@ -5290,7 +5427,13 @@ const screens = { phrases: document.getElementById('screen-phrases'), reverse: d
 const MAPS_HINT_KEY = 'cc_maps_hint_shown';
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    if (!btn.classList.contains('active')) haptic(30);
+    if (!btn.classList.contains('active')){
+      haptic(30);
+      const icon = btn.querySelector('svg');
+      icon.classList.remove('pop');
+      void icon.offsetWidth;
+      icon.classList.add('pop');
+    }
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     const tab = btn.getAttribute('data-tab');
