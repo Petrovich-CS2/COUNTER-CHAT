@@ -243,11 +243,11 @@ body{
   from{opacity:0; transform:translateY(5px);}
   to{opacity:1; transform:translateY(0);}
 }
-.screen:not([hidden]){
+.screen.switch-in{
   animation:screenFadeIn .22s ease;
 }
 @media (prefers-reduced-motion: reduce){
-  .screen:not([hidden]){animation:none;}
+  .screen.switch-in{animation:none;}
 }
 
 /* search */
@@ -536,10 +536,10 @@ body.compact-mode .phrase{padding-top:8px; padding-bottom:8px;}
   display:flex; flex-direction:column; align-items:center; justify-content:center;
   touch-action:pan-y; /* горизонтальный жест перехватываем сами, вертикальная прокрутка страницы не блокируется */
   transition:transform .3s cubic-bezier(.2,.8,.2,1), opacity .3s ease;
-  will-change:transform;
   user-select:none;
   cursor:pointer;
 }
+.training-card.dragging{will-change:transform;} /* только во время реального жеста — постоянный will-change на iOS известен как причина "застревающих" перерисовок */
 .training-card-tap-hint{
   margin-top:16px;
   font-size:12px;
@@ -5438,6 +5438,12 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.classList.add('active');
     const tab = btn.getAttribute('data-tab');
     Object.entries(screens).forEach(([key, el]) => { el.hidden = key !== tab; });
+    const activeScreen = screens[tab];
+    if (activeScreen){
+      activeScreen.classList.remove('switch-in');
+      void activeScreen.offsetWidth;
+      activeScreen.classList.add('switch-in');
+    }
     if (tab === 'profile'){ renderProfileScreen(); renderStatsScreen(); updateReminderToggleUI(); }
     if (tab === 'maps'){
       trackMapViewed(currentMap);
