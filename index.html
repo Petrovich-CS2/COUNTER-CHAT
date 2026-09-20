@@ -6077,6 +6077,37 @@ if ('serviceWorker' in navigator){
     }).catch(() => {});
   });
 
+  // диагностика состояния SW прямо на экране — включается через ?swdebug=1,
+  // чтобы увидеть точные факты о регистрации, а не гадать дальше
+  if (new URLSearchParams(location.search).get('swdebug')){
+    setTimeout(() => {
+      navigator.serviceWorker.getRegistration().then((reg) => {
+        const lines = [];
+        lines.push('standalone: ' + (window.navigator.standalone === true));
+        lines.push('display-mode standalone: ' + window.matchMedia('(display-mode: standalone)').matches);
+        lines.push('controller есть: ' + !!navigator.serviceWorker.controller);
+        lines.push('controller scriptURL: ' + (navigator.serviceWorker.controller ? navigator.serviceWorker.controller.scriptURL : '—'));
+        if (reg){
+          lines.push('active: ' + (reg.active ? reg.active.scriptURL + ' [' + reg.active.state + ']' : 'нет'));
+          lines.push('waiting: ' + (reg.waiting ? reg.waiting.scriptURL + ' [' + reg.waiting.state + ']' : 'нет'));
+          lines.push('installing: ' + (reg.installing ? reg.installing.scriptURL + ' [' + reg.installing.state + ']' : 'нет'));
+          lines.push('scope: ' + reg.scope);
+        } else {
+          lines.push('getRegistration() вернул null — регистрации вообще нет');
+        }
+        const banner = document.createElement('div');
+        banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:2147483647;background:#1a3a5c;color:#fff;font-family:monospace;font-size:10.5px;line-height:1.5;padding:10px;word-break:break-all;max-height:50vh;overflow:auto;';
+        banner.textContent = '🔧 SW-диагностика:\n' + lines.join('\n');
+        document.documentElement.appendChild(banner);
+      }).catch((err) => {
+        const banner = document.createElement('div');
+        banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:2147483647;background:#1a3a5c;color:#fff;font-family:monospace;font-size:11px;padding:10px;';
+        banner.textContent = '🔧 SW-диагностика: ошибка — ' + err.message;
+        document.documentElement.appendChild(banner);
+      });
+    }, 1500); // с запасом — дать реальному состоянию устояться после pageshow/load
+  }
+
   // как только новый Service Worker реально взял управление — перезагружаем страницу,
   // чтобы пользователь увидел обновлённый контент.
   // ВАЖНО для iOS: обычный reload() на standalone-PWA берёт страницу из
