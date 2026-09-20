@@ -6077,12 +6077,21 @@ if ('serviceWorker' in navigator){
     }).catch(() => {});
   });
 
-  // диагностика состояния SW прямо на экране — включается через ?swdebug=1,
-  // чтобы увидеть точные факты о регистрации, а не гадать дальше
+  // диагностика состояния SW прямо на экране — включается через ?swdebug=1
+  // (закрепляется в localStorage, чтобы сработать и при следующих открытиях
+  // именно со значка домашнего экрана, где нет адресной строки для параметра),
+  // выключается через ?swdebugoff=1
   if (new URLSearchParams(location.search).get('swdebug')){
+    localStorage.setItem('cc_swdebug', '1');
+  }
+  if (new URLSearchParams(location.search).get('swdebugoff')){
+    localStorage.removeItem('cc_swdebug');
+  }
+  if (localStorage.getItem('cc_swdebug') === '1'){
     setTimeout(() => {
       navigator.serviceWorker.getRegistration().then((reg) => {
         const lines = [];
+        lines.push('время: ' + new Date().toLocaleTimeString());
         lines.push('standalone: ' + (window.navigator.standalone === true));
         lines.push('display-mode standalone: ' + window.matchMedia('(display-mode: standalone)').matches);
         lines.push('controller есть: ' + !!navigator.serviceWorker.controller);
@@ -6097,7 +6106,7 @@ if ('serviceWorker' in navigator){
         }
         const banner = document.createElement('div');
         banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:2147483647;background:#1a3a5c;color:#fff;font-family:monospace;font-size:10.5px;line-height:1.5;padding:10px;word-break:break-all;max-height:50vh;overflow:auto;';
-        banner.textContent = '🔧 SW-диагностика:\n' + lines.join('\n');
+        banner.textContent = '🔧 SW-диагностика (выключить: ?swdebugoff=1):\n' + lines.join('\n');
         document.documentElement.appendChild(banner);
       }).catch((err) => {
         const banner = document.createElement('div');
