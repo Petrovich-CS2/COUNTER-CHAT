@@ -1,6 +1,14 @@
 // OneSignal — веб-пуш уведомления. Совмещаем с нашим собственным SW в один файл,
 // а не регистрируем два отдельных на одном скоупе (так рекомендует сам OneSignal).
-importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
+// В try/catch: если этот внешний запрос к CDN не пройдёт (сеть, блокировка,
+// временный сбой) — раньше это ломало ВЕСЬ Service Worker целиком, включая
+// наш собственный кэш и офлайн-режим, никак не связанные с OneSignal
+try {
+  importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
+} catch(e){
+  // тихо продолжаем без push-уведомлений в этом конкретном запуске —
+  // наша собственная функциональность (кэш, офлайн) не должна от этого страдать
+}
 
 /*
   Service Worker для Counter Chat.
