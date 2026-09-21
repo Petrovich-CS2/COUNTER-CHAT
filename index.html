@@ -6051,8 +6051,8 @@ if ('serviceWorker' in navigator){
   function maybeUpdate(reg){
     const justUpdatedAt = parseInt(sessionStorage.getItem('cc_just_updated') || '0', 10);
     const msSinceUpdate = Date.now() - justUpdatedAt;
-    if (justUpdatedAt && msSinceUpdate < 8000){
-      setTimeout(() => reg.update().catch(() => {}), 8000 - msSinceUpdate);
+    if (justUpdatedAt && msSinceUpdate < 25000){
+      setTimeout(() => reg.update().catch(() => {}), 25000 - msSinceUpdate);
     } else {
       reg.update().catch(() => {});
     }
@@ -6080,6 +6080,13 @@ if ('serviceWorker' in navigator){
       // проверяем, нет ли уже готового обновления, ожидающего активации
       if (reg.waiting && new URL(reg.waiting.scriptURL).search === ''){
         showUpdateBanner(reg.waiting);
+      } else if (localStorage.getItem('cc_auto_updating')){
+        // мы были в процессе тихого автообновления, и теперь ожидающего
+        // воркера больше нет — значит, всё наконец устаканилось на
+        // актуальной версии, можно сообщить об этом и снять флаг
+        localStorage.removeItem('cc_auto_updating');
+        localStorage.removeItem('cc_auto_updating_attempts');
+        showToast('Обновлено!', 2400);
       }
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;
@@ -6214,6 +6221,53 @@ if ('serviceWorker' in navigator){
 
 let updateBannerAlreadyShown = false;
 function showUpdateBanner(worker){
+  // Раньше это обнаружение полагалось только на то, что браузер посчитал байты
+  // service worker'а отличающимися — но это может сработать ложно (например,
+  // из-за внутренней активности OneSignal), даже когда на сервере ничего не
+  // менялось. Теперь сначала СВЕРЯЕМ РЕАЛЬНЫЙ номер версии, зашитый в самом
+  // файле, и только если он действительно отличается от текущего — продолжаем.
+  const onVersionReply = (event) => {
+    if (!(event.data && event.data.type === 'VERSION')) return;
+    navigator.serviceWorker.removeEventListener('message', onVersionReply);
+    clearTimeout(versionTimeout);
+    if (event.data.version === SW_REGISTER_VERSION){
+      // ложное срабатывание — версия та же самая, реального обновления нет,
+      // полностью игнорируем это обнаружение
+      return;
+    }
+    proceedWithUpdateBanner(worker);
+  };
+  const versionTimeout = setTimeout(() => {
+    // воркер не ответил вовремя — не блокируем механизм обновления навсегда
+    // из-за этого, просто продолжаем как раньше, без проверки версии в этот раз
+    navigator.serviceWorker.removeEventListener('message', onVersionReply);
+    proceedWithUpdateBanner(worker);
+  }, 2500);
+  navigator.serviceWorker.addEventListener('message', onVersionReply);
+  worker.postMessage('GET_VERSION');
+}
+
+function proceedWithUpdateBanner(worker){
+  // если мы в режиме тихого автообновления (пользователь уже один раз нажал
+  // "Обновить", просто CDN ещё не до конца распространил изменения) — не
+  // показываем баннер заново, а тихо подтверждаем обновление сами, без участия
+  // пользователя. Ограничиваем число таких автоматических кругов — если что-то
+  // пошло по-настоящему не так, лучше остановиться и показать баннер как обычно,
+  // чем зациклиться молча навсегда
+  const autoUpdatingSince = localStorage.getItem('cc_auto_updating');
+  if (autoUpdatingSince){
+    const attempts = parseInt(localStorage.getItem('cc_auto_updating_attempts') || '0', 10);
+    if (attempts < 8){
+      localStorage.setItem('cc_auto_updating_attempts', String(attempts + 1));
+      worker.postMessage('SKIP_WAITING');
+      return;
+    }
+    // слишком много кругов подряд — что-то действительно не так, сдаёмся тихо
+    // и даём обычному пути (показ баннера ниже) взять управление на себя
+    localStorage.removeItem('cc_auto_updating');
+    localStorage.removeItem('cc_auto_updating_attempts');
+  }
+
   // защита от повторного показа за одну сессию: два независимых места кода
   // могут обнаружить одно и то же обновление (сразу при регистрации через
   // reg.waiting и повторно через updatefound/statechange, особенно из-за
@@ -6238,17 +6292,17 @@ function showUpdateBanner(worker){
   worker.postMessage('GET_CHANGELOG');
 
   document.getElementById('updateReloadBtn').onclick = () => {
+    // раньше здесь просто отправлялся SKIP_WAITING и показывался toast с просьбой
+    // перезапустить приложение вручную — но CDN GitHub Pages может отдавать
+    // на разных запросах чуть разные, ещё не до конца распространившиеся версии,
+    // из-за чего после перезагрузки мог обнаруживаться ещё один "новый" воркер,
+    // и пользователю приходилось нажимать "Обновить" помногу раз подряд.
+    // Теперь вместо этого включаем флаг "тихого автообновления", переживающий
+    // перезагрузку через localStorage — дальше приложение само доведёт дело до
+    // конца без участия пользователя, каким бы ни было число промежуточных шагов
+    localStorage.setItem('cc_auto_updating', String(Date.now()));
     worker.postMessage('SKIP_WAITING');
     banner.hidden = true;
-    // на iOS в standalone-режиме (запуск с домашнего экрана) автоматическая
-    // перезагрузка страницы ненадёжна — Safari берёт содержимое из своего
-    // оперативного кэша, а не от только что активированного воркера, из-за
-    // чего баннер обновления мог появляться повторно. Честно просим
-    // пользователя сделать настоящий перезапуск — единственный способ,
-    // гарантированно подхватывающий новую версию на этой платформе.
-    if (window.navigator.standalone === true){
-      showToast('Обновлено! Полностью закрой приложение и открой снова с домашнего экрана', 4200);
-    }
   };
 }
 

@@ -82,6 +82,9 @@ self.addEventListener('message', (event) => {
     // ещё активный СТАРЫЙ Service Worker со своей (потенциально устаревшей) логикой
     event.source.postMessage({ type: 'CHANGELOG', text: CHANGELOG_TEXT });
   }
+  if (event.data === 'GET_VERSION'){
+    event.source.postMessage({ type: 'VERSION', version: CACHE_VERSION });
+  }
 });
 
 self.addEventListener('fetch', (event) => {
