@@ -2315,6 +2315,7 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
 </div>
 
 <script>
+(window.__capturedErrors = window.__capturedErrors || []).push('точка START: начало основного скрипта (после QR-блока)');
 /* ================= QR-КОД (генератор, проверен независимым декодером OpenCV) ================= */
 // Компактный генератор QR-кодов (byte mode), основан на широко известном
 // алгоритме qrcode-generator (kazuhikoarase, MIT license).
@@ -2758,6 +2759,7 @@ function generateQR(text, preferredEcLevel){
 window.generateQR = generateQR;
 })();
 
+(window.__capturedErrors = window.__capturedErrors || []).push('точка QR-DONE: QR-генератор отработал без ошибок');
 
 /* ================= DATA: PHRASES ================= */
 const categories = [
@@ -3040,6 +3042,8 @@ const categories = [
     {en:"Can you type instead?", translit:"кэн ю тайп ин-стэд", ru:"Можешь написать текстом вместо голоса?"},
   ]},
 ];
+
+(window.__capturedErrors = window.__capturedErrors || []).push('точка CATEGORIES-DONE: массив фраз отработал без ошибок');
 
 /* ================= СВОИ ФРАЗЫ ================= */
 const CUSTOM_PHRASES_KEY = 'cc_custom_phrases';
@@ -5849,6 +5853,8 @@ const ACHIEVEMENTS = [
   { id:'easter_egg', icon:'🥚', title:'Нашёл пасхалку', desc:'Тапни по логотипу в шапке 5 раз подряд', target:1, value: () => localStorage.getItem('cc_easter_egg_found') ? 1 : 0, secret:true },
 ];
 
+(window.__capturedErrors = window.__capturedErrors || []).push('точка ACHIEVEMENTS-DONE: массив достижений отработал без ошибок');
+
 const ACHIEVEMENT_SEEN_KEY = 'cc_achievements_seen';
 function getSeenAchievements(){
   try { return new Set(JSON.parse(localStorage.getItem(ACHIEVEMENT_SEEN_KEY)) || []); } catch(e){ return new Set(); }
@@ -6027,6 +6033,8 @@ document.getElementById('clearCacheBtn').addEventListener('click', async () => {
    берутся из одного и того же источника при сборке */
 const SW_REGISTER_VERSION = '__BUILD_VERSION__';
 
+(window.__capturedErrors = window.__capturedErrors || []).push('точка A: скрипт дошёл до блока SW, serviceWorker in navigator = ' + ('serviceWorker' in navigator));
+
 if ('serviceWorker' in navigator){
   // запоминаем, был ли уже активный контроллер ДО регистрации — если не было,
   // значит, это самая первая установка Service Worker на этом устройстве, и
@@ -6035,12 +6043,14 @@ if ('serviceWorker' in navigator){
   const hadControllerBeforeInit = !!navigator.serviceWorker.controller;
 
   function registerServiceWorker(){
+    window.__capturedErrors.push('точка B: вызываем navigator.serviceWorker.register()');
     // ВАЖНО: раньше здесь был query-параметр ?v=... для более надёжного обновления
     // на iOS. Но раз OneSignal регистрирует тот же самый файл без такого параметра,
     // это создавало ДВЕ РАЗНЫЕ регистрации на одном скоупе вместо одной общей —
     // из-за чего push-подписка не создавалась. Обновление всё равно надёжно
     // работает за счёт явных reg.update() ниже, поэтому query-параметр больше не нужен.
     navigator.serviceWorker.register('sw.js').then((reg) => {
+      window.__capturedErrors.push('точка C: register() успешно разрешился, scope=' + reg.scope);
       // проверяем, нет ли уже готового обновления, ожидающего активации
       if (reg.waiting && new URL(reg.waiting.scriptURL).search === ''){
         showUpdateBanner(reg.waiting);
@@ -6083,8 +6093,10 @@ if ('serviceWorker' in navigator){
   // успела полностью загрузиться ещё до выполнения этого скрипта) — подписка
   // на 'load' никогда бы не сработала, потому что событие уже наступило раньше
   if (document.readyState === 'complete'){
+    window.__capturedErrors.push('точка D: readyState=complete, вызываю registerServiceWorker() сразу');
     registerServiceWorker();
   } else {
+    window.__capturedErrors.push('точка D: readyState=' + document.readyState + ', подписываюсь на load');
     window.addEventListener('load', registerServiceWorker);
   }
 
