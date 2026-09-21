@@ -6042,14 +6042,24 @@ if ('serviceWorker' in navigator){
   // никакого настоящего обновления контента тут нет — перезагружать нечего
   const hadControllerBeforeInit = !!navigator.serviceWorker.controller;
 
-  function registerServiceWorker(){
-    window.__capturedErrors.push('точка B: вызываем navigator.serviceWorker.register()');
+  function registerServiceWorker(attempt){
+    attempt = attempt || 1;
+    window.__capturedErrors.push('точка B: вызываем navigator.serviceWorker.register(), попытка ' + attempt);
     // ВАЖНО: раньше здесь был query-параметр ?v=... для более надёжного обновления
     // на iOS. Но раз OneSignal регистрирует тот же самый файл без такого параметра,
     // это создавало ДВЕ РАЗНЫЕ регистрации на одном скоупе вместо одной общей —
     // из-за чего push-подписка не создавалась. Обновление всё равно надёжно
     // работает за счёт явных reg.update() ниже, поэтому query-параметр больше не нужен.
-    navigator.serviceWorker.register('sw.js').then((reg) => {
+    //
+    // На некоторых устройствах сам вызов register() подвисает на неопределённое
+    // время, не давая ни успеха, ни ошибки — оборачиваем в тайм-аут и пробуем
+    // ещё раз (до 3 попыток), на случай если это временная гонка состояний
+    // именно при самом запуске standalone-режима, а не постоянная блокировка
+    const registerPromise = navigator.serviceWorker.register('sw.js');
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('register() не ответил за 5с (попытка ' + attempt + ')')), 5000);
+    });
+    Promise.race([registerPromise, timeoutPromise]).then((reg) => {
       window.__capturedErrors.push('точка C: register() успешно разрешился, scope=' + reg.scope);
       // проверяем, нет ли уже готового обновления, ожидающего активации
       if (reg.waiting && new URL(reg.waiting.scriptURL).search === ''){
@@ -6085,7 +6095,12 @@ if ('serviceWorker' in navigator){
         if (document.visibilityState === 'visible') reg.update().catch(() => {});
       });
     }).catch((err) => {
-      (window.__capturedErrors = window.__capturedErrors || []).push('navigator.serviceWorker.register() провалился: ' + err.message);
+      window.__capturedErrors.push('попытка ' + attempt + ' провалилась/зависла: ' + err.message);
+      if (attempt < 3){
+        setTimeout(() => registerServiceWorker(attempt + 1), 1000);
+      } else {
+        window.__capturedErrors.push('все 3 попытки исчерпаны — регистрация не удалась');
+      }
     });
   }
   // если событие load уже прошло к этому моменту (например, страница целиком
@@ -6097,7 +6112,7 @@ if ('serviceWorker' in navigator){
     registerServiceWorker();
   } else {
     window.__capturedErrors.push('точка D: readyState=' + document.readyState + ', подписываюсь на load');
-    window.addEventListener('load', registerServiceWorker);
+    window.addEventListener('load', () => registerServiceWorker());
   }
 
   // ВАЖНО специально для standalone-приложений на iOS: они обычно "возобновляются"
