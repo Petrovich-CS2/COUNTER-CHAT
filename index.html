@@ -6042,6 +6042,22 @@ if ('serviceWorker' in navigator){
   // никакого настоящего обновления контента тут нет — перезагружать нечего
   const hadControllerBeforeInit = !!navigator.serviceWorker.controller;
 
+  // если мы только что перезагрузились сразу после обновления (см. sessionStorage
+  // ниже) — не проверяем обновления заново в первые несколько секунд. GitHub Pages
+  // раздаётся через CDN с несколькими узлами, и разные запросы сразу после
+  // публикации иногда попадают на узлы с чуть рассинхронизированной версией
+  // файла — из-за этого проверка могла находить "новое" обновление сразу после
+  // того, как мы только что обновились, и зацикливаться
+  function maybeUpdate(reg){
+    const justUpdatedAt = parseInt(sessionStorage.getItem('cc_just_updated') || '0', 10);
+    const msSinceUpdate = Date.now() - justUpdatedAt;
+    if (justUpdatedAt && msSinceUpdate < 8000){
+      setTimeout(() => reg.update().catch(() => {}), 8000 - msSinceUpdate);
+    } else {
+      reg.update().catch(() => {});
+    }
+  }
+
   function registerServiceWorker(attempt){
     attempt = attempt || 1;
     window.__capturedErrors.push('точка B: вызываем navigator.serviceWorker.register(), попытка ' + attempt);
@@ -6090,9 +6106,9 @@ if ('serviceWorker' in navigator){
       // Chrome и не всегда сама инициирует проверку обновлений при обычной
       // навигации — приходится запрашивать явно, иначе баннер обновления
       // может вообще не появляться в PWA с домашнего экрана
-      reg.update().catch(() => {});
+      maybeUpdate(reg);
       document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') reg.update().catch(() => {});
+        if (document.visibilityState === 'visible') maybeUpdate(reg);
       });
     }).catch((err) => {
       window.__capturedErrors.push('попытка ' + attempt + ' провалилась/зависла: ' + err.message);
@@ -6124,7 +6140,7 @@ if ('serviceWorker' in navigator){
   // страницы из замороженного/bfcache состояния — срабатывает надёжнее в этом сценарии
   window.addEventListener('pageshow', () => {
     navigator.serviceWorker.getRegistration().then((reg) => {
-      if (reg) reg.update().catch(() => {});
+      if (reg) maybeUpdate(reg);
     }).catch(() => {});
   });
 
@@ -6191,6 +6207,7 @@ if ('serviceWorker' in navigator){
     // перезагружать нечего, никакого настоящего обновления контента не было
     if (!hadControllerBeforeInit) return;
     refreshingAfterUpdate = true;
+    sessionStorage.setItem('cc_just_updated', String(Date.now()));
     window.location.reload(true);
   });
 }
