@@ -6079,7 +6079,7 @@ if ('serviceWorker' in navigator){
       window.__capturedErrors.push('точка C: register() успешно разрешился, scope=' + reg.scope);
       // проверяем, нет ли уже готового обновления, ожидающего активации
       if (reg.waiting && new URL(reg.waiting.scriptURL).search === ''){
-        showUpdateBanner(reg.waiting);
+        showUpdateBanner(reg.waiting, reg.active);
       } else if (localStorage.getItem('cc_auto_updating')){
         // мы были в процессе тихого автообновления, и теперь ожидающего
         // воркера больше нет — значит, всё наконец устаканилось на
@@ -6104,7 +6104,7 @@ if ('serviceWorker' in navigator){
           // 'installed' + уже есть активный контроллер = это ОБНОВЛЕНИЕ,
           // а не первая установка — есть что показать пользователю
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller){
-            showUpdateBanner(newWorker);
+            showUpdateBanner(newWorker, reg.active);
           }
         });
       });
@@ -6220,31 +6220,48 @@ if ('serviceWorker' in navigator){
 }
 
 let updateBannerAlreadyShown = false;
-function showUpdateBanner(worker){
-  // Раньше это обнаружение полагалось только на то, что браузер посчитал байты
-  // service worker'а отличающимися — но это может сработать ложно (например,
-  // из-за внутренней активности OneSignal), даже когда на сервере ничего не
-  // менялось. Теперь сначала СВЕРЯЕМ РЕАЛЬНЫЙ номер версии, зашитый в самом
-  // файле, и только если он действительно отличается от текущего — продолжаем.
+function showUpdateBanner(worker, activeWorker){
+  // ВАЖНО: раньше здесь версия НОВОГО воркера сравнивалась с версией, зашитой
+  // в ТЕКУЩЕЙ странице (SW_REGISTER_VERSION) — но это была ошибка. index.html
+  // грузится по стратегии "сеть в приоритете" и почти всегда успевает подтянуть
+  // самую свежую версию РАНЬШЕ, чем соответствующий Service Worker пройдёт свой
+  // более медленный цикл install→waiting→activate. Из-за этого версия страницы
+  // и версия НОВОГО воркера совпадали даже при самом обычном, настоящем
+  // обновлении — и правильные обновления ошибочно принимались за "ложные
+  // срабатывания" и полностью отбрасывались. Правильное сравнение — между
+  // версией нового воркера и версией уже АКТИВНОГО (реально работающего сейчас).
+  if (!activeWorker){
+    // активного воркера нет вообще — сравнивать не с чем, считаем настоящим обновлением
+    proceedWithUpdateBanner(worker);
+    return;
+  }
+  let newVersion = null, activeVersion = null;
   const onVersionReply = (event) => {
     if (!(event.data && event.data.type === 'VERSION')) return;
+    if (event.source === worker) newVersion = event.data.version;
+    if (event.source === activeWorker) activeVersion = event.data.version;
+    if (newVersion !== null && activeVersion !== null){
+      finish();
+    }
+  };
+  const finish = () => {
     navigator.serviceWorker.removeEventListener('message', onVersionReply);
     clearTimeout(versionTimeout);
-    if (event.data.version === SW_REGISTER_VERSION){
-      // ложное срабатывание — версия та же самая, реального обновления нет,
-      // полностью игнорируем это обнаружение
+    if (newVersion !== null && activeVersion !== null && newVersion === activeVersion){
+      // версии реально совпадают — ложное срабатывание, игнорируем
       return;
     }
     proceedWithUpdateBanner(worker);
   };
   const versionTimeout = setTimeout(() => {
-    // воркер не ответил вовремя — не блокируем механизм обновления навсегда
-    // из-за этого, просто продолжаем как раньше, без проверки версии в этот раз
+    // не дождались ответа от одного из воркеров вовремя — не блокируем
+    // механизм обновления навсегда из-за этого, продолжаем без проверки версии
     navigator.serviceWorker.removeEventListener('message', onVersionReply);
     proceedWithUpdateBanner(worker);
   }, 2500);
   navigator.serviceWorker.addEventListener('message', onVersionReply);
   worker.postMessage('GET_VERSION');
+  activeWorker.postMessage('GET_VERSION');
 }
 
 function proceedWithUpdateBanner(worker){
