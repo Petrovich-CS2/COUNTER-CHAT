@@ -4769,6 +4769,13 @@ function showToastDirect(msg, type='success'){
     setTimeout(processToastQueue, 300); // после скрытия впускаем обычную очередь, если там что-то накопилось
   }, 1700);
 }
+// если мы только что перезагрузились СРАЗУ после успешного обновления —
+// показываем подтверждение здесь, максимально рано, не завися от сложной
+// цепочки проверок внутри регистрации Service Worker после перезагрузки
+if (sessionStorage.getItem('cc_show_updated_toast')){
+  sessionStorage.removeItem('cc_show_updated_toast');
+  showToastDirect('Обновлено!');
+}
 function processToastQueue(){
   if (!toastQueue.length){ toastCurrentlyShowing = false; return; }
   toastCurrentlyShowing = true;
@@ -6215,6 +6222,14 @@ if ('serviceWorker' in navigator){
     if (!hadControllerBeforeInit) return;
     refreshingAfterUpdate = true;
     sessionStorage.setItem('cc_just_updated', String(Date.now()));
+    // сохраняем НАМЕРЕНИЕ показать toast ДО самой перезагрузки — это надёжнее,
+    // чем полагаться на то, что после перезагрузки сложная цепочка проверок
+    // (реgистрация → reg.waiting → localStorage-флаг) сработает без сбоев
+    if (localStorage.getItem('cc_auto_updating')){
+      sessionStorage.setItem('cc_show_updated_toast', '1');
+      localStorage.removeItem('cc_auto_updating');
+      localStorage.removeItem('cc_auto_updating_attempts');
+    }
     window.location.reload(true);
   });
 }
