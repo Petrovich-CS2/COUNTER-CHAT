@@ -6061,9 +6061,18 @@ if ('serviceWorker' in navigator){
     const justUpdatedAt = parseInt(sessionStorage.getItem('cc_just_updated') || '0', 10);
     const msSinceUpdate = Date.now() - justUpdatedAt;
     if (justUpdatedAt && msSinceUpdate < 25000){
-      setTimeout(() => reg.update().catch(() => {}), 25000 - msSinceUpdate);
+      window.__capturedErrors.push('точка MAYBEUPDATE: откладываю на ' + (25000 - msSinceUpdate) + 'мс (cc_just_updated стоит)');
+      setTimeout(() => {
+        window.__capturedErrors.push('точка MAYBEUPDATE-DELAYED: вызываю reg.update() после отложенного ожидания');
+        reg.update()
+          .then(() => window.__capturedErrors.push('точка MAYBEUPDATE-DELAYED-OK: reg.update() завершился успешно'))
+          .catch((e) => window.__capturedErrors.push('точка MAYBEUPDATE-DELAYED-FAIL: ' + e.message));
+      }, 25000 - msSinceUpdate);
     } else {
-      reg.update().catch(() => {});
+      window.__capturedErrors.push('точка MAYBEUPDATE: вызываю reg.update() сразу');
+      reg.update()
+        .then(() => window.__capturedErrors.push('точка MAYBEUPDATE-OK: reg.update() завершился успешно'))
+        .catch((e) => window.__capturedErrors.push('точка MAYBEUPDATE-FAIL: ' + e.message));
     }
   }
 
@@ -6155,9 +6164,17 @@ if ('serviceWorker' in navigator){
   // pageshow — событие, специально предназначенное именно для случая восстановления
   // страницы из замороженного/bfcache состояния — срабатывает надёжнее в этом сценарии
   window.addEventListener('pageshow', () => {
+    (window.__capturedErrors = window.__capturedErrors || []).push('точка PAGESHOW: событие сработало');
     navigator.serviceWorker.getRegistration().then((reg) => {
-      if (reg) maybeUpdate(reg);
-    }).catch(() => {});
+      if (reg) {
+        window.__capturedErrors.push('точка PAGESHOW-REG: регистрация найдена, active=' + (reg.active ? reg.active.state : 'нет'));
+        maybeUpdate(reg);
+      } else {
+        window.__capturedErrors.push('точка PAGESHOW-REG: getRegistration() вернул null');
+      }
+    }).catch((err) => {
+      window.__capturedErrors.push('точка PAGESHOW-REG: ошибка — ' + err.message);
+    });
   });
 
   // диагностика состояния SW прямо на экране — включается через ?swdebug=1
