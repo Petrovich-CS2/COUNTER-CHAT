@@ -6095,6 +6095,7 @@ if ('serviceWorker' in navigator){
     });
     Promise.race([registerPromise, timeoutPromise]).then((reg) => {
       window.__capturedErrors.push('точка C: register() успешно разрешился, scope=' + reg.scope);
+      window.__swRegistrationSucceeded = true;
       // проверяем, нет ли уже готового обновления, ожидающего активации
       if (reg.waiting && new URL(reg.waiting.scriptURL).search === ''){
         showUpdateBanner(reg.waiting, reg.active);
@@ -6148,13 +6149,25 @@ if ('serviceWorker' in navigator){
   // состоит из встроенных base64-картинок без отдельных сетевых запросов и
   // успела полностью загрузиться ещё до выполнения этого скрипта) — подписка
   // на 'load' никогда бы не сработала, потому что событие уже наступило раньше
-  if (document.readyState === 'complete'){
-    window.__capturedErrors.push('точка D: readyState=complete, вызываю registerServiceWorker() сразу');
-    registerServiceWorker();
-  } else {
-    window.__capturedErrors.push('точка D: readyState=' + document.readyState + ', подписываюсь на load');
-    window.addEventListener('load', () => registerServiceWorker());
-  }
+  // ВАЖНО: раньше здесь ожидалось событие 'load' (или, если оно уже прошло,
+  // проверялся readyState) прежде чем регистрировать Service Worker. Но
+  // navigator.serviceWorker.register() не требует полной загрузки документа —
+  // это устаревшая излишняя осторожность. На части сессий на iOS событие 'load'
+  // почему-то не срабатывает вообще (при этом сам скрипт выполняется нормально),
+  // из-за чего регистрация просто никогда не запускалась. Теперь вызываем сразу,
+  // безусловно — событие 'load' ниже оставлено только как дополнительная,
+  // резервная попытка на случай, если что-то в этом самом первом вызове собьётся
+  window.__capturedErrors.push('точка D: readyState=' + document.readyState + ', регистрирую сразу, без ожидания load');
+  registerServiceWorker();
+  window.addEventListener('load', () => {
+    // резервная попытка — если по какой-то причине первый вызов выше не дошёл
+    // до реальной регистрации (например, скрипт прервался чуть раньше), это
+    // даст ещё один шанс уже после полной загрузки страницы
+    if (!navigator.serviceWorker.controller && !window.__swRegistrationSucceeded){
+      window.__capturedErrors.push('точка D-RETRY: load сработал, контроллера всё ещё нет — пробую регистрацию ещё раз');
+      registerServiceWorker();
+    }
+  });
 
   // ВАЖНО специально для standalone-приложений на iOS: они обычно "возобновляются"
   // из замороженного состояния при повторном открытии с домашнего экрана, а не
