@@ -976,10 +976,10 @@ body.compact-mode .phrase{padding-top:8px; padding-bottom:8px;}
   line-height:1;
 }
 @keyframes rerollDiceSpin{
-  0%{transform:scale(1) translateY(0);}
-  30%{transform:scale(1.3) translateY(-3px);}
-  55%{transform:scale(.9) translateY(1px);}
-  100%{transform:scale(1) translateY(0);}
+  0%{transform:scale(1) translateY(0); opacity:1;}
+  30%{transform:scale(1.3) translateY(-3px); opacity:.55;}
+  55%{transform:scale(.9) translateY(1px); opacity:1;}
+  100%{transform:scale(1) translateY(0); opacity:1;}
 }
 .reroll-dice.spin{animation:rerollDiceSpin .45s cubic-bezier(.34,1.2,.4,1);}
 @media (prefers-reduced-motion: reduce){
@@ -1060,7 +1060,7 @@ body.compact-mode .phrase{padding-top:8px; padding-bottom:8px;}
   text-align:left;
 }
 .reverse-lang-toggle[hidden]{display:none;}
-.reverse-lang-toggle img{width:34px; height:34px; flex-shrink:0; object-fit:contain; transition:transform .16s ease;}
+.reverse-lang-toggle img{width:34px; height:34px; flex-shrink:0; object-fit:contain; transition:transform .16s ease, opacity .16s ease;}
 @media (prefers-reduced-motion: reduce){
   .reverse-lang-toggle img{transition:none;}
 }
@@ -4617,12 +4617,14 @@ if (SpeechRecognitionAPI){
     haptic(10);
     const iconEl = document.getElementById('reverseLangIcon');
     iconEl.style.transform = 'scaleX(0)';
+    iconEl.style.opacity = '0';
     setTimeout(() => {
       reverseLang = reverseLang === 'en-US' ? 'ru-RU' : 'en-US';
       reverseRecognition.lang = reverseLang;
       reverseLangLabel.textContent = reverseLang === 'en-US' ? 'английском' : 'русском';
       iconEl.src = reverseLang === 'en-US' ? LANG_EN_ICON_IMG : LANG_RU_ICON_IMG;
       iconEl.style.transform = 'scaleX(1)';
+      iconEl.style.opacity = '1';
     }, 160);
   });
   const reverseRecognition = new SpeechRecognitionAPI();
