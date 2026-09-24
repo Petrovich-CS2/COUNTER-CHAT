@@ -5940,8 +5940,7 @@ function checkAchievementsAndNotify(){
     return;
   }
   newlyUnlocked.forEach(a => {
-    haptic(35);
-    showToast(`🏆 Достижение: ${a.title}`, 3400);
+    showAchievementUnlock(a.icon || '🏆', a.title);
   });
 }
 function renderProfileScreen(){
