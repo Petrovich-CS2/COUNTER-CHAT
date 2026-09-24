@@ -5801,6 +5801,7 @@ document.getElementById('reminderToggleInput')?.addEventListener('click', functi
       const isOn = localStorage.getItem('cc_swdebug') === '1';
       if (isOn){
         localStorage.removeItem('cc_swdebug');
+        document.querySelectorAll('.__sw-debug-banner').forEach(el => el.remove());
         showToastDirect('🔧 SW-диагностика выключена');
       } else {
         localStorage.setItem('cc_swdebug', '1');
