@@ -652,6 +652,41 @@ body.compact-mode .phrase{padding-top:8px; padding-bottom:8px;}
   background:rgba(214,144,58,.1);
 }
 .training-summary-emoji{font-size:38px;}
+@keyframes perfectScorePop{
+  0%{transform:scale(0) rotate(-20deg);}
+  50%{transform:scale(1.4) rotate(8deg);}
+  70%{transform:scale(.95) rotate(-4deg);}
+  85%{transform:scale(1.08) rotate(2deg);}
+  100%{transform:scale(1) rotate(0deg);}
+}
+@keyframes perfectScoreGlow{
+  0%, 100%{filter:drop-shadow(0 0 0 rgba(214,144,58,0));}
+  50%{filter:drop-shadow(0 0 14px rgba(214,144,58,.75));}
+}
+.training-summary-emoji.perfect{
+  animation:perfectScorePop .6s cubic-bezier(.34,1.56,.64,1),
+            perfectScoreGlow 1.6s ease-in-out .6s 2;
+}
+@media (prefers-reduced-motion: reduce){
+  .training-summary-emoji.perfect{animation:none;}
+}
+@keyframes encourageFlex{
+  0%, 100%{transform:scale(1);}
+  50%{transform:scale(1.12);}
+}
+.training-summary-emoji.encourage{
+  animation:encourageFlex 1.4s ease-in-out 2;
+}
+@keyframes encourageGlow{
+  0%, 100%{box-shadow:0 0 0 0 rgba(214,144,58,0);}
+  50%{box-shadow:0 0 0 6px rgba(214,144,58,.18);}
+}
+#trainingAgainBtn.encourage{
+  animation:encourageGlow 1.8s ease-in-out 2;
+}
+@media (prefers-reduced-motion: reduce){
+  .training-summary-emoji.encourage, #trainingAgainBtn.encourage{animation:none;}
+}
 .training-summary-score{font-family:var(--font-mono); font-size:26px; font-weight:700; color:var(--text-primary); margin-top:10px;}
 .training-summary-text{font-size:13px; color:var(--text-faint); margin-top:6px;}
 .profile-streak-value{
@@ -3973,7 +4008,22 @@ function showTrainingSummary(){
   if (pct === 100){ emoji = '🏆'; text = 'Идеально! Все фразы даются легко'; }
   else if (pct >= 70){ emoji = '🔥'; text = 'Отличный результат!'; }
   else if (pct < 40){ emoji = '💪'; text = 'Есть над чем поработать — тренируйся почаще'; }
-  document.getElementById('trainingSummaryEmoji').textContent = emoji;
+  const emojiEl = document.getElementById('trainingSummaryEmoji');
+  const againBtn = document.getElementById('trainingAgainBtn');
+  emojiEl.textContent = emoji;
+  emojiEl.classList.remove('perfect', 'encourage');
+  againBtn.classList.remove('encourage');
+  if (pct === 100){
+    void emojiEl.offsetWidth; // форсируем reflow — чтобы анимация запускалась заново при каждом новом идеальном результате подряд
+    emojiEl.classList.add('perfect');
+    haptic(45);
+  } else if (pct < 40){
+    // слабый результат — не "празднуем", а мягко подбадриваем и направляем
+    // внимание на кнопку повтора, а не на сам факт низкого результата
+    void emojiEl.offsetWidth;
+    emojiEl.classList.add('encourage');
+    againBtn.classList.add('encourage');
+  }
   document.getElementById('trainingSummaryText').textContent = text;
 
   const sessionsCount = parseInt(localStorage.getItem('cc_training_sessions') || '0', 10) + 1;
