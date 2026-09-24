@@ -529,7 +529,7 @@ body.compact-mode .phrase{padding-top:8px; padding-bottom:8px;}
   cursor:pointer;
   text-align:left;
 }
-.training-entry-icon{font-size:26px; flex-shrink:0;}
+.training-entry-icon{width:26px; height:26px; flex-shrink:0; object-fit:contain;}
 .training-entry-text{flex:1; min-width:0;}
 .training-entry-title{font-size:14px; font-weight:700; color:var(--text-primary);}
 .training-entry-desc{font-size:11.5px; color:var(--text-faint); margin-top:2px; line-height:1.4;}
@@ -1009,8 +1009,8 @@ body.compact-mode .phrase{padding-top:8px; padding-bottom:8px;}
   display:inline-block;
   vertical-align:middle;
   margin-right:7px;
-  font-size:16px;
-  line-height:1;
+  width:20px; height:20px;
+  object-fit:contain;
 }
 @keyframes diceRollV2{
   0%{transform:rotate(0deg) scale(1);}
@@ -2118,7 +2118,7 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
       </label>
     </div>
     <button class="training-entry-card glass-panel" id="trainingEntryBtn">
-      <div class="training-entry-icon">🎯</div>
+      <img class="training-entry-icon" src="assets/icons/bullseye_3d.png" alt="">
       <div class="training-entry-text">
         <div class="training-entry-title">Режим тренировки</div>
         <div class="training-entry-desc">Проверь себя — фразы, которые путаешь, будут появляться чаще</div>
@@ -2255,7 +2255,7 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
   </div>
   <div class="category-modal-body">
     <div id="randomPhraseResult"></div>
-    <button class="io-btn io-btn-accent reroll-btn" id="randomPhraseRerollBtn" style="margin-top:14px;"><span class="dice-icon-v2" id="rerollDiceIcon">🎲</span>Ещё одна</button>
+    <button class="io-btn io-btn-accent reroll-btn" id="randomPhraseRerollBtn" style="margin-top:14px;"><img class="dice-icon-v2" id="rerollDiceIcon" src="assets/icons/game_die_3d.png" alt="">Ещё одна</button>
     <div class="random-history-title" id="randomHistoryTitle" hidden>🕓 Уже выпадало в этот раз</div>
     <div id="randomPhraseHistory" class="random-history-list"></div>
   </div>
@@ -2276,16 +2276,16 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
 
     <div id="trainingCardArea">
       <div class="training-card glass-panel" id="trainingCard">
-        <div class="swipe-indicator swipe-indicator-no" id="swipeIndicatorNo">😕 Не знал</div>
-        <div class="swipe-indicator swipe-indicator-yes" id="swipeIndicatorYes">😊 Знал</div>
+        <div class="swipe-indicator swipe-indicator-no" id="swipeIndicatorNo"><img src="assets/icons/confused_face_3d.png" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:3px;object-fit:contain;"> Не знал</div>
+        <div class="swipe-indicator swipe-indicator-yes" id="swipeIndicatorYes"><img src="assets/icons/smiling_face_3d.png" alt="" style="width:16px;height:16px;vertical-align:middle;margin-right:3px;object-fit:contain;"> Знал</div>
         <div class="training-card-en" id="trainingCardEn"></div>
         <div class="training-card-translit" id="trainingCardTranslit"></div>
         <div class="training-card-tap-hint" id="trainingCardTapHint">тапни, чтобы увидеть перевод</div>
         <div class="training-card-ru" id="trainingCardRu" hidden></div>
       </div>
       <div class="training-assess-row" id="trainingAssessRow" hidden>
-        <button class="training-assess-btn training-assess-no" id="trainingKnewNoBtn">😕 Не знал</button>
-        <button class="training-assess-btn training-assess-yes" id="trainingKnewYesBtn">😊 Знал</button>
+        <button class="training-assess-btn training-assess-no" id="trainingKnewNoBtn"><img src="assets/icons/confused_face_3d.png" alt="" style="width:18px;height:18px;vertical-align:middle;margin-right:4px;object-fit:contain;"> Не знал</button>
+        <button class="training-assess-btn training-assess-yes" id="trainingKnewYesBtn"><img src="assets/icons/smiling_face_3d.png" alt="" style="width:18px;height:18px;vertical-align:middle;margin-right:4px;object-fit:contain;"> Знал</button>
       </div>
       <div class="training-swipe-hint" id="trainingSwipeHint" hidden>← смахни карточку в сторону →</div>
     </div>
@@ -4004,13 +4004,13 @@ function showTrainingSummary(){
 
   const pct = Math.round((correct / queue.length) * 100);
   document.getElementById('trainingSummaryScore').textContent = `${correct} из ${queue.length}`;
-  let emoji = '🎯', text = 'Неплохо, продолжай в том же духе';
-  if (pct === 100){ emoji = '🏆'; text = 'Идеально! Все фразы даются легко'; }
-  else if (pct >= 70){ emoji = '🔥'; text = 'Отличный результат!'; }
-  else if (pct < 40){ emoji = '💪'; text = 'Есть над чем поработать — тренируйся почаще'; }
+  let emoji = 'assets/icons/bullseye_3d.png', text = 'Неплохо, продолжай в том же духе';
+  if (pct === 100){ emoji = 'assets/icons/trophy_3d.png'; text = 'Идеально! Все фразы даются легко'; }
+  else if (pct >= 70){ emoji = 'assets/icons/fire_3d.png'; text = 'Отличный результат!'; }
+  else if (pct < 40){ emoji = 'assets/icons/flexed_biceps_3d_default.png'; text = 'Есть над чем поработать — тренируйся почаще'; }
   const emojiEl = document.getElementById('trainingSummaryEmoji');
   const againBtn = document.getElementById('trainingAgainBtn');
-  emojiEl.textContent = emoji;
+  emojiEl.innerHTML = renderEmojiIcon(emoji, 46);
   emojiEl.classList.remove('perfect', 'encourage');
   againBtn.classList.remove('encourage');
   if (pct === 100){
@@ -4775,6 +4775,15 @@ let toastCurrentlyShowing = false;
 let achievementQueue = [];
 let achievementShowing = false;
 const achievementUnlockEl = document.getElementById('achievementUnlock');
+// показывает 3D-иконку эмодзи (Microsoft Fluent Emoji), если для неё есть картинка,
+// иначе — обычный текстовый эмодзи как запасной вариант (пока не для всех есть файл)
+function renderEmojiIcon(icon, sizePx){
+  if (icon && icon.endsWith('.png')){
+    return `<img src="${icon}" alt="" style="width:${sizePx}px; height:${sizePx}px; object-fit:contain; vertical-align:middle;">`;
+  }
+  return icon;
+}
+
 function showAchievementUnlock(icon, title){
   achievementQueue.push({ icon, title });
   if (!achievementShowing) processAchievementQueue();
@@ -4783,7 +4792,7 @@ function processAchievementQueue(){
   if (!achievementQueue.length){ achievementShowing = false; return; }
   achievementShowing = true;
   const { icon, title } = achievementQueue.shift();
-  document.getElementById('achievementUnlockIcon').textContent = icon;
+  document.getElementById('achievementUnlockIcon').innerHTML = renderEmojiIcon(icon, 40);
   document.getElementById('achievementUnlockTitle').textContent = title;
   // перезапускаем CSS-анимации иконки/блика с нуля даже при повторном показе подряд
   achievementUnlockEl.hidden = false;
@@ -5896,22 +5905,22 @@ function getTotalUsageCount(){
   return Object.values(usage).reduce((a,b) => a+b, 0);
 }
 const ACHIEVEMENTS = [
-  { id:'first_use', icon:'👋', title:'Первые шаги', desc:'Используй любую фразу один раз', target:1, value: () => getTotalUsageCount() },
-  { id:'use_10', icon:'🔥', title:'Начинающий', desc:'Используй фразы 10 раз', target:10, value: () => getTotalUsageCount() },
-  { id:'use_50', icon:'💪', title:'Опытный', desc:'Используй фразы 50 раз', target:50, value: () => getTotalUsageCount() },
-  { id:'use_200', icon:'🏆', title:'Мастер общения', desc:'Используй фразы 200 раз', target:200, value: () => getTotalUsageCount() },
-  { id:'unique_20', icon:'📚', title:'Полиглот', desc:'Используй 20 разных фраз', target:20, value: () => Object.keys(getPhraseUsage()).length },
-  { id:'fav_5', icon:'⭐', title:'Коллекционер', desc:'Добавь 5 фраз в избранное', target:5, value: () => getFavoriteKeys().size },
-  { id:'custom_3', icon:'✍️', title:'Автор', desc:'Добавь 3 свои фразы', target:3, value: () => getCustomPhrasesArray().length },
-  { id:'streak_3', icon:'📅', title:'Постоянство', desc:'Заходи 3 дня подряд', target:3, value: () => getStreak().best },
-  { id:'streak_7', icon:'🗓️', title:'Неделя силы', desc:'Заходи 7 дней подряд', target:7, value: () => getStreak().best },
-  { id:'cartographer', icon:'🗺️', title:'Картограф', desc:'Открой все 7 карт хотя бы по разу', target:7, value: () => { try { return (JSON.parse(localStorage.getItem('cc_maps_viewed')) || []).length; } catch(e){ return 0; } } },
-  { id:'bilingual', icon:'🌐', title:'Двуязычный', desc:'Используй «Обратный словарь» голосом и на английском, и на русском', target:2, value: () => { try { const d = JSON.parse(localStorage.getItem('cc_reverse_lang_used')) || {}; return (d.en?1:0)+(d.ru?1:0); } catch(e){ return 0; } } },
-  { id:'offline_hero', icon:'📡', title:'Работает и без сети', desc:'Открой приложение по-настоящему в офлайне хотя бы раз', target:1, value: () => localStorage.getItem('cc_opened_offline') ? 1 : 0 },
-  { id:'gambler', icon:'🎲', title:'Азартный игрок', desc:'Сделай 20+ перебросов «Случайной фразы» за один заход', target:20, value: () => parseInt(localStorage.getItem('cc_max_reroll_streak') || '0', 10) },
-  { id:'trainer', icon:'🎯', title:'Ученик', desc:'Пройди 3 тренировки', target:3, value: () => parseInt(localStorage.getItem('cc_training_sessions') || '0', 10) },
-  { id:'night_owl', icon:'🌙', title:'Полуночник', desc:'Зайди в приложение между 00:00 и 05:00 по местному времени', target:1, value: () => localStorage.getItem('cc_midnight_owl') ? 1 : 0, secret:true },
-  { id:'speedrunner', icon:'⚡', title:'Скорострел', desc:'Скопируй 5 разных фраз за 30 секунд подряд', target:1, value: () => localStorage.getItem('cc_speedrunner') ? 1 : 0, secret:true },
+  { id:'first_use', icon:'assets/icons/waving_hand_3d_default.png', title:'Первые шаги', desc:'Используй любую фразу один раз', target:1, value: () => getTotalUsageCount() },
+  { id:'use_10', icon:'assets/icons/fire_3d.png', title:'Начинающий', desc:'Используй фразы 10 раз', target:10, value: () => getTotalUsageCount() },
+  { id:'use_50', icon:'assets/icons/flexed_biceps_3d_default.png', title:'Опытный', desc:'Используй фразы 50 раз', target:50, value: () => getTotalUsageCount() },
+  { id:'use_200', icon:'assets/icons/trophy_3d.png', title:'Мастер общения', desc:'Используй фразы 200 раз', target:200, value: () => getTotalUsageCount() },
+  { id:'unique_20', icon:'assets/icons/books_3d.png', title:'Полиглот', desc:'Используй 20 разных фраз', target:20, value: () => Object.keys(getPhraseUsage()).length },
+  { id:'fav_5', icon:'assets/icons/star_3d.png', title:'Коллекционер', desc:'Добавь 5 фраз в избранное', target:5, value: () => getFavoriteKeys().size },
+  { id:'custom_3', icon:'assets/icons/writing_hand_3d_default.png', title:'Автор', desc:'Добавь 3 свои фразы', target:3, value: () => getCustomPhrasesArray().length },
+  { id:'streak_3', icon:'assets/icons/calendar_3d.png', title:'Постоянство', desc:'Заходи 3 дня подряд', target:3, value: () => getStreak().best },
+  { id:'streak_7', icon:'assets/icons/spiral_calendar_3d.png', title:'Неделя силы', desc:'Заходи 7 дней подряд', target:7, value: () => getStreak().best },
+  { id:'cartographer', icon:'assets/icons/world_map_3d.png', title:'Картограф', desc:'Открой все 7 карт хотя бы по разу', target:7, value: () => { try { return (JSON.parse(localStorage.getItem('cc_maps_viewed')) || []).length; } catch(e){ return 0; } } },
+  { id:'bilingual', icon:'assets/icons/globe_with_meridians_3d.png', title:'Двуязычный', desc:'Используй «Обратный словарь» голосом и на английском, и на русском', target:2, value: () => { try { const d = JSON.parse(localStorage.getItem('cc_reverse_lang_used')) || {}; return (d.en?1:0)+(d.ru?1:0); } catch(e){ return 0; } } },
+  { id:'offline_hero', icon:'assets/icons/satellite_antenna_3d.png', title:'Работает и без сети', desc:'Открой приложение по-настоящему в офлайне хотя бы раз', target:1, value: () => localStorage.getItem('cc_opened_offline') ? 1 : 0 },
+  { id:'gambler', icon:'assets/icons/game_die_3d.png', title:'Азартный игрок', desc:'Сделай 20+ перебросов «Случайной фразы» за один заход', target:20, value: () => parseInt(localStorage.getItem('cc_max_reroll_streak') || '0', 10) },
+  { id:'trainer', icon:'assets/icons/bullseye_3d.png', title:'Ученик', desc:'Пройди 3 тренировки', target:3, value: () => parseInt(localStorage.getItem('cc_training_sessions') || '0', 10) },
+  { id:'night_owl', icon:'assets/icons/crescent_moon_3d.png', title:'Полуночник', desc:'Зайди в приложение между 00:00 и 05:00 по местному времени', target:1, value: () => localStorage.getItem('cc_midnight_owl') ? 1 : 0, secret:true },
+  { id:'speedrunner', icon:'assets/icons/high_voltage_3d.png', title:'Скорострел', desc:'Скопируй 5 разных фраз за 30 секунд подряд', target:1, value: () => localStorage.getItem('cc_speedrunner') ? 1 : 0, secret:true },
   { id:'easter_egg', icon:'🥚', title:'Нашёл пасхалку', desc:'Тапни по логотипу в шапке 5 раз подряд', target:1, value: () => localStorage.getItem('cc_easter_egg_found') ? 1 : 0, secret:true },
 ];
 
@@ -5968,7 +5977,7 @@ function renderProfileScreen(){
       `;
     } else {
       card.innerHTML = `
-        <div class="achievement-icon">${a.icon}</div>
+        <div class="achievement-icon">${renderEmojiIcon(a.icon, 24)}</div>
         <div class="achievement-text">
           <div class="achievement-title">${a.title}</div>
           <div class="achievement-desc">${a.desc}</div>
