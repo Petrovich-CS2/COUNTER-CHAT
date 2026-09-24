@@ -35,19 +35,19 @@ const APP_SHELL = [
   './',
   './index.html',
   './manifest.json',
-  './icon-192.png',
-  './icon-512.png',
-  './icon-512-maskable.png',
-  './splash-1290x2796.png',
-  './splash-1179x2556.png',
-  './splash-1284x2778.png',
-  './splash-1170x2532.png',
-  './splash-1080x2340.png',
-  './splash-1242x2688.png',
-  './splash-828x1792.png',
-  './splash-1125x2436.png',
-  './splash-1320x2868.png',
-  './splash-1206x2622.png',
+  './assets/icons/icon-192.png',
+  './assets/icons/icon-512.png',
+  './assets/icons/icon-512-maskable.png',
+  './assets/splash/splash-1290x2796.png',
+  './assets/splash/splash-1179x2556.png',
+  './assets/splash/splash-1284x2778.png',
+  './assets/splash/splash-1170x2532.png',
+  './assets/splash/splash-1080x2340.png',
+  './assets/splash/splash-1242x2688.png',
+  './assets/splash/splash-828x1792.png',
+  './assets/splash/splash-1125x2436.png',
+  './assets/splash/splash-1320x2868.png',
+  './assets/splash/splash-1206x2622.png',
 ];
 
 self.addEventListener('install', (event) => {
@@ -102,9 +102,14 @@ self.addEventListener('fetch', (event) => {
   const isChangelog = req.url.includes('changelog.json');
 
   if (isHTML || isChangelog) {
-    // сеть в приоритете — свежий контент при каждом открытии с интернетом
+    // сеть в приоритете — свежий контент при каждом открытии с интернетом.
+    // ВАЖНО: cache:'no-store' обязателен — без него fetch() может тихо
+    // вернуть ответ из встроенного HTTP-кэша браузера (полностью отдельного
+    // от нашего Cache API, который очищается кнопкой "Очистить кэш" и даже
+    // через удаление данных сайта), из-за чего "свежий" запрос на самом деле
+    // не доходил до сервера и отдавал устаревшее содержимое
     event.respondWith(
-      fetch(req)
+      fetch(req, { cache: 'no-store' })
         .then((res) => {
           const copy = res.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
