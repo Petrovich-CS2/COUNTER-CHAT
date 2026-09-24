@@ -3102,6 +3102,7 @@ function persistCustomPhrases(){
 function addCustomPhrase(p){
   customPhrasesArray.unshift(p);
   persistCustomPhrases();
+  setTimeout(checkAchievementsAndNotify, 0);
 }
 function deleteCustomPhrase(en){
   const idx = customPhrasesArray.findIndex(p => p.en === en);
@@ -3456,6 +3457,7 @@ function toggleFavorite(catId, en){
   const key = favKey(catId, en);
   if (set.has(key)) set.delete(key); else set.add(key);
   saveFavoriteKeys(set);
+  setTimeout(checkAchievementsAndNotify, 0);
 }
 
 /* ================= СТАТИСТИКА ИСПОЛЬЗОВАНИЯ ФРАЗ ================= */
@@ -3483,6 +3485,7 @@ function trackPhraseUsage(catId, en){
   const key = favKey(catId, en);
   usage[key] = (usage[key] || 0) + 1;
   try { localStorage.setItem(PHRASE_USAGE_KEY, JSON.stringify(usage)); } catch(e){}
+  setTimeout(checkAchievementsAndNotify, 0);
 }
 function getTopUsedPhrases(limit=5){
   const usage = getPhraseUsage();
@@ -5921,7 +5924,7 @@ const ACHIEVEMENTS = [
   { id:'trainer', icon:'assets/icons/bullseye_3d.png', title:'Ученик', desc:'Пройди 3 тренировки', target:3, value: () => parseInt(localStorage.getItem('cc_training_sessions') || '0', 10) },
   { id:'night_owl', icon:'assets/icons/crescent_moon_3d.png', title:'Полуночник', desc:'Зайди в приложение между 00:00 и 05:00 по местному времени', target:1, value: () => localStorage.getItem('cc_midnight_owl') ? 1 : 0, secret:true },
   { id:'speedrunner', icon:'assets/icons/high_voltage_3d.png', title:'Скорострел', desc:'Скопируй 5 разных фраз за 30 секунд подряд', target:1, value: () => localStorage.getItem('cc_speedrunner') ? 1 : 0, secret:true },
-  { id:'easter_egg', icon:'🥚', title:'Нашёл пасхалку', desc:'Тапни по логотипу в шапке 5 раз подряд', target:1, value: () => localStorage.getItem('cc_easter_egg_found') ? 1 : 0, secret:true },
+  { id:'easter_egg', icon:'assets/icons/egg_3d.png', title:'Нашёл пасхалку', desc:'Тапни по логотипу в шапке 5 раз подряд', target:1, value: () => localStorage.getItem('cc_easter_egg_found') ? 1 : 0, secret:true },
 ];
 
 (window.__capturedErrors = window.__capturedErrors || []).push('точка ACHIEVEMENTS-DONE: массив достижений отработал без ошибок');
