@@ -6606,6 +6606,7 @@ function showUpdateBanner(worker, activeWorker){
   const finish = () => {
     navigator.serviceWorker.removeEventListener('message', onVersionReply);
     clearTimeout(versionTimeout);
+    updLog('сравнение версий воркеров: новый=' + newVersion + ', активный=' + activeVersion);
     if (newVersion !== null && activeVersion !== null && newVersion === activeVersion){
       // версии реально совпадают — ложное срабатывание, игнорируем
       return;
@@ -6615,6 +6616,7 @@ function showUpdateBanner(worker, activeWorker){
   const versionTimeout = setTimeout(() => {
     // не дождались ответа от одного из воркеров вовремя — не блокируем
     // механизм обновления навсегда из-за этого, продолжаем без проверки версии
+    updLog('версии воркеров не получены за 2.5с (новый=' + newVersion + ', активный=' + activeVersion + ') — продолжаю без проверки');
     navigator.serviceWorker.removeEventListener('message', onVersionReply);
     proceedWithUpdateBanner(worker);
   }, 2500);
@@ -6635,6 +6637,7 @@ function proceedWithUpdateBanner(worker){
     const attempts = parseInt(localStorage.getItem('cc_auto_updating_attempts') || '0', 10);
     if (attempts < 8){
       localStorage.setItem('cc_auto_updating_attempts', String(attempts + 1));
+      updLog('тихое автообновление: попытка ' + (attempts + 1) + ', отправляю SKIP_WAITING (state воркера=' + worker.state + ')');
       worker.postMessage('SKIP_WAITING');
       return;
     }
@@ -6677,7 +6680,23 @@ function proceedWithUpdateBanner(worker){
     // перезагрузку через localStorage — дальше приложение само доведёт дело до
     // конца без участия пользователя, каким бы ни было число промежуточных шагов
     localStorage.setItem('cc_auto_updating', String(Date.now()));
-    worker.postMessage('SKIP_WAITING');
+    // шлём SKIP_WAITING не только сохранённому объекту воркера, но и ТЕКУЩЕМУ reg.waiting —
+    // за время показа баннера его мог заменить более новый воркер, и тогда сообщение ушло бы
+    // в уже бесполезный экземпляр. Повторяем через 1.5 и 3 с, пока перезагрузка не запросилась.
+    const sendSkip = async (tag) => {
+      try {
+        const reg = await navigator.serviceWorker.getRegistration();
+        const target = (reg && reg.waiting) || worker;
+        updLog('SKIP_WAITING (' + tag + ') → ' + (reg && reg.waiting ? 'reg.waiting' : 'сохранённый worker') +
+               ', state=' + target.state + ', active=' + (reg && reg.active ? reg.active.state : '—') +
+               ', installing=' + (reg && reg.installing ? reg.installing.state : '—'));
+        target.postMessage('SKIP_WAITING');
+        if (target !== worker) worker.postMessage('SKIP_WAITING');
+      } catch(e){ updLog('SKIP_WAITING (' + tag + ') ошибка: ' + e.message); }
+    };
+    sendSkip('клик');
+    setTimeout(() => { if (!window.__ccReloadRequested) sendSkip('+1.5с'); }, 1500);
+    setTimeout(() => { if (!window.__ccReloadRequested) sendSkip('+3с'); }, 3000);
     banner.hidden = true;
     // мгновенный отклик прямо на сам клик — не дожидаясь настоящего
     // подтверждения (оно придёт следом отдельным toast'ом «Обновлено!», как
@@ -6707,6 +6726,9 @@ function proceedWithUpdateBanner(worker){
         // (флаг cc_auto_updating уже стоит), так что баннер второй раз не появится.
         updLog('страница жива спустя 4.5с (reloadRequested=' + !!window.__ccReloadRequested +
                ', ignored=' + !!window.__ccControllerChangedIgnored + ') — навигация с ?r=');
+        // сама страница (index.html) при навигации всё равно приходит свежей с сервера, поэтому
+        // после перехода честно показываем «Обновлено!» — иначе человек не увидит подтверждения
+        try { sessionStorage.setItem('cc_show_updated_toast', '1'); } catch(e){}
         location.replace(location.pathname + '?r=' + Date.now());
         // если и это не сработало — через 3 с честно просим перезапустить вручную
         setTimeout(() => {
