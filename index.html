@@ -6347,6 +6347,7 @@ try { localStorage.removeItem('cc_banner_top_extra'); } catch(e){} // отсту
 
 // журнал событий обновления: пишем и в память страницы, и в localStorage (последние 25 строк) —
 // иначе после перезагрузки страницы он бы терялся, а именно по нему видно, что произошло
+try { navigator.serviceWorker && navigator.serviceWorker.addEventListener('message', (e) => { if (e.data && e.data.type === 'SW_DBG') updLog('SW: ' + e.data.msg); }); } catch(e){}
 function updLog(msg){
   const line = 'UPD ' + new Date().toLocaleTimeString() + ': ' + msg;
   (window.__capturedErrors = window.__capturedErrors || []).push(line);
@@ -6744,6 +6745,7 @@ function proceedWithUpdateBanner(worker){
         updLog('SKIP_WAITING (' + tag + ') → ' + (reg && reg.waiting ? 'reg.waiting' : 'сохранённый worker') +
                ', state=' + target.state + ', active=' + (reg && reg.active ? reg.active.state : '—') +
                ', installing=' + (reg && reg.installing ? reg.installing.state : '—'));
+        try { target.addEventListener('statechange', () => updLog('воркер ' + tag + ': state → ' + target.state)); } catch(e){}
         target.postMessage('SKIP_WAITING');
         if (target !== worker) worker.postMessage('SKIP_WAITING');
       } catch(e){ updLog('SKIP_WAITING (' + tag + ') ошибка: ' + e.message); }

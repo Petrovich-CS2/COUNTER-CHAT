@@ -124,6 +124,8 @@ self.addEventListener('activate', (event) => {
         keys.filter((k) => k !== CACHE_NAME && k !== IMG_CACHE).map((k) => caches.delete(k))
       ))
       .then(() => self.clients.claim())
+      .then(() => self.clients.matchAll({ includeUncontrolled: true, type: 'window' }))
+      .then((cs) => cs.forEach((c) => { try { c.postMessage({ type: 'SW_DBG', msg: 'activate: кэши очищены, clients.claim() выполнен' }); } catch(e){} }))
   );
 });
 
@@ -135,7 +137,12 @@ self.addEventListener('activate', (event) => {
 const CHANGELOG_TEXT = '__CHANGELOG_TEXT__';
 
 self.addEventListener('message', (event) => {
-  if (event.data === 'SKIP_WAITING') self.skipWaiting();
+  if (event.data === 'SKIP_WAITING'){
+    // диагностика: воркер сам сообщает странице, дошло ли сообщение и сработал ли skipWaiting()
+    const dbg = (m) => { try { event.source && event.source.postMessage({ type: 'SW_DBG', msg: m }); } catch(e){} };
+    dbg('воркер получил SKIP_WAITING, вызываю skipWaiting()');
+    self.skipWaiting().then(() => dbg('skipWaiting() выполнен'), (e) => dbg('skipWaiting() ошибка: ' + e));
+  }
   if (event.data === 'GET_CHANGELOG'){
     // отвечаем странице напрямую, без HTTP-запроса — так его не может перехватить
     // ещё активный СТАРЫЙ Service Worker со своей (потенциально устаревшей) логикой
