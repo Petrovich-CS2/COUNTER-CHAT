@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>COUNTER CHAT — страница не найдена</title>
+<meta name="robots" content="noindex">
+<style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#05070a;color:#e8e8e8;font:16px/1.5 system-ui,sans-serif;text-align:center;padding:16px}a{color:#e0a94a}</style>
+</head>
+<body>
+<p>Такой страницы нет. <a href="/">Открыть COUNTER CHAT</a></p>
+<script>
+  // Старые ссылки вида /COUNTER-CHAT/... ведём на новый адрес
+  var p = location.pathname;
+  if (p.indexOf('/COUNTER-CHAT/') === 0) {
+    location.replace('/' + p.slice('/COUNTER-CHAT/'.length) + location.search + location.hash);
+  }
+</script>
+</body>
+</html>
