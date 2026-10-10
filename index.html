@@ -6435,7 +6435,11 @@ if ('serviceWorker' in navigator){
     // время, не давая ни успеха, ни ошибки — оборачиваем в тайм-аут и пробуем
     // ещё раз (до 3 попыток), на случай если это временная гонка состояний
     // именно при самом запуске standalone-режима, а не постоянная блокировка
-    const registerPromise = navigator.serviceWorker.register('sw.js');
+    // если регистрация на этом скоупе уже есть (в том числе созданная OneSignal с параметрами
+    // ?appId=…&sdkVersion=… — на Android она именно такая), повторно регистрировать «чистый» sw.js
+    // не нужно: каждая регистрация с другим адресом заставляет браузер заново устанавливать воркер,
+    // и на каждую загрузку страницы получалось по две лишних установки (проверено в Chromium)
+    const registerPromise = navigator.serviceWorker.getRegistration().then((existing) => existing || navigator.serviceWorker.register('sw.js'));
     const timeoutPromise = new Promise((_, reject) => {
       setTimeout(() => reject(new Error('register() не ответил за 5с (попытка ' + attempt + ')')), 5000);
     });
@@ -6443,7 +6447,7 @@ if ('serviceWorker' in navigator){
       window.__capturedErrors.push('точка C: register() успешно разрешился, scope=' + reg.scope);
       window.__swRegistrationSucceeded = true;
       // проверяем, нет ли уже готового обновления, ожидающего активации
-      if (reg.waiting && new URL(reg.waiting.scriptURL).search === ''){
+      if (reg.waiting){
         showUpdateBanner(reg.waiting, reg.active);
       } else if (localStorage.getItem('cc_auto_updating')){
         // мы были в процессе тихого автообновления, и теперь ожидающего
@@ -6468,10 +6472,9 @@ if ('serviceWorker' in navigator){
         // ?appId=...&sdkVersion=... — это НЕ настоящее обновление нашего файла,
         // а их внутренняя активность. Показываем баннер только если URL точно
         // совпадает с нашим собственным, без посторонних параметров.
-        const scriptUrl = new URL(newWorker.scriptURL);
-        if (scriptUrl.search !== ''){
-          return; // чужая регистрация (скорее всего, от OneSignal) — игнорируем
-        }
+        // раньше воркеры с параметрами в адресе здесь просто отбрасывались; теперь, когда активная
+        // регистрация может быть именно такой (OneSignal), настоящее обновление может прийти и по
+        // адресу с параметрами. Ложные срабатывания отсекает сравнение версий в showUpdateBanner()
         newWorker.addEventListener('statechange', () => {
           // 'installed' + уже есть активный контроллер = это ОБНОВЛЕНИЕ,
           // а не первая установка — есть что показать пользователю
@@ -6579,6 +6582,28 @@ if ('serviceWorker' in navigator){
       banner.className = '__sw-debug-banner';
       banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:2147483647;background:#1a3a5c;color:#fff;font-family:monospace;font-size:10.5px;line-height:1.5;padding:10px;word-break:break-all;max-height:50vh;overflow:auto;';
       banner.textContent = '🔧 SW-диагностика (выключить: 7 тапов по логотипу ещё раз):\n' + lines.join('\n');
+      // кнопка «Копировать»: кладёт весь текст диагностики в буфер обмена, чтобы не выделять его вручную
+      const diagText = banner.textContent;
+      const copyBtn = document.createElement('button');
+      copyBtn.textContent = 'Копировать текст диагностики';
+      copyBtn.style.cssText = 'display:block;margin-top:8px;padding:8px 10px;font:inherit;font-size:12px;border-radius:8px;border:1px solid #fff;background:#245;color:#fff;';
+      copyBtn.onclick = async () => {
+        let ok = false;
+        try { await navigator.clipboard.writeText(diagText); ok = true; } catch(e){}
+        if (!ok){
+          // запасной путь для браузеров без Clipboard API или без разрешения
+          try {
+            const ta = document.createElement('textarea');
+            ta.value = diagText; ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+            document.body.appendChild(ta); ta.focus(); ta.select();
+            ok = document.execCommand('copy');
+            ta.remove();
+          } catch(e){}
+        }
+        copyBtn.textContent = ok ? '✓ Скопировано' : 'Не удалось скопировать — выдели текст вручную';
+        setTimeout(() => { copyBtn.textContent = 'Копировать текст диагностики'; }, 2500);
+      };
+      banner.appendChild(copyBtn);
       // кнопка для проверки внешнего вида баннера обновления без реального обновления
       const testBtn = document.createElement('button');
       testBtn.textContent = 'Показать / скрыть тестовый баннер обновления';
@@ -6701,6 +6726,9 @@ function showUpdateBanner(worker, activeWorker){
     // механизм обновления навсегда из-за этого, продолжаем без проверки версии
     updLog('версии воркеров не получены за 2.5с (новый=' + newVersion + ', активный=' + activeVersion + ') — продолжаю без проверки');
     navigator.serviceWorker.removeEventListener('message', onVersionReply);
+    // воркер с параметрами в адресе (регистрация OneSignal), версию которого не удалось сверить, —
+    // не показываем баннер: это скорее ложное срабатывание, чем настоящее обновление
+    try { if (new URL(worker.scriptURL).search !== '') return; } catch(e){}
     proceedWithUpdateBanner(worker);
   }, 2500);
   navigator.serviceWorker.addEventListener('message', onVersionReply);

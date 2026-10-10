@@ -83,14 +83,9 @@ const IMG_SHELL = [
   './assets/ui/star.webp',
 ];
 
-const APP_SHELL = [
-  './',
-  './index.html',
-  './manifest.json',
-  './assets/icons/icon-192.png',
-  './assets/icons/icon-android-192.png',
-  './assets/icons/icon-android-512.png',
-  './assets/icons/icon-maskable-512.png',
+// загрузочные экраны (apple-touch-startup-image) нужны только на iOS — на других платформах
+// не качаем лишние ~2,7 МБ при каждой установке воркера
+const IOS_SPLASH = [
   './assets/splash/splash-1290x2796.png',
   './assets/splash/splash-1179x2556.png',
   './assets/splash/splash-1284x2778.png',
@@ -102,11 +97,22 @@ const APP_SHELL = [
   './assets/splash/splash-1320x2868.png',
   './assets/splash/splash-1206x2622.png',
 ];
+const IS_IOS = /iPhone|iPad|iPod/i.test((self.navigator && self.navigator.userAgent) || '');
+
+const APP_SHELL = [
+  './',
+  './index.html',
+  './manifest.json',
+  './assets/icons/icon-192.png',
+  './assets/icons/icon-android-192.png',
+  './assets/icons/icon-android-512.png',
+  './assets/icons/icon-maskable-512.png',
+];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(Promise.all([
     caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(APP_SHELL))
+      .then((cache) => cache.addAll(IS_IOS ? APP_SHELL.concat(IOS_SPLASH) : APP_SHELL))
       .catch(() => {}), // не роняем установку, если какой-то файл не нашёлся
     // картинки докачиваем по одной и только те, которых ещё нет в кэше картинок;
     // сбой одного файла не мешает остальным
