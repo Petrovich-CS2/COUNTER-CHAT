@@ -6412,7 +6412,14 @@ if ('serviceWorker' in navigator){
         // актуальной версии, можно сообщить об этом и снять флаг
         localStorage.removeItem('cc_auto_updating');
         localStorage.removeItem('cc_auto_updating_attempts');
-        showToast('Обновлено!', 2400);
+        // если «Обновлено!» уже показывалось сразу после перехода по ?r= (запасной путь), второй
+        // раз не повторяем: иначе после полного закрытия и нового запуска приложения тост
+        // выскакивал бы ещё раз, хотя ничего нового к тому моменту не произошло
+        if (localStorage.getItem('cc_updated_toast_done')){
+          localStorage.removeItem('cc_updated_toast_done');
+        } else {
+          showToast('Обновлено!', 2400);
+        }
       }
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;
@@ -6730,7 +6737,7 @@ function proceedWithUpdateBanner(worker){
                ', ignored=' + !!window.__ccControllerChangedIgnored + ') — навигация с ?r=');
         // сама страница (index.html) при навигации всё равно приходит свежей с сервера, поэтому
         // после перехода честно показываем «Обновлено!» — иначе человек не увидит подтверждения
-        try { sessionStorage.setItem('cc_show_updated_toast', '1'); } catch(e){}
+        try { sessionStorage.setItem('cc_show_updated_toast', '1'); localStorage.setItem('cc_updated_toast_done', '1'); } catch(e){}
         location.replace(location.pathname + '?r=' + Date.now());
         // если и это не сработало — через 3 с честно просим перезапустить вручную
         setTimeout(() => {
