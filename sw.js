@@ -1,3 +1,20 @@
+// диагностика: учёт незавершённых waitUntil() у всех обработчиков, включая код OneSignal.
+// Активация нового воркера откладывается, пока у активного есть незавершённая работа, а fetch-события —
+// не единственный её источник (по журналу с Android «незавершённых fetch = 0», но активация всё равно
+// не наступала). Патч ставится ДО importScripts, чтобы видеть и обработчики OneSignal.
+const __pendingExt = new Map();
+let __eid = 0;
+try {
+  const origWaitUntil = ExtendableEvent.prototype.waitUntil;
+  ExtendableEvent.prototype.waitUntil = function(p){
+    const id = ++__eid;
+    __pendingExt.set(id, { type: this.type, t: Date.now() });
+    const done = () => __pendingExt.delete(id);
+    try { Promise.resolve(p).then(done, done); } catch(e){ done(); }
+    return origWaitUntil.call(this, p);
+  };
+} catch(e){}
+
 // OneSignal — веб-пуш уведомления. Совмещаем с нашим собственным SW в один файл,
 // а не регистрируем два отдельных на одном скоупе (так рекомендует сам OneSignal).
 // В try/catch: если этот внешний запрос к CDN не пройдёт (сеть, блокировка,
@@ -158,6 +175,8 @@ self.addEventListener('message', (event) => {
   if (event.data === 'GET_PENDING'){
     const now = Date.now();
     const list = [...__inflight.values()].map((v) => Math.round((now - v.t) / 1000) + 'с ' + v.url.slice(0, 90));
+    const extList = [...__pendingExt.values()].map((v) => v.type + ' ' + Math.round((now - v.t) / 1000) + 'с');
+    try { event.source.postMessage({ type: 'SW_DBG', msg: 'активный воркер: незавершённых waitUntil = ' + extList.length + (extList.length ? ' → ' + extList.join(' ; ') : '') }); } catch(e){}
     try { event.source.postMessage({ type: 'SW_DBG', msg: 'активный воркер: незавершённых fetch = ' + list.length + (list.length ? ' → ' + list.join(' ; ') : '') }); } catch(e){}
   }
   if (event.data === 'GET_VERSION'){
