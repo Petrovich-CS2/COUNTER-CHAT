@@ -2,13 +2,50 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>COUNTER CHAT — страница не найдена</title>
 <meta name="robots" content="noindex">
-<style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#05070a;color:#e8e8e8;font:16px/1.5 system-ui,sans-serif;text-align:center;padding:16px}a{color:#e0a94a}</style>
+<meta name="theme-color" content="#05070a">
+<link rel="icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@600;700&family=Manrope:wght@400;600;700;800&display=swap">
+<style>
+:root{--bg:#05070a;--orange:#d6903a;--gold:#e0a84a;--text:#eae7e0;--muted:#8b9199;--line:rgba(255,255,255,.1);
+--mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+--body:'Manrope',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans',Helvetica,Arial,sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{min-height:100vh;min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px 20px;
+background:radial-gradient(ellipse 640px 460px at 50% -80px,rgba(255,140,45,.22),transparent 68%),linear-gradient(180deg,#241206 0%,#180d06 28%,#100905 55%,#0a0704 78%,#05070a 100%) no-repeat,var(--bg);
+color:var(--text);font:16px/1.55 var(--body);text-align:center;-webkit-font-smoothing:antialiased}
+.card{width:100%;max-width:400px;padding:34px 26px 30px;border-radius:22px;background:rgba(24,18,12,.72);border:1px solid rgba(214,144,58,.28);
+box-shadow:0 24px 60px -24px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.05)}
+.logo{width:92px;height:92px;display:block;margin:0 auto 18px;border-radius:22px;box-shadow:0 10px 30px -8px rgba(255,140,45,.35)}
+.code{font:700 54px/1 var(--mono);letter-spacing:.04em;margin:0 0 10px;background:linear-gradient(180deg,var(--gold),var(--orange));-webkit-background-clip:text;background-clip:text;color:transparent}
+h1{margin:0 0 8px;font:800 22px/1.25 var(--body);letter-spacing:-.01em}
+p{margin:0 0 22px;color:var(--muted);font-size:15px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 24px;border-radius:13px;background:var(--orange);color:#1a1005;
+font:700 15px/1 var(--body);text-decoration:none;box-shadow:0 8px 22px -8px rgba(214,144,58,.55);transition:transform .12s ease,filter .12s ease}
+.btn:hover{filter:brightness(1.08)}.btn:active{transform:scale(.97)}
+.brand{margin-top:20px;font:600 11px/1 var(--mono);letter-spacing:.14em;color:#565c64;text-transform:uppercase}
+.url{font:600 13px/1.4 var(--mono);color:var(--gold);word-break:break-all}
+.bar{height:3px;border-radius:3px;background:var(--line);overflow:hidden;margin:2px 0 22px}
+.bar i{display:block;height:100%;width:40%;border-radius:3px;background:linear-gradient(90deg,var(--orange),var(--gold));animation:slide 1.1s ease-in-out infinite}
+@keyframes slide{0%{transform:translateX(-100%)}100%{transform:translateX(250%)}}
+@media (prefers-reduced-motion:reduce){.bar i{animation:none;width:100%}}
+a:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+</style>
 </head>
 <body>
-<p>Такой страницы нет. <a href="/">Открыть COUNTER CHAT</a></p>
+<main class="card">
+  <img class="logo" src="/assets/ui/logo.webp" width="92" height="92" alt="Counter Chat">
+  <div class="code">404</div>
+  <h1>Страница не найдена</h1>
+  <p>Такого адреса нет: ссылка могла устареть или в ней опечатка.</p>
+  <a class="btn" href="/">Открыть COUNTER CHAT</a>
+  <div class="brand">CS2 · фразы · позиции · перевод</div>
+</main>
 <script>
   // Старые ссылки вида /COUNTER-CHAT/... ведём на новый адрес
   var p = location.pathname;
