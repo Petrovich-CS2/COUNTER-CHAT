@@ -31,6 +31,58 @@ try {
 const CACHE_VERSION = '__BUILD_VERSION__';
 const CACHE_NAME = `counter-chat-${CACHE_VERSION}`;
 
+/* Картинки интерфейса (иконки категорий, фоны карт, значки) лежат в ОТДЕЛЬНОМ кэше,
+   который НЕ пересоздаётся при каждой публикации — иначе после каждого обновления
+   приложения телефон заново скачивал бы все ~300 КБ картинок. Файлы отдаются
+   «сначала из кэша», без запроса в сеть.
+   ВАЖНО: если заменяешь картинку в assets/categories, assets/maps или assets/ui
+   под тем же именем — увеличь число в IMG_CACHE (v1 -> v2), иначе у пользователей
+   останется старая версия. */
+const IMG_CACHE = 'counter-chat-img-v1';
+const IMG_PATH_RE = /\/assets\/(categories|maps|ui)\//;
+const IMG_SHELL = [
+  './assets/categories/all_chat.webp',
+  './assets/categories/apologies.webp',
+  './assets/categories/basic.webp',
+  './assets/categories/colloquial.webp',
+  './assets/categories/compliments.webp',
+  './assets/categories/courtesy.webp',
+  './assets/categories/custom.webp',
+  './assets/categories/directions.webp',
+  './assets/categories/economy.webp',
+  './assets/categories/greetings.webp',
+  './assets/categories/info.webp',
+  './assets/categories/intro.webp',
+  './assets/categories/matchmaking.webp',
+  './assets/categories/opinion.webp',
+  './assets/categories/peeking.webp',
+  './assets/categories/postgame.webp',
+  './assets/categories/radio.webp',
+  './assets/categories/rank_skill.webp',
+  './assets/categories/report.webp',
+  './assets/categories/requests.webp',
+  './assets/categories/roles.webp',
+  './assets/categories/situation.webp',
+  './assets/categories/slang.webp',
+  './assets/categories/social.webp',
+  './assets/categories/special_rounds.webp',
+  './assets/categories/technical.webp',
+  './assets/categories/tilt.webp',
+  './assets/categories/timing.webp',
+  './assets/categories/utility.webp',
+  './assets/categories/warmup.webp',
+  './assets/categories/weapons.webp',
+  './assets/maps/dust2.webp',
+  './assets/maps/inferno.webp',
+  './assets/maps/mirage.webp',
+  './assets/ui/compact.webp',
+  './assets/ui/lang-en.webp',
+  './assets/ui/lang-ru.webp',
+  './assets/ui/logo.webp',
+  './assets/ui/random.webp',
+  './assets/ui/star.webp',
+];
+
 const APP_SHELL = [
   './',
   './index.html',
@@ -51,18 +103,25 @@ const APP_SHELL = [
 ];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
+  event.waitUntil(Promise.all([
     caches.open(CACHE_NAME)
       .then((cache) => cache.addAll(APP_SHELL))
-      .catch(() => {}) // не роняем установку, если какой-то файл не нашёлся
-  );
+      .catch(() => {}), // не роняем установку, если какой-то файл не нашёлся
+    // картинки докачиваем по одной и только те, которых ещё нет в кэше картинок;
+    // сбой одного файла не мешает остальным
+    caches.open(IMG_CACHE).then((cache) => Promise.allSettled(IMG_SHELL.map(async (url) => {
+      if (await cache.match(url)) return;
+      const res = await fetch(url);
+      if (res.ok) await cache.put(url, res);
+    }))).catch(() => {}),
+  ]));
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
       .then((keys) => Promise.all(
-        keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))
+        keys.filter((k) => k !== CACHE_NAME && k !== IMG_CACHE).map((k) => caches.delete(k))
       ))
       .then(() => self.clients.claim())
   );
@@ -116,6 +175,20 @@ self.addEventListener('fetch', (event) => {
           return res;
         })
         .catch(() => caches.match(req).then((cached) => cached || (isHTML ? caches.match('./index.html') : undefined)))
+    );
+    return;
+  }
+
+  // картинки интерфейса — только кэш, в сеть идём лишь если файла в кэше ещё нет
+  if (IMG_PATH_RE.test(new URL(req.url).pathname)){
+    event.respondWith(
+      caches.open(IMG_CACHE).then((cache) => cache.match(req).then((cached) => {
+        if (cached) return cached;
+        return fetch(req).then((res) => {
+          if (res.ok) cache.put(req, res.clone());
+          return res;
+        });
+      }))
     );
     return;
   }
