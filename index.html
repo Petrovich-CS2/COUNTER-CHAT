@@ -1883,7 +1883,7 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
 
 .update-banner{
   position:fixed;
-  top:calc(10px + env(safe-area-inset-top, 0px));
+  top:calc(10px + env(safe-area-inset-top, 0px) + var(--banner-extra-top, 0px));
   /* центрируем через left/right + margin:auto, а не через transform:translateX(-50%) —
      у fixed-элемента с transform WebKit на iOS иногда рисует слой с артефактами */
   left:16px; right:16px;
@@ -6342,6 +6342,9 @@ const SW_REGISTER_VERSION = '__BUILD_VERSION__';
 
 (window.__capturedErrors = window.__capturedErrors || []).push('точка A: скрипт дошёл до блока SW, serviceWorker in navigator = ' + ('serviceWorker' in navigator));
 
+// экспериментальный дополнительный отступ баннера сверху (подбирается кнопками в диагностике)
+try { document.documentElement.style.setProperty('--banner-extra-top', (parseInt(localStorage.getItem('cc_banner_top_extra') || '0', 10) || 0) + 'px'); } catch(e){}
+
 // журнал событий обновления: пишем и в память страницы, и в localStorage (последние 25 строк) —
 // иначе после перезагрузки страницы он бы терялся, а именно по нему видно, что произошло
 function updLog(msg){
@@ -6560,6 +6563,25 @@ if ('serviceWorker' in navigator){
         }
       };
       banner.appendChild(testBtn);
+      // подбор отступа баннера от верха экрана (проверка гипотезы: системное размытие iOS у статус-бара)
+      const mkBtn = (label, fn) => {
+        const b = document.createElement('button');
+        b.style.cssText = 'display:inline-block;margin:8px 6px 0 0;padding:8px 10px;font:inherit;font-size:12px;border-radius:8px;border:1px solid #fff;background:#245;color:#fff;';
+        b.textContent = label; b.onclick = fn; return b;
+      };
+      const curExtra = () => parseInt(localStorage.getItem('cc_banner_top_extra') || '0', 10) || 0;
+      const setExtra = (v) => {
+        v = Math.max(0, Math.min(120, v));
+        localStorage.setItem('cc_banner_top_extra', String(v));
+        document.documentElement.style.setProperty('--banner-extra-top', v + 'px');
+        lab.textContent = ' отступ баннера: +' + v + 'px';
+      };
+      const lab = document.createElement('span');
+      lab.textContent = ' отступ баннера: +' + curExtra() + 'px';
+      banner.appendChild(mkBtn('Баннер ниже (+10)', () => setExtra(curExtra() + 10)));
+      banner.appendChild(mkBtn('Выше (−10)', () => setExtra(curExtra() - 10)));
+      banner.appendChild(mkBtn('Сброс', () => setExtra(0)));
+      banner.appendChild(lab);
       document.documentElement.appendChild(banner);
     }).catch((err) => {
       const banner = document.createElement('div');
