@@ -6547,6 +6547,19 @@ if ('serviceWorker' in navigator){
       banner.className = '__sw-debug-banner';
       banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:2147483647;background:#1a3a5c;color:#fff;font-family:monospace;font-size:10.5px;line-height:1.5;padding:10px;word-break:break-all;max-height:50vh;overflow:auto;';
       banner.textContent = '🔧 SW-диагностика (выключить: 7 тапов по логотипу ещё раз):\n' + lines.join('\n');
+      // кнопка для проверки внешнего вида баннера обновления без реального обновления
+      const testBtn = document.createElement('button');
+      testBtn.textContent = 'Показать / скрыть тестовый баннер обновления';
+      testBtn.style.cssText = 'display:block;margin-top:8px;padding:8px 10px;font:inherit;font-size:12px;border-radius:8px;border:1px solid #fff;background:#245;color:#fff;';
+      testBtn.onclick = () => {
+        const ub = document.getElementById('updateBanner');
+        ub.hidden = !ub.hidden;
+        if (!ub.hidden){
+          document.getElementById('updateBannerText').textContent = 'Небольшие улучшения и исправления (тестовый баннер)';
+          document.getElementById('updateReloadBtn').onclick = () => { ub.hidden = true; };
+        }
+      };
+      banner.appendChild(testBtn);
       document.documentElement.appendChild(banner);
     }).catch((err) => {
       const banner = document.createElement('div');
