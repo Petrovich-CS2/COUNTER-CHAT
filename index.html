@@ -67,10 +67,10 @@ window.__capturedConsoleLogs = [];
       OneSignal.Debug.setLogLevel('trace'); // подробный лог их SDK — попадёт в перехват console выше
       await OneSignal.init({
         appId: "d43f1352-7f7a-4fb6-b0b6-f2a6c2339c2e",
-        // наш sw.js лежит не в корне домена, а в /COUNTER-CHAT/ (сайт на GitHub Pages) —
-        // без этих двух параметров OneSignal искал бы файл не там и регистрация не прошла бы
-        serviceWorkerParam: { scope: "/COUNTER-CHAT/" },
-        serviceWorkerPath: "COUNTER-CHAT/sw.js",
+        // сайт лежит в корне домена (репозиторий petrovich-cs2.github.io), sw.js — тоже в корне;
+        // указываем явно, чтобы OneSignal использовал наш sw.js, а не искал свой воркер
+        serviceWorkerParam: { scope: "/" },
+        serviceWorkerPath: "sw.js",
       });
       window.__capturedErrors.push('OneSignal.init(): успешно завершён');
     } catch(err){
@@ -81,18 +81,18 @@ window.__capturedConsoleLogs = [];
 <meta name="description" content="CS2 разговорник на русском: английский язык для Counter-Strike 2, готовые фразы для игры, позиции на картах cs2 на английском. Работает офлайн, без интернета.">
 <meta name="keywords" content="cs2 разговорник на русском, английский язык для counter strike 2, cs2 фразы для игры, как общаться на английском в cs2, cs2 сленг на английском, английский для катки cs2, позиции на картах cs2 на английском, как называются точки на картах cs2, приложение cs2 английский язык, переводчик для cs2, офлайн словарь cs2, как быстро выучить игровой английский, английский для онлайн игр, cs2 коммуникация с командой">
 <meta name="robots" content="index, follow">
-<link rel="canonical" href="https://petrovich-cs2.github.io/COUNTER-CHAT/">
+<link rel="canonical" href="https://petrovich-cs2.github.io/">
 
 <link rel="apple-touch-icon" sizes="192x192" href="assets/icons/icon-192.png">
 <meta property="og:title" content="Counter Chat — CS2 разговорник">
 <meta property="og:site_name" content="Counter Chat">
 <meta property="og:description" content="EN-фразы, транскрипция и озвучка для CS2">
-<meta property="og:image" content="https://petrovich-cs2.github.io/COUNTER-CHAT/assets/icons/icon-512.png">
-<meta property="og:url" content="https://petrovich-cs2.github.io/COUNTER-CHAT/">
+<meta property="og:image" content="https://petrovich-cs2.github.io/assets/icons/icon-512.png">
+<meta property="og:url" content="https://petrovich-cs2.github.io/">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="ru_RU">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://petrovich-cs2.github.io/COUNTER-CHAT/assets/icons/icon-512.png">
+<meta name="twitter:image" content="https://petrovich-cs2.github.io/assets/icons/icon-512.png">
 
 <!-- загрузочные экраны (splash) для iOS — убирают белую вспышку при запуске с домашнего экрана -->
 <link rel="apple-touch-startup-image" href="assets/splash/splash-1290x2796.png" media="screen and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
@@ -1924,7 +1924,7 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
   "@context": "https://schema.org",
   "@type": "WebSite",
   "name": "Counter Chat",
-  "url": "https://petrovich-cs2.github.io/COUNTER-CHAT/"
+  "url": "https://petrovich-cs2.github.io/"
 }
 </script>
 <script type="application/ld+json">
@@ -1933,7 +1933,7 @@ body.text-size-sm .phrase-ru{font-size:clamp(10.5px, 2.93vw, 13.2px);}
   "@type": "WebApplication",
   "name": "Counter Chat",
   "alternateName": "Counter Chat — CS2 разговорник",
-  "url": "https://petrovich-cs2.github.io/COUNTER-CHAT/",
+  "url": "https://petrovich-cs2.github.io/",
   "description": "Разговорник на английском для CS2: готовые фразы с транскрипцией и озвучкой, интерактивные карты с позициями и колаутами. Работает офлайн.",
   "applicationCategory": "UtilitiesApplication",
   "operatingSystem": "Any",

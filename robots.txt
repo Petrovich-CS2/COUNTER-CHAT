@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://petrovich-cs2.github.io/COUNTER-CHAT/sitemap.xml
+Sitemap: https://petrovich-cs2.github.io/sitemap.xml
