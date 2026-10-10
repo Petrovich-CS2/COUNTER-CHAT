@@ -6331,6 +6331,12 @@ const SW_REGISTER_VERSION = '__BUILD_VERSION__';
 
 (window.__capturedErrors = window.__capturedErrors || []).push('точка A: скрипт дошёл до блока SW, serviceWorker in navigator = ' + ('serviceWorker' in navigator));
 
+// одноразовый параметр ?r=... нужен только чтобы принудительно перезагрузить страницу
+// после обновления на iOS; сразу убираем его из адреса, чтобы не мозолил глаза
+if (new URLSearchParams(location.search).has('r')){
+  try { history.replaceState(null, '', location.pathname + location.hash); } catch(e){}
+}
+
 if ('serviceWorker' in navigator){
   // запоминаем, был ли уже активный контроллер ДО регистрации — если не было,
   // значит, это самая первая установка Service Worker на этом устройстве, и
@@ -6540,6 +6546,8 @@ if ('serviceWorker' in navigator){
     // перезагружать нечего, никакого настоящего обновления контента не было
     if (!hadControllerBeforeInit) return;
     refreshingAfterUpdate = true;
+    window.__ccReloadRequested = true; // читает таймер-подсказка в обработчике кнопки «Обновить»
+    (window.__capturedErrors = window.__capturedErrors || []).push('UPD: controllerchange, вызываю reload() в ' + new Date().toLocaleTimeString());
     sessionStorage.setItem('cc_just_updated', String(Date.now()));
     // сохраняем НАМЕРЕНИЕ показать toast ДО самой перезагрузки — это надёжнее,
     // чем полагаться на то, что после перезагрузки сложная цепочка проверок
@@ -6672,8 +6680,23 @@ function proceedWithUpdateBanner(worker){
       // закрыть приложение показываем ТОЛЬКО если спустя несколько секунд страница всё ещё
       // здесь — значит iOS не дал перезагрузиться, и без ручного перезапуска не обойтись
       showToastDirect('Обновляю...');
+      (window.__capturedErrors = window.__capturedErrors || []).push('UPD: нажата «Обновить» в ' + new Date().toLocaleTimeString());
       setTimeout(() => {
-        showToastDirect('Автоперезапуск не сработал. Закрой приложение полностью и открой снова — так обновление точно вступит в силу', 'success', 6000);
+        const log = (window.__capturedErrors = window.__capturedErrors || []);
+        if (window.__ccReloadRequested){
+          // новый воркер взял управление и reload() вызван, но iOS его проигнорировал —
+          // пробуем настоящую навигацию на тот же адрес с одноразовым параметром (он тут же
+          // убирается из адресной строки при загрузке, см. выше)
+          log.push('UPD: reload() вызван, но страница жива спустя 4.5с — пробую навигацию с ?r=');
+          location.replace(location.pathname + '?r=' + Date.now());
+          // если и это не сработает — через 3 с честно просим перезапустить вручную
+          setTimeout(() => {
+            showToastDirect('Автоперезапуск не сработал. Закрой приложение полностью и открой снова — так обновление точно вступит в силу', 'success', 6000);
+          }, 3000);
+        } else {
+          log.push('UPD: controllerchange так и не пришёл за 4.5с — новый воркер не взял управление');
+          showToastDirect('Обновление ещё не применилось. Закрой приложение полностью и открой снова — так оно точно вступит в силу', 'success', 6000);
+        }
       }, 4500);
     } else {
       showToastDirect('Обновляю...');
