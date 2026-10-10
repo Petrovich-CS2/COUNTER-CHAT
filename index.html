@@ -5105,8 +5105,17 @@ if ('speechSynthesis' in window){
   const warmUpSpeech = () => {
     document.removeEventListener('pointerdown', warmUpSpeech);
     try {
-      const warmup = new SpeechSynthesisUtterance(' ');
-      warmup.volume = 0;
+      // прогреваем ТЕМ ЖЕ голосом и языком, которыми потом будет звучать настоящая фраза: по журналу
+      // с Android первое нажатие стартовало через ~2,5 с, а следующие — через ~0,16 с (гипотеза:
+      // долго загружается именно выбранный голос, а прогрев шёл голосом по умолчанию)
+      const t0 = performance.now();
+      const warmup = new SpeechSynthesisUtterance('a');
+      warmup.volume = 0.01;
+      warmup.lang = 'en-US';
+      const wv = getSelectedVoice();
+      if (wv) warmup.voice = wv;
+      warmup.onstart = () => ttsLog('прогрев: старт через ' + Math.round(performance.now() - t0) + ' мс; ' + (wv ? wv.name : 'голос по умолчанию'));
+      warmup.onerror = (e) => ttsLog('прогрев: ОШИБКА ' + (e && e.error));
       window.speechSynthesis.speak(warmup);
     } catch(e){}
   };
