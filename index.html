@@ -6747,6 +6747,7 @@ function proceedWithUpdateBanner(worker){
                ', installing=' + (reg && reg.installing ? reg.installing.state : '—'));
         try { target.addEventListener('statechange', () => updLog('воркер ' + tag + ': state → ' + target.state)); } catch(e){}
         target.postMessage('SKIP_WAITING');
+        try { if (reg && reg.active) reg.active.postMessage('GET_PENDING'); } catch(e){}
         if (target !== worker) worker.postMessage('SKIP_WAITING');
       } catch(e){ updLog('SKIP_WAITING (' + tag + ') ошибка: ' + e.message); }
     };

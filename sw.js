@@ -148,10 +148,28 @@ self.addEventListener('message', (event) => {
     // ещё активный СТАРЫЙ Service Worker со своей (потенциально устаревшей) логикой
     event.source.postMessage({ type: 'CHANGELOG', text: CHANGELOG_TEXT });
   }
+  if (event.data === 'GET_PENDING'){
+    const now = Date.now();
+    const list = [...__inflight.values()].map((v) => Math.round((now - v.t) / 1000) + 'с ' + v.url.slice(0, 90));
+    try { event.source.postMessage({ type: 'SW_DBG', msg: 'активный воркер: незавершённых fetch = ' + list.length + (list.length ? ' → ' + list.join(' ; ') : '') }); } catch(e){}
+  }
   if (event.data === 'GET_VERSION'){
     event.source.postMessage({ type: 'VERSION', version: CACHE_VERSION });
   }
 });
+
+// диагностика: какие запросы сейчас «висят» у этого воркера. WebKit откладывает активацию
+// нового воркера, пока у активного есть незавершённые события (проверено по исходнику
+// SWServerRegistration::tryActivate), поэтому полезно видеть, не завис ли какой-то запрос
+const __inflight = new Map();
+let __fid = 0;
+function respondTracked(event, promise){
+  const id = ++__fid;
+  __inflight.set(id, { url: event.request.url, t: Date.now() });
+  const done = () => __inflight.delete(id);
+  Promise.resolve(promise).then(done, done);
+  event.respondWith(promise);
+}
 
 self.addEventListener('fetch', (event) => {
   const req = event.request;
@@ -174,7 +192,7 @@ self.addEventListener('fetch', (event) => {
     // от нашего Cache API, который очищается кнопкой "Очистить кэш" и даже
     // через удаление данных сайта), из-за чего "свежий" запрос на самом деле
     // не доходил до сервера и отдавал устаревшее содержимое
-    event.respondWith(
+    respondTracked(event,
       fetch(req, { cache: 'no-store' })
         .then((res) => {
           const copy = res.clone();
@@ -188,7 +206,7 @@ self.addEventListener('fetch', (event) => {
 
   // картинки интерфейса — только кэш, в сеть идём лишь если файла в кэше ещё нет
   if (IMG_PATH_RE.test(new URL(req.url).pathname)){
-    event.respondWith(
+    respondTracked(event,
       caches.open(IMG_CACHE).then((cache) => cache.match(req).then((cached) => {
         if (cached) return cached;
         return fetch(req).then((res) => {
@@ -201,7 +219,7 @@ self.addEventListener('fetch', (event) => {
   }
 
   // статичные файлы — кэш в приоритете, фоновое обновление
-  event.respondWith(
+  respondTracked(event,
     caches.match(req).then((cached) => {
       const network = fetch(req)
         .then((res) => {
