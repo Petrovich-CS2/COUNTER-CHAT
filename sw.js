@@ -182,6 +182,16 @@ self.addEventListener('fetch', (event) => {
   // и исказить результат проверки
   if (req.url.includes('probe=')) return;
 
+  // запросы к API OneSignal (api.onesignal.com и т.п.) не перехватываем: это не ресурсы
+  // приложения, кэшировать их незачем, а зависший такой запрос держит fetch-событие
+  // активного воркера «незавершённым», и WebKit откладывает активацию нового воркера
+  // (по журналу с iPhone: висел api.onesignal.com/sync/...?callback=__jp0). Сам скрипт SDK
+  // с cdn.onesignal.com по-прежнему кэшируется обычным образом
+  try {
+    const h = new URL(req.url).hostname;
+    if (h.endsWith('onesignal.com') && h !== 'cdn.onesignal.com') return;
+  } catch(e){}
+
   const isHTML = req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html');
   const isChangelog = req.url.includes('changelog.json');
 
