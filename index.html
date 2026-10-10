@@ -6693,7 +6693,9 @@ function proceedWithUpdateBanner(worker){
     if (attempts < 8){
       localStorage.setItem('cc_auto_updating_attempts', String(attempts + 1));
       updLog('тихое автообновление: попытка ' + (attempts + 1) + ', отправляю SKIP_WAITING (state воркера=' + worker.state + ')');
+      try { worker.addEventListener('statechange', () => updLog('воркер (тихо): state → ' + worker.state)); } catch(e){}
       worker.postMessage('SKIP_WAITING');
+      try { if (navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage('GET_PENDING'); } catch(e){}
       return;
     }
     // слишком много кругов подряд — что-то действительно не так, сдаёмся тихо
