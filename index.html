@@ -5113,23 +5113,40 @@ if ('speechSynthesis' in window){
   document.addEventListener('pointerdown', warmUpSpeech, { once: true });
 }
 
+function ttsLog(msg){
+  try {
+    const arr = JSON.parse(localStorage.getItem('cc_tts_log') || '[]');
+    arr.push('TTS ' + new Date().toLocaleTimeString() + ': ' + msg);
+    localStorage.setItem('cc_tts_log', JSON.stringify(arr.slice(-12)));
+  } catch(e){}
+}
+
 function speak(text, btnEl){
   if (!('speechSynthesis' in window)){
     showToast('Озвучка не поддерживается в этом браузере', 2800);
     return;
   }
-  window.speechSynthesis.cancel();
+  const ttsT0 = performance.now();
+  // cancel() вызываем только если что-то реально звучит или стоит в очереди: на пустом движке
+  // он ничего не даёт, а на части Android-устройств мог добавлять паузу перед стартом (гипотеза,
+  // по измерениям из журнала озвучки проверим, помогло ли)
+  const ttsWasBusy = !!(window.speechSynthesis.speaking || window.speechSynthesis.pending);
+  if (ttsWasBusy) window.speechSynthesis.cancel();
   const utter = new SpeechSynthesisUtterance(text);
   utter.lang = 'en-US';
   utter.rate = 0.94;
   utter.pitch = 1;
   const voice = getSelectedVoice();
   if (voice) utter.voice = voice;
+  // журнал озвучки: задержка от нажатия до реального начала речи (событие start), голос, тип голоса
+  const ttsInfo = (voice ? voice.name + ' [' + (voice.localService ? 'локальный' : 'СЕТЕВОЙ') + ']' : 'голос по умолчанию') +
+                  ', занят=' + ttsWasBusy + ', длина=' + text.length;
+  utter.onstart = () => ttsLog('старт через ' + Math.round(performance.now() - ttsT0) + ' мс; ' + ttsInfo);
   const targets = (Array.isArray(btnEl) ? btnEl : [btnEl]).filter(Boolean);
   document.querySelectorAll('.playing').forEach(b => b.classList.remove('playing'));
   targets.forEach(el => el.classList.add('playing'));
   utter.onend = () => targets.forEach(el => el.classList.remove('playing'));
-  utter.onerror = () => targets.forEach(el => el.classList.remove('playing'));
+  utter.onerror = (e) => { ttsLog('ОШИБКА ' + (e && e.error) + ' через ' + Math.round(performance.now() - ttsT0) + ' мс; ' + ttsInfo); targets.forEach(el => el.classList.remove('playing')); };
   window.speechSynthesis.speak(utter);
 }
 
@@ -6546,6 +6563,8 @@ if ('serviceWorker' in navigator){
         lines.push('getRegistration() вернул null — регистрации вообще нет');
       }
       try { const ul = JSON.parse(localStorage.getItem('cc_upd_log') || '[]'); lines.push('журнал обновлений (последние): ' + (ul.length ? ul.join(' | ') : 'пусто')); } catch(e){}
+      try { const tl = JSON.parse(localStorage.getItem('cc_tts_log') || '[]'); lines.push('журнал озвучки (последние): ' + (tl.length ? tl.join(' | ') : 'пусто')); } catch(e){}
+      try { lines.push('голоса en: ' + englishVoices().map((v) => v.name + ' [' + (v.localService ? 'лок' : 'сеть') + ']').join(', ')); } catch(e){}
       lines.push('пойманные ошибки: ' + (window.__capturedErrors && window.__capturedErrors.length ? window.__capturedErrors.join(' | ') : 'нет'));
       const banner = document.createElement('div');
       banner.className = '__sw-debug-banner';
